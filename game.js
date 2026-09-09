@@ -1,12 +1,25 @@
 /* =====================================================
    WIZARDING WORLD 3D
-   STAGE 1
-   COMPLETE 3D TEST
+   STAGE 2
+
+   Mobile 3D Adventure Prototype
+
+   Features:
+   - Third person wizard
+   - Joystick movement
+   - Camera swipe
+   - Jump
+   - Castle
+   - Village
+   - Forest
+   - Lake
+   - Mountains
+   - Magic projectile
 ===================================================== */
 
 
 /* =====================================================
-   CHECK THREE.JS
+   THREE.JS CHECK
 ===================================================== */
 
 if (typeof THREE === "undefined") {
@@ -14,9 +27,8 @@ if (typeof THREE === "undefined") {
     document.body.innerHTML = `
 
         <div style="
-            width:100%;
             height:100vh;
-            background:#070b18;
+            background:#07101f;
             color:white;
             display:flex;
             align-items:center;
@@ -28,13 +40,15 @@ if (typeof THREE === "undefined") {
 
             <div>
 
-                <h2>
-                    3D Engine Could Not Load
-                </h2>
+                <h2>3D Engine Error</h2>
 
                 <p style="margin-top:15px;">
-                    Please check your internet connection
-                    and reload the page.
+                    Three.js could not load.
+                </p>
+
+                <p style="margin-top:8px;">
+                    Check your internet connection
+                    and reload the game.
                 </p>
 
             </div>
@@ -44,7 +58,7 @@ if (typeof THREE === "undefined") {
     `;
 
     throw new Error(
-        "Three.js did not load."
+        "Three.js failed to load."
     );
 
 }
@@ -60,7 +74,7 @@ const scene =
 
 scene.background =
     new THREE.Color(
-        0x78b5df
+        0x78b4d8
     );
 
 
@@ -83,15 +97,11 @@ const camera =
     );
 
 
-camera.position.set(
+let cameraYaw = 0;
 
-    0,
+let cameraPitch = 0.25;
 
-    7,
-
-    14
-
-);
+const cameraDistance = 10;
 
 
 /* =====================================================
@@ -112,11 +122,8 @@ const renderer =
 renderer.setPixelRatio(
 
     Math.min(
-
         window.devicePixelRatio,
-
         1.5
-
     )
 
 );
@@ -125,7 +132,6 @@ renderer.setPixelRatio(
 renderer.setSize(
 
     window.innerWidth,
-
     window.innerHeight
 
 );
@@ -147,11 +153,13 @@ document
 ===================================================== */
 
 const ambientLight =
-    new THREE.AmbientLight(
+    new THREE.HemisphereLight(
 
-        0xffffff,
+        0xcfe8ff,
 
-        2
+        0x35552f,
+
+        2.2
 
     );
 
@@ -161,7 +169,7 @@ scene.add(
 );
 
 
-const sunlight =
+const sun =
     new THREE.DirectionalLight(
 
         0xffffff,
@@ -171,19 +179,17 @@ const sunlight =
     );
 
 
-sunlight.position.set(
+sun.position.set(
 
-    20,
-
-    30,
-
-    10
+    40,
+    60,
+    20
 
 );
 
 
 scene.add(
-    sunlight
+    sun
 );
 
 
@@ -194,9 +200,8 @@ scene.add(
 const groundGeometry =
     new THREE.PlaneGeometry(
 
-        200,
-
-        200
+        220,
+        220
 
     );
 
@@ -205,7 +210,7 @@ const groundMaterial =
     new THREE.MeshStandardMaterial({
 
         color:
-            0x3d7835,
+            0x3d7438,
 
         roughness:
             1
@@ -217,7 +222,6 @@ const ground =
     new THREE.Mesh(
 
         groundGeometry,
-
         groundMaterial
 
     );
@@ -227,263 +231,346 @@ ground.rotation.x =
     -Math.PI / 2;
 
 
-ground.position.y =
-    0;
-
-
 scene.add(
     ground
 );
 
 
 /* =====================================================
-   PATH
+   PATH CREATOR
 ===================================================== */
 
-const pathGeometry =
-    new THREE.PlaneGeometry(
-
-        7,
-
-        100
-
-    );
-
-
-const pathMaterial =
-    new THREE.MeshStandardMaterial({
-
-        color:
-            0x9b8062
-
-    });
-
-
-const path =
-    new THREE.Mesh(
-
-        pathGeometry,
-
-        pathMaterial
-
-    );
-
-
-path.rotation.x =
-    -Math.PI / 2;
-
-
-path.position.set(
-
-    0,
-
-    0.01,
-
-    -35
-
-);
-
-
-scene.add(
-    path
-);
-
-
-/* =====================================================
-   CASTLE BUILDING
-===================================================== */
-
-const castleGeometry =
-    new THREE.BoxGeometry(
-
-        24,
-
-        17,
-
-        13
-
-    );
-
-
-const castleMaterial =
-    new THREE.MeshStandardMaterial({
-
-        color:
-            0x777777,
-
-        roughness:
-            0.9
-
-    });
-
-
-const castle =
-    new THREE.Mesh(
-
-        castleGeometry,
-
-        castleMaterial
-
-    );
-
-
-castle.position.set(
-
-    0,
-
-    8.5,
-
-    -50
-
-);
-
-
-scene.add(
-    castle
-);
-
-
-/* =====================================================
-   CASTLE DOOR
-===================================================== */
-
-const doorGeometry =
-    new THREE.BoxGeometry(
-
-        3,
-
-        5,
-
-        0.5
-
-    );
-
-
-const doorMaterial =
-    new THREE.MeshStandardMaterial({
-
-        color:
-            0x301d12
-
-    });
-
-
-const door =
-    new THREE.Mesh(
-
-        doorGeometry,
-
-        doorMaterial
-
-    );
-
-
-door.position.set(
-
-    0,
-
-    2.5,
-
-    -43.3
-
-);
-
-
-scene.add(
-    door
-);
-
-
-/* =====================================================
-   CASTLE WINDOWS
-===================================================== */
-
-function createWindow(
+function createPath(
 
     x,
-    y,
-    z
+    z,
+    width,
+    length,
+    rotation = 0
 
 ) {
 
     const geometry =
-        new THREE.BoxGeometry(
+        new THREE.PlaneGeometry(
 
-            1.5,
-
-            2.5,
-
-            0.3
+            width,
+            length
 
         );
 
 
     const material =
-        new THREE.MeshBasicMaterial({
+        new THREE.MeshStandardMaterial({
 
             color:
-                0x9edfff
+                0x9a8062
 
         });
 
 
-    const window =
+    const path =
         new THREE.Mesh(
 
             geometry,
-
             material
 
         );
 
 
-    window.position.set(
+    path.rotation.x =
+        -Math.PI / 2;
+
+
+    path.rotation.z =
+        rotation;
+
+
+    path.position.set(
 
         x,
-        y,
+        0.02,
         z
 
     );
 
 
     scene.add(
-        window
+        path
     );
 
 }
 
 
-createWindow(
-    -7,
+/* Main road */
+
+createPath(
+    0,
+    -25,
     8,
-    -43.3
+    120
 );
 
 
-createWindow(
+/* Village road */
+
+createPath(
+    35,
+    -30,
     7,
-    8,
-    -43.3
-);
-
-
-createWindow(
-    -7,
-    12,
-    -43.3
-);
-
-
-createWindow(
-    7,
-    12,
-    -43.3
+    65
 );
 
 
 /* =====================================================
-   TOWER FUNCTION
+   LAKE
 ===================================================== */
+
+const lakeGeometry =
+    new THREE.CircleGeometry(
+
+        18,
+        40
+
+    );
+
+
+const lakeMaterial =
+    new THREE.MeshStandardMaterial({
+
+        color:
+            0x2d7fa0,
+
+        transparent:
+            true,
+
+        opacity:
+            0.85,
+
+        roughness:
+            0.2
+
+    });
+
+
+const lake =
+    new THREE.Mesh(
+
+        lakeGeometry,
+        lakeMaterial
+
+    );
+
+
+lake.rotation.x =
+    -Math.PI / 2;
+
+
+lake.position.set(
+
+    -45,
+    0.05,
+    -30
+
+);
+
+
+scene.add(
+    lake
+);
+
+
+/* =====================================================
+   CASTLE
+===================================================== */
+
+function createCastle() {
+
+
+    /* Main building */
+
+    const buildingGeometry =
+        new THREE.BoxGeometry(
+
+            30,
+            20,
+            15
+
+        );
+
+
+    const buildingMaterial =
+        new THREE.MeshStandardMaterial({
+
+            color:
+                0x777777,
+
+            roughness:
+                0.9
+
+        });
+
+
+    const building =
+        new THREE.Mesh(
+
+            buildingGeometry,
+            buildingMaterial
+
+        );
+
+
+    building.position.set(
+
+        0,
+        10,
+        -65
+
+    );
+
+
+    scene.add(
+        building
+    );
+
+
+    /* Central entrance */
+
+    const entranceGeometry =
+        new THREE.BoxGeometry(
+
+            6,
+            9,
+            2
+
+        );
+
+
+    const entranceMaterial =
+        new THREE.MeshStandardMaterial({
+
+            color:
+                0x382317
+
+        });
+
+
+    const entrance =
+        new THREE.Mesh(
+
+            entranceGeometry,
+            entranceMaterial
+
+        );
+
+
+    entrance.position.set(
+
+        0,
+        4.5,
+        -56.8
+
+    );
+
+
+    scene.add(
+        entrance
+    );
+
+
+    /* Castle windows */
+
+    for (
+        let x = -10;
+        x <= 10;
+        x += 5
+    ) {
+
+        for (
+            let y = 7;
+            y <= 15;
+            y += 4
+        ) {
+
+            if (
+                Math.abs(x) < 3 &&
+                y < 12
+            ) {
+
+                continue;
+
+            }
+
+
+            const geometry =
+                new THREE.BoxGeometry(
+
+                    1.5,
+                    2.4,
+                    0.25
+
+                );
+
+
+            const material =
+                new THREE.MeshBasicMaterial({
+
+                    color:
+                        0xb8e7ff
+
+                });
+
+
+            const window =
+                new THREE.Mesh(
+
+                    geometry,
+                    material
+
+                );
+
+
+            window.position.set(
+
+                x,
+                y,
+                -57.6
+
+            );
+
+
+            scene.add(
+                window
+            );
+
+        }
+
+    }
+
+
+    /* Towers */
+
+    createTower(
+        -19,
+        -65
+    );
+
+    createTower(
+        19,
+        -65
+    );
+
+    createTower(
+        -13,
+        -58
+    );
+
+    createTower(
+        13,
+        -58
+    );
+
+}
+
 
 function createTower(
 
@@ -493,25 +580,22 @@ function createTower(
 ) {
 
 
-    const towerGeometry =
+    const geometry =
         new THREE.CylinderGeometry(
 
-            3.5,
-
-            3.5,
-
-            27,
-
+            4,
+            4,
+            30,
             12
 
         );
 
 
-    const towerMaterial =
+    const material =
         new THREE.MeshStandardMaterial({
 
             color:
-                0x686868
+                0x666666
 
         });
 
@@ -519,9 +603,8 @@ function createTower(
     const tower =
         new THREE.Mesh(
 
-            towerGeometry,
-
-            towerMaterial
+            geometry,
+            material
 
         );
 
@@ -529,9 +612,7 @@ function createTower(
     tower.position.set(
 
         x,
-
-        13.5,
-
+        15,
         z
 
     );
@@ -547,10 +628,8 @@ function createTower(
     const roofGeometry =
         new THREE.ConeGeometry(
 
-            4.5,
-
-            8,
-
+            5,
+            9,
             12
 
         );
@@ -560,7 +639,7 @@ function createTower(
         new THREE.MeshStandardMaterial({
 
             color:
-                0x292238
+                0x30243e
 
         });
 
@@ -569,7 +648,6 @@ function createTower(
         new THREE.Mesh(
 
             roofGeometry,
-
             roofMaterial
 
         );
@@ -578,9 +656,7 @@ function createTower(
     roof.position.set(
 
         x,
-
-        31,
-
+        34,
         z
 
     );
@@ -594,22 +670,190 @@ function createTower(
 }
 
 
-/* Create towers */
+createCastle();
 
-createTower(
-    -15,
-    -50
+
+/* =====================================================
+   VILLAGE
+===================================================== */
+
+function createHouse(
+
+    x,
+    z,
+    scale = 1
+
+) {
+
+
+    /* House body */
+
+    const bodyGeometry =
+        new THREE.BoxGeometry(
+
+            8 * scale,
+            5 * scale,
+            7 * scale
+
+        );
+
+
+    const bodyMaterial =
+        new THREE.MeshStandardMaterial({
+
+            color:
+                0x8c6d52
+
+        });
+
+
+    const body =
+        new THREE.Mesh(
+
+            bodyGeometry,
+            bodyMaterial
+
+        );
+
+
+    body.position.set(
+
+        x,
+        2.5 * scale,
+        z
+
+    );
+
+
+    scene.add(
+        body
+    );
+
+
+    /* Roof */
+
+    const roofGeometry =
+        new THREE.ConeGeometry(
+
+            6 * scale,
+            5 * scale,
+            4
+
+        );
+
+
+    const roofMaterial =
+        new THREE.MeshStandardMaterial({
+
+            color:
+                0x4b2934
+
+        });
+
+
+    const roof =
+        new THREE.Mesh(
+
+            roofGeometry,
+            roofMaterial
+
+        );
+
+
+    roof.rotation.y =
+        Math.PI / 4;
+
+
+    roof.position.set(
+
+        x,
+        7 * scale,
+        z
+
+    );
+
+
+    scene.add(
+        roof
+    );
+
+
+    /* Door */
+
+    const doorGeometry =
+        new THREE.BoxGeometry(
+
+            1.5 * scale,
+            2.5 * scale,
+            0.3 * scale
+
+        );
+
+
+    const doorMaterial =
+        new THREE.MeshStandardMaterial({
+
+            color:
+                0x3a2115
+
+        });
+
+
+    const door =
+        new THREE.Mesh(
+
+            doorGeometry,
+            doorMaterial
+
+        );
+
+
+    door.position.set(
+
+        x,
+        1.25 * scale,
+        z - 3.55 * scale
+
+    );
+
+
+    scene.add(
+        door
+    );
+
+}
+
+
+createHouse(
+    32,
+    -22,
+    1
 );
 
 
-createTower(
-    15,
-    -50
+createHouse(
+    47,
+    -30,
+    0.9
+);
+
+
+createHouse(
+    32,
+    -42,
+    1.1
+);
+
+
+createHouse(
+    50,
+    -45,
+    0.8
 );
 
 
 /* =====================================================
-   TREE FUNCTION
+   TREE
 ===================================================== */
 
 function createTree(
@@ -626,12 +870,9 @@ function createTree(
     const trunkGeometry =
         new THREE.CylinderGeometry(
 
-            0.4 * scale,
-
-            0.6 * scale,
-
-            3 * scale,
-
+            0.45 * scale,
+            0.65 * scale,
+            3.5 * scale,
             8
 
         );
@@ -641,7 +882,7 @@ function createTree(
         new THREE.MeshStandardMaterial({
 
             color:
-                0x58351d
+                0x59351e
 
         });
 
@@ -650,7 +891,6 @@ function createTree(
         new THREE.Mesh(
 
             trunkGeometry,
-
             trunkMaterial
 
         );
@@ -659,9 +899,7 @@ function createTree(
     trunk.position.set(
 
         x,
-
-        1.5 * scale,
-
+        1.75 * scale,
         z
 
     );
@@ -677,10 +915,8 @@ function createTree(
     const leavesGeometry =
         new THREE.SphereGeometry(
 
-            2.2 * scale,
-
+            2.4 * scale,
             12,
-
             12
 
         );
@@ -690,7 +926,7 @@ function createTree(
         new THREE.MeshStandardMaterial({
 
             color:
-                0x215c2a
+                0x225c2c
 
         });
 
@@ -699,7 +935,6 @@ function createTree(
         new THREE.Mesh(
 
             leavesGeometry,
-
             leavesMaterial
 
         );
@@ -708,9 +943,7 @@ function createTree(
     leaves.position.set(
 
         x,
-
-        4.2 * scale,
-
+        4.6 * scale,
         z
 
     );
@@ -724,62 +957,144 @@ function createTree(
 
 
 /* =====================================================
-   TREES
+   FOREST
 ===================================================== */
 
-createTree(
-    -12,
-    -8,
-    1
+const forestPositions = [
+
+    [-25, -5, 1],
+    [-35, -10, 1.2],
+    [-45, -5, 1],
+    [-55, -12, 1.4],
+    [-65, -5, 1.1],
+
+    [-30, 8, 0.9],
+    [-42, 12, 1.3],
+    [-55, 8, 1],
+    [-68, 15, 1.2],
+
+    [25, 5, 1],
+    [35, 8, 1.2],
+    [50, 5, 1],
+    [65, 10, 1.3],
+
+    [-25, -30, 1.1],
+    [-30, -40, 1.3],
+    [-40, -45, 1],
+    [-55, -42, 1.4],
+
+    [25, -60, 1],
+    [35, -65, 1.2],
+    [50, -60, 1],
+    [60, -70, 1.3]
+
+];
+
+
+forestPositions.forEach(
+
+    position => {
+
+        createTree(
+
+            position[0],
+            position[1],
+            position[2]
+
+        );
+
+    }
+
 );
 
 
-createTree(
-    12,
-    -8,
-    1
+/* =====================================================
+   MOUNTAINS
+===================================================== */
+
+function createMountain(
+
+    x,
+    z,
+    height,
+    radius
+
+) {
+
+
+    const geometry =
+        new THREE.ConeGeometry(
+
+            radius,
+            height,
+            6
+
+        );
+
+
+    const material =
+        new THREE.MeshStandardMaterial({
+
+            color:
+                0x56666b
+
+        });
+
+
+    const mountain =
+        new THREE.Mesh(
+
+            geometry,
+            material
+
+        );
+
+
+    mountain.position.set(
+
+        x,
+        height / 2,
+        z
+
+    );
+
+
+    scene.add(
+        mountain
+    );
+
+}
+
+
+createMountain(
+    -85,
+    -70,
+    55,
+    35
 );
 
 
-createTree(
-    -18,
-    -18,
-    1.2
+createMountain(
+    85,
+    -75,
+    65,
+    40
 );
 
 
-createTree(
-    18,
-    -18,
-    1.2
+createMountain(
+    -80,
+    10,
+    45,
+    30
 );
 
 
-createTree(
-    -14,
-    8,
-    0.9
-);
-
-
-createTree(
-    14,
-    8,
-    0.9
-);
-
-
-createTree(
-    -25,
-    -30,
-    1.3
-);
-
-
-createTree(
-    25,
-    -30,
-    1.3
+createMountain(
+    80,
+    15,
+    50,
+    35
 );
 
 
@@ -795,21 +1110,18 @@ const player =
    PLAYER BODY
 ===================================================== */
 
-const bodyGeometry =
+const robeGeometry =
     new THREE.CylinderGeometry(
 
-        0.7,
-
-        0.85,
-
-        2,
-
+        0.75,
+        1.0,
+        2.4,
         16
 
     );
 
 
-const bodyMaterial =
+const robeMaterial =
     new THREE.MeshStandardMaterial({
 
         color:
@@ -818,42 +1130,39 @@ const bodyMaterial =
     });
 
 
-const body =
+const robe =
     new THREE.Mesh(
 
-        bodyGeometry,
-
-        bodyMaterial
+        robeGeometry,
+        robeMaterial
 
     );
 
 
-body.position.y =
-    2;
+robe.position.y =
+    2.1;
 
 
 player.add(
-    body
+    robe
 );
 
 
 /* =====================================================
-   PLAYER HEAD
+   HEAD
 ===================================================== */
 
 const headGeometry =
     new THREE.SphereGeometry(
 
-        0.65,
-
+        0.68,
         20,
-
         20
 
     );
 
 
-const headMaterial =
+const skinMaterial =
     new THREE.MeshStandardMaterial({
 
         color:
@@ -866,14 +1175,13 @@ const head =
     new THREE.Mesh(
 
         headGeometry,
-
-        headMaterial
+        skinMaterial
 
     );
 
 
 head.position.y =
-    3.5;
+    3.75;
 
 
 player.add(
@@ -882,42 +1190,39 @@ player.add(
 
 
 /* =====================================================
-   WIZARD HAT
+   HAT
 ===================================================== */
-
-const hatGeometry =
-    new THREE.ConeGeometry(
-
-        0.95,
-
-        1.8,
-
-        16
-
-    );
-
 
 const hatMaterial =
     new THREE.MeshStandardMaterial({
 
         color:
-            0x28114a
+            0x281044
 
     });
+
+
+const hatGeometry =
+    new THREE.ConeGeometry(
+
+        1.0,
+        1.9,
+        16
+
+    );
 
 
 const hat =
     new THREE.Mesh(
 
         hatGeometry,
-
         hatMaterial
 
     );
 
 
 hat.position.y =
-    4.7;
+    5.05;
 
 
 player.add(
@@ -925,19 +1230,14 @@ player.add(
 );
 
 
-/* =====================================================
-   HAT BRIM
-===================================================== */
+/* Hat brim */
 
 const brimGeometry =
     new THREE.CylinderGeometry(
 
-        1.1,
-
-        1.1,
-
-        0.15,
-
+        1.15,
+        1.15,
+        0.16,
         16
 
     );
@@ -947,19 +1247,90 @@ const brim =
     new THREE.Mesh(
 
         brimGeometry,
-
         hatMaterial
 
     );
 
 
 brim.position.y =
-    4;
+    4.25;
 
 
 player.add(
     brim
 );
+
+
+/* =====================================================
+   ARMS
+===================================================== */
+
+function createArm(
+
+    side
+
+) {
+
+
+    const geometry =
+        new THREE.CylinderGeometry(
+
+            0.18,
+            0.22,
+            1.7,
+            10
+
+        );
+
+
+    const material =
+        new THREE.MeshStandardMaterial({
+
+            color:
+                0x38205c
+
+        });
+
+
+    const arm =
+        new THREE.Mesh(
+
+            geometry,
+            material
+
+        );
+
+
+    arm.rotation.z =
+        side *
+        0.45;
+
+
+    arm.position.set(
+
+        side * 0.9,
+        2.5,
+        0
+
+    );
+
+
+    player.add(
+        arm
+    );
+
+
+    return arm;
+
+}
+
+
+const leftArm =
+    createArm(-1);
+
+
+const rightArm =
+    createArm(1);
 
 
 /* =====================================================
@@ -970,11 +1341,8 @@ const wandGeometry =
     new THREE.CylinderGeometry(
 
         0.06,
-
         0.08,
-
-        2.2,
-
+        2.4,
         8
 
     );
@@ -993,7 +1361,6 @@ const wand =
     new THREE.Mesh(
 
         wandGeometry,
-
         wandMaterial
 
     );
@@ -1005,11 +1372,9 @@ wand.rotation.z =
 
 wand.position.set(
 
-    1.2,
-
-    2.5,
-
-    -0.3
+    1.25,
+    2.55,
+    -0.25
 
 );
 
@@ -1020,16 +1385,14 @@ player.add(
 
 
 /* =====================================================
-   PLAYER START
+   PLAYER POSITION
 ===================================================== */
 
 player.position.set(
 
     0,
-
     0,
-
-    8
+    15
 
 );
 
@@ -1040,14 +1403,235 @@ scene.add(
 
 
 /* =====================================================
-   MOVEMENT
+   PLAYER PHYSICS
+===================================================== */
+
+let velocityY = 0;
+
+let onGround = true;
+
+const gravity = -0.018;
+
+const jumpPower = 0.42;
+
+
+/* =====================================================
+   JOYSTICK
+===================================================== */
+
+const joystickBase =
+    document.getElementById(
+        "joystickBase"
+    );
+
+
+const joystickKnob =
+    document.getElementById(
+        "joystickKnob"
+    );
+
+
+let joystickActive =
+    false;
+
+
+let joystickX =
+    0;
+
+
+let joystickY =
+    0;
+
+
+const joystickRadius =
+    40;
+
+
+function updateJoystick(
+
+    clientX,
+    clientY
+
+) {
+
+
+    const rect =
+        joystickBase.getBoundingClientRect();
+
+
+    const centerX =
+        rect.left +
+        rect.width / 2;
+
+
+    const centerY =
+        rect.top +
+        rect.height / 2;
+
+
+    let dx =
+        clientX -
+        centerX;
+
+
+    let dy =
+        clientY -
+        centerY;
+
+
+    const distance =
+        Math.sqrt(
+            dx * dx +
+            dy * dy
+        );
+
+
+    if (
+        distance >
+        joystickRadius
+    ) {
+
+        dx =
+            dx /
+            distance *
+            joystickRadius;
+
+        dy =
+            dy /
+            distance *
+            joystickRadius;
+
+    }
+
+
+    joystickX =
+        dx /
+        joystickRadius;
+
+
+    joystickY =
+        dy /
+        joystickRadius;
+
+
+    joystickKnob.style.transform =
+
+        `translate(
+            calc(-50% + ${dx}px),
+            calc(-50% + ${dy}px)
+        )`;
+
+}
+
+
+function resetJoystick() {
+
+    joystickActive =
+        false;
+
+    joystickX =
+        0;
+
+    joystickY =
+        0;
+
+
+    joystickKnob.style.transform =
+        "translate(-50%,-50%)";
+
+}
+
+
+/* Touch */
+
+joystickBase.addEventListener(
+
+    "touchstart",
+
+    event => {
+
+        event.preventDefault();
+
+        joystickActive =
+            true;
+
+        const touch =
+            event.touches[0];
+
+        updateJoystick(
+
+            touch.clientX,
+            touch.clientY
+
+        );
+
+    },
+
+    {
+        passive: false
+    }
+
+);
+
+
+joystickBase.addEventListener(
+
+    "touchmove",
+
+    event => {
+
+        event.preventDefault();
+
+        if (!joystickActive) {
+            return;
+        }
+
+        const touch =
+            event.touches[0];
+
+        updateJoystick(
+
+            touch.clientX,
+            touch.clientY
+
+        );
+
+    },
+
+    {
+        passive: false
+    }
+
+);
+
+
+joystickBase.addEventListener(
+
+    "touchend",
+
+    resetJoystick
+
+);
+
+
+joystickBase.addEventListener(
+
+    "touchcancel",
+
+    resetJoystick
+
+);
+
+
+/* =====================================================
+   KEYBOARD SUPPORT
 ===================================================== */
 
 const keys = {
 
-    up: false,
+    forward: false,
 
-    down: false,
+    backward: false,
 
     left: false,
 
@@ -1056,165 +1640,11 @@ const keys = {
 };
 
 
-const playerSpeed =
-    0.22;
-
-
-/* =====================================================
-   BUTTON SETUP
-===================================================== */
-
-function setupButton(
-
-    id,
-    direction
-
-) {
-
-    const button =
-        document.getElementById(
-            id
-        );
-
-
-    if (!button) {
-        return;
-    }
-
-
-    button.addEventListener(
-
-        "touchstart",
-
-        function(event) {
-
-            event.preventDefault();
-
-            keys[direction] =
-                true;
-
-        },
-
-        {
-            passive: false
-        }
-
-    );
-
-
-    button.addEventListener(
-
-        "touchend",
-
-        function(event) {
-
-            event.preventDefault();
-
-            keys[direction] =
-                false;
-
-        },
-
-        {
-            passive: false
-        }
-
-    );
-
-
-    button.addEventListener(
-
-        "touchcancel",
-
-        function() {
-
-            keys[direction] =
-                false;
-
-        }
-
-    );
-
-
-    button.addEventListener(
-
-        "mousedown",
-
-        function() {
-
-            keys[direction] =
-                true;
-
-        }
-
-    );
-
-
-    button.addEventListener(
-
-        "mouseup",
-
-        function() {
-
-            keys[direction] =
-                false;
-
-        }
-
-    );
-
-
-    button.addEventListener(
-
-        "mouseleave",
-
-        function() {
-
-            keys[direction] =
-                false;
-
-        }
-
-    );
-
-}
-
-
-/* Buttons */
-
-setupButton(
-    "up",
-    "up"
-);
-
-
-setupButton(
-    "down",
-    "down"
-);
-
-
-setupButton(
-    "left",
-    "left"
-);
-
-
-setupButton(
-    "right",
-    "right"
-);
-
-
-/* =====================================================
-   KEYBOARD
-===================================================== */
-
 window.addEventListener(
 
     "keydown",
 
-    function(event) {
+    event => {
 
         const key =
             event.key.toLowerCase();
@@ -1225,7 +1655,8 @@ window.addEventListener(
             event.key === "ArrowUp"
         ) {
 
-            keys.up = true;
+            keys.forward =
+                true;
 
         }
 
@@ -1235,7 +1666,8 @@ window.addEventListener(
             event.key === "ArrowDown"
         ) {
 
-            keys.down = true;
+            keys.backward =
+                true;
 
         }
 
@@ -1245,7 +1677,8 @@ window.addEventListener(
             event.key === "ArrowLeft"
         ) {
 
-            keys.left = true;
+            keys.left =
+                true;
 
         }
 
@@ -1255,7 +1688,17 @@ window.addEventListener(
             event.key === "ArrowRight"
         ) {
 
-            keys.right = true;
+            keys.right =
+                true;
+
+        }
+
+
+        if (
+            key === " "
+        ) {
+
+            jump();
 
         }
 
@@ -1268,7 +1711,7 @@ window.addEventListener(
 
     "keyup",
 
-    function(event) {
+    event => {
 
         const key =
             event.key.toLowerCase();
@@ -1279,7 +1722,8 @@ window.addEventListener(
             event.key === "ArrowUp"
         ) {
 
-            keys.up = false;
+            keys.forward =
+                false;
 
         }
 
@@ -1289,7 +1733,8 @@ window.addEventListener(
             event.key === "ArrowDown"
         ) {
 
-            keys.down = false;
+            keys.backward =
+                false;
 
         }
 
@@ -1299,7 +1744,8 @@ window.addEventListener(
             event.key === "ArrowLeft"
         ) {
 
-            keys.left = false;
+            keys.left =
+                false;
 
         }
 
@@ -1309,7 +1755,8 @@ window.addEventListener(
             event.key === "ArrowRight"
         ) {
 
-            keys.right = false;
+            keys.right =
+                false;
 
         }
 
@@ -1319,71 +1766,190 @@ window.addEventListener(
 
 
 /* =====================================================
-   SPELL
+   JUMP
 ===================================================== */
 
-const spellButton =
-    document.getElementById(
-        "spell"
+document
+    .getElementById("jump")
+    .addEventListener(
+
+        "click",
+
+        jump
+
     );
 
 
-spellButton.addEventListener(
+function jump() {
 
-    "click",
+    if (!onGround) {
+        return;
+    }
 
-    castSpell
 
-);
+    velocityY =
+        jumpPower;
+
+
+    onGround =
+        false;
+
+}
+
+
+/* =====================================================
+   MAGIC
+===================================================== */
+
+let magic =
+    100;
+
+
+const magicElement =
+    document.getElementById(
+        "magic"
+    );
+
+
+document
+    .getElementById("spell")
+    .addEventListener(
+
+        "click",
+
+        castSpell
+
+    );
 
 
 function castSpell() {
 
 
-    const spellGeometry =
+    if (
+        magic < 10
+    ) {
+
+        showMessage(
+            "Not enough magic!"
+        );
+
+        return;
+
+    }
+
+
+    magic -= 10;
+
+
+    magicElement.textContent =
+        Math.round(magic);
+
+
+    /* Spell orb */
+
+    const geometry =
         new THREE.SphereGeometry(
 
             0.3,
-
             16,
-
             16
 
         );
 
 
-    const spellMaterial =
+    const material =
         new THREE.MeshBasicMaterial({
 
             color:
-                0xffff00
+                0xffff66
 
         });
 
 
-    const spell =
+    const orb =
         new THREE.Mesh(
 
-            spellGeometry,
-
-            spellMaterial
+            geometry,
+            material
 
         );
 
 
-    spell.position.set(
+    /* Glow */
 
-        player.position.x,
+    const glowGeometry =
+        new THREE.SphereGeometry(
 
-        player.position.y + 2.5,
+            0.6,
+            12,
+            12
 
-        player.position.z - 1
+        );
+
+
+    const glowMaterial =
+        new THREE.MeshBasicMaterial({
+
+            color:
+                0xffff00,
+
+            transparent:
+                true,
+
+            opacity:
+                0.25
+
+        });
+
+
+    const glow =
+        new THREE.Mesh(
+
+            glowGeometry,
+            glowMaterial
+
+        );
+
+
+    orb.add(
+        glow
+    );
+
+
+    /* Starting position */
+
+    const direction =
+        new THREE.Vector3(
+            0,
+            0,
+            -1
+        );
+
+
+    direction.applyQuaternion(
+        player.quaternion
+    );
+
+
+    orb.position.copy(
+        player.position
+    );
+
+
+    orb.position.y +=
+        2.8;
+
+
+    orb.position.add(
+
+        direction.clone()
+            .multiplyScalar(1.5)
 
     );
 
 
     scene.add(
-        spell
+        orb
     );
 
 
@@ -1394,16 +1960,29 @@ function castSpell() {
     function moveSpell() {
 
 
-        spell.position.z -=
-            0.8;
+        orb.position.add(
+
+            direction
+                .clone()
+                .multiplyScalar(0.9)
+
+        );
 
 
         distance +=
-            0.8;
+            0.9;
+
+
+        orb.rotation.x +=
+            0.15;
+
+
+        orb.rotation.y +=
+            0.2;
 
 
         if (
-            distance < 60
+            distance < 70
         ) {
 
             requestAnimationFrame(
@@ -1414,7 +1993,7 @@ function castSpell() {
         else {
 
             scene.remove(
-                spell
+                orb
             );
 
         }
@@ -1428,79 +2007,342 @@ function castSpell() {
 
 
 /* =====================================================
-   CAMERA
+   MESSAGE
 ===================================================== */
 
-function updateCamera() {
+let messageTimer;
 
 
-    camera.position.x =
-        player.position.x;
+function showMessage(
+    text
+) {
+
+    const message =
+        document.getElementById(
+            "message"
+        );
 
 
-    camera.position.y =
-        7;
+    message.textContent =
+        text;
 
 
-    camera.position.z =
-        player.position.z + 14;
+    message.style.opacity =
+        "1";
 
 
-    camera.lookAt(
-
-        player.position.x,
-
-        2.5,
-
-        player.position.z - 5
-
+    clearTimeout(
+        messageTimer
     );
+
+
+    messageTimer =
+        setTimeout(
+
+            () => {
+
+                message.style.opacity =
+                    "0";
+
+            },
+
+            2500
+
+        );
 
 }
 
 
 /* =====================================================
-   GAME LOOP
+   CAMERA TOUCH CONTROL
 ===================================================== */
 
-function animate() {
+let cameraTouch =
+    false;
 
 
-    requestAnimationFrame(
-        animate
-    );
+let lastTouchX =
+    0;
 
 
-    /* Player movement */
+let lastTouchY =
+    0;
 
-    if (keys.up) {
 
-        player.position.z -=
-            playerSpeed;
+renderer.domElement.addEventListener(
+
+    "touchstart",
+
+    event => {
+
+        if (
+            event.touches.length !== 1
+        ) {
+
+            return;
+
+        }
+
+
+        cameraTouch =
+            true;
+
+
+        lastTouchX =
+            event.touches[0].clientX;
+
+
+        lastTouchY =
+            event.touches[0].clientY;
+
+    },
+
+    {
+        passive: true
+    }
+
+);
+
+
+renderer.domElement.addEventListener(
+
+    "touchmove",
+
+    event => {
+
+        if (
+            !cameraTouch ||
+            event.touches.length !== 1
+        ) {
+
+            return;
+
+        }
+
+
+        const touch =
+            event.touches[0];
+
+
+        const dx =
+            touch.clientX -
+            lastTouchX;
+
+
+        const dy =
+            touch.clientY -
+            lastTouchY;
+
+
+        lastTouchX =
+            touch.clientX;
+
+
+        lastTouchY =
+            touch.clientY;
+
+
+        cameraYaw -=
+            dx * 0.006;
+
+
+        cameraPitch -=
+            dy * 0.004;
+
+
+        cameraPitch =
+            Math.max(
+
+                -0.15,
+
+                Math.min(
+
+                    0.8,
+
+                    cameraPitch
+
+                )
+
+            );
+
+    },
+
+    {
+        passive: true
+    }
+
+);
+
+
+renderer.domElement.addEventListener(
+
+    "touchend",
+
+    () => {
+
+        cameraTouch =
+            false;
 
     }
 
+);
 
-    if (keys.down) {
 
-        player.position.z +=
-            playerSpeed;
+/* =====================================================
+   MOVEMENT
+===================================================== */
 
+const moveDirection =
+    new THREE.Vector3();
+
+
+function updatePlayer() {
+
+
+    let forward =
+        -joystickY;
+
+
+    let sideways =
+        joystickX;
+
+
+    if (keys.forward) {
+        forward = 1;
     }
 
+    if (keys.backward) {
+        forward = -1;
+    }
 
     if (keys.left) {
+        sideways = -1;
+    }
 
-        player.position.x -=
-            playerSpeed;
+    if (keys.right) {
+        sideways = 1;
+    }
+
+
+    if (
+        Math.abs(forward) > 0.05 ||
+        Math.abs(sideways) > 0.05
+    ) {
+
+
+        const angle =
+            cameraYaw;
+
+
+        const forwardX =
+            -Math.sin(angle);
+
+
+        const forwardZ =
+            -Math.cos(angle);
+
+
+        const rightX =
+            Math.cos(angle);
+
+
+        const rightZ =
+            -Math.sin(angle);
+
+
+        moveDirection.set(
+
+            forwardX * forward +
+            rightX * sideways,
+
+            0,
+
+            forwardZ * forward +
+            rightZ * sideways
+
+        );
+
+
+        if (
+            moveDirection.length() > 1
+        ) {
+
+            moveDirection.normalize();
+
+        }
+
+
+        const speed =
+            0.18;
+
+
+        player.position.x +=
+            moveDirection.x *
+            speed;
+
+
+        player.position.z +=
+            moveDirection.z *
+            speed;
+
+
+        /* Rotate wizard */
+
+        const targetRotation =
+            Math.atan2(
+
+                moveDirection.x,
+                moveDirection.z
+
+            );
+
+
+        player.rotation.y =
+            targetRotation;
+
+
+        /* Walking animation */
+
+        const walk =
+            Math.sin(
+                performance.now() *
+                0.012
+            ) *
+            0.12;
+
+
+        leftArm.rotation.z =
+            -0.45 - walk;
+
+
+        rightArm.rotation.z =
+            0.45 + walk;
 
     }
 
 
-    if (keys.right) {
+    /* Gravity */
 
-        player.position.x +=
-            playerSpeed;
+    velocityY +=
+        gravity;
+
+
+    player.position.y +=
+        velocityY;
+
+
+    if (
+        player.position.y <= 0
+    ) {
+
+        player.position.y =
+            0;
+
+        velocityY =
+            0;
+
+        onGround =
+            true;
 
     }
 
@@ -1510,11 +2352,11 @@ function animate() {
     player.position.x =
         Math.max(
 
-            -80,
+            -95,
 
             Math.min(
 
-                80,
+                95,
 
                 player.position.x
 
@@ -1526,11 +2368,11 @@ function animate() {
     player.position.z =
         Math.max(
 
-            -90,
+            -100,
 
             Math.min(
 
-                40,
+                45,
 
                 player.position.z
 
@@ -1538,21 +2380,105 @@ function animate() {
 
         );
 
-
-    /* Camera */
-
-    updateCamera();
+}
 
 
-    /* Render */
+/* =====================================================
+   CAMERA
+===================================================== */
 
-    renderer.render(
+function updateCamera() {
 
-        scene,
 
-        camera
+    const target =
+        new THREE.Vector3(
+
+            player.position.x,
+            player.position.y + 2.7,
+            player.position.z
+
+        );
+
+
+    const horizontalDistance =
+        cameraDistance *
+        Math.cos(cameraPitch);
+
+
+    const verticalDistance =
+        cameraDistance *
+        Math.sin(cameraPitch);
+
+
+    const cameraX =
+        player.position.x -
+        Math.sin(cameraYaw) *
+        horizontalDistance;
+
+
+    const cameraZ =
+        player.position.z -
+        Math.cos(cameraYaw) *
+        horizontalDistance;
+
+
+    camera.position.set(
+
+        cameraX,
+
+        player.position.y +
+        4.5 +
+        verticalDistance,
+
+        cameraZ
 
     );
+
+
+    camera.lookAt(
+        target
+    );
+
+}
+
+
+/* =====================================================
+   DAY/NIGHT ATMOSPHERE
+===================================================== */
+
+let worldTime =
+    0;
+
+
+function updateWorld() {
+
+
+    worldTime +=
+        0.00025;
+
+
+    const cycle =
+        (Math.sin(worldTime) + 1) / 2;
+
+
+    const skyColor =
+        new THREE.Color();
+
+
+    skyColor.setHSL(
+
+        0.56,
+
+        0.45,
+
+        0.45 +
+        cycle * 0.18
+
+    );
+
+
+    scene.background =
+        skyColor;
 
 }
 
@@ -1565,7 +2491,7 @@ window.addEventListener(
 
     "resize",
 
-    function() {
+    () => {
 
 
         camera.aspect =
@@ -1580,7 +2506,6 @@ window.addEventListener(
         renderer.setSize(
 
             window.innerWidth,
-
             window.innerHeight
 
         );
@@ -1591,9 +2516,44 @@ window.addEventListener(
 
 
 /* =====================================================
+   GAME LOOP
+===================================================== */
+
+function animate() {
+
+
+    requestAnimationFrame(
+        animate
+    );
+
+
+    updatePlayer();
+
+
+    updateCamera();
+
+
+    updateWorld();
+
+
+    renderer.render(
+
+        scene,
+        camera
+
+    );
+
+}
+
+
+/* =====================================================
    START
 ===================================================== */
 
 updateCamera();
+
+showMessage(
+    "Explore Hogwarts Valley!"
+);
 
 animate();
