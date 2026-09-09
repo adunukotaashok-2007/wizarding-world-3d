@@ -1,81 +1,165 @@
+/* =====================================================
+   WIZARDING WORLD 3D
+   MOBILE LANDSCAPE DESIGN
+===================================================== */
+
+
 * {
-    box-sizing: border-box;
+
     margin: 0;
+
     padding: 0;
+
+    box-sizing: border-box;
+
+    -webkit-tap-highlight-color: transparent;
+
 }
+
 
 html,
 body {
+
     width: 100%;
+
     height: 100%;
+
     overflow: hidden;
 
-    font-family: Arial, sans-serif;
+    background: #070b18;
 
-    background: #050505;
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
 }
 
-#game {
+
+body {
+
     position: fixed;
 
-    top: 0;
     left: 0;
 
+    top: 0;
+
     width: 100%;
+
     height: 100%;
+
 }
 
-canvas {
+
+/* =====================================================
+   GAME
+===================================================== */
+
+#game {
+
+    position: fixed;
+
+    left: 0;
+
+    top: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    overflow: hidden;
+
+}
+
+
+#game canvas {
+
+    position: absolute;
+
+    left: 0;
+
+    top: 0;
+
+    width: 100%;
+
+    height: 100%;
+
     display: block;
+
 }
 
-/* =========================
+
+/* =====================================================
    HUD
-========================= */
+===================================================== */
 
 #hud {
+
     position: fixed;
 
     top: 15px;
-    left: 15px;
 
-    z-index: 10;
+    left: 18px;
+
+    z-index: 20;
 
     color: white;
 
     pointer-events: none;
 
     text-shadow:
-        0 2px 5px black;
+        0 2px 4px black,
+        0 0 8px black;
+
 }
 
-#title {
+
+.title {
+
     font-size: 18px;
+
     font-weight: bold;
 
     letter-spacing: 2px;
+
 }
 
-#status {
-    margin-top: 8px;
+
+.stats {
+
+    margin-top: 7px;
 
     font-size: 14px;
 
-    line-height: 1.5;
+    line-height: 1.6;
+
 }
 
-/* =========================
-   CONTROLS
-========================= */
+
+/* =====================================================
+   MOBILE CONTROLS
+===================================================== */
 
 #controls {
+
     position: fixed;
 
-    left: 0;
-    right: 0;
-    bottom: 20px;
+    left: 18px;
 
-    z-index: 20;
+    bottom: 18px;
+
+    z-index: 30;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 25px;
+
+}
+
+
+#movement {
 
     display: flex;
 
@@ -83,60 +167,259 @@ canvas {
 
     align-items: center;
 
-    gap: 8px;
 }
 
-.middle-controls {
+
+.horizontal {
+
     display: flex;
 
-    align-items: center;
+    gap: 5px;
 
-    gap: 8px;
 }
 
-button {
+
+.controlButton {
+
     width: 58px;
+
     height: 58px;
 
-    border: none;
+    border-radius: 15px;
 
-    border-radius: 14px;
+    border: 2px solid
+        rgba(255,255,255,0.35);
 
-    background: rgba(20, 20, 20, 0.75);
+    background:
+        rgba(10,10,25,0.75);
 
     color: white;
 
     font-size: 22px;
 
+    font-weight: bold;
+
     box-shadow:
-        0 4px 10px rgba(0, 0, 0, 0.5);
+        0 5px 12px
+        rgba(0,0,0,0.5);
 
     touch-action: none;
 
-    -webkit-user-select: none;
     user-select: none;
+
+    -webkit-user-select: none;
+
 }
 
-button:active {
-    transform: scale(0.92);
 
-    background: rgba(80, 60, 120, 0.9);
+.controlButton:active {
+
+    transform: scale(0.9);
+
+    background:
+        rgba(90,60,150,0.9);
+
 }
 
-#spell {
-    width: 120px;
 
-    font-size: 14px;
+.spellButton {
 
-    margin-top: 5px;
+    width: 125px;
+
+    height: 58px;
+
+    border-radius: 15px;
+
+    border: 2px solid
+        rgba(255,255,255,0.35);
+
+    background:
+        rgba(10,10,25,0.8);
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+    box-shadow:
+        0 5px 12px
+        rgba(0,0,0,0.5);
+
+    touch-action: manipulation;
+
 }
 
-/* Desktop */
 
-@media (min-width: 800px) {
+.spellButton:active {
+
+    transform: scale(0.93);
+
+    background:
+        rgba(100,60,180,0.9);
+
+}
+
+
+/* =====================================================
+   ROTATE SCREEN
+===================================================== */
+
+#rotateScreen {
+
+    display: none;
+
+    position: fixed;
+
+    left: 0;
+
+    top: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    z-index: 100;
+
+    background:
+        #070b18;
+
+    color: white;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-direction: column;
+
+    text-align: center;
+
+    padding: 25px;
+
+}
+
+
+.rotateIcon {
+
+    font-size: 65px;
+
+    margin-bottom: 15px;
+
+}
+
+
+#rotateScreen h2 {
+
+    font-size: 24px;
+
+    margin-bottom: 10px;
+
+}
+
+
+#rotateScreen p {
+
+    font-size: 15px;
+
+    opacity: 0.8;
+
+}
+
+
+/* =====================================================
+   PORTRAIT
+===================================================== */
+
+@media (orientation: portrait) {
+
+    #rotateScreen {
+
+        display: flex;
+
+    }
+
+    #hud,
+    #controls {
+
+        display: none;
+
+    }
+
+}
+
+
+/* =====================================================
+   LANDSCAPE
+===================================================== */
+
+@media (orientation: landscape) {
+
+    #rotateScreen {
+
+        display: none;
+
+    }
+
+}
+
+
+/* =====================================================
+   SMALL LANDSCAPE PHONES
+===================================================== */
+
+@media (
+    orientation: landscape
+) and (
+    max-height: 450px
+) {
 
     #controls {
-        bottom: 30px;
+
+        bottom: 10px;
+
+        left: 10px;
+
+    }
+
+
+    .controlButton {
+
+        width: 52px;
+
+        height: 52px;
+
+    }
+
+
+    .spellButton {
+
+        width: 110px;
+
+        height: 52px;
+
+    }
+
+
+    #hud {
+
+        top: 10px;
+
+        left: 12px;
+
+    }
+
+
+    .title {
+
+        font-size: 15px;
+
+    }
+
+
+    .stats {
+
+        font-size: 12px;
+
     }
 
 }
