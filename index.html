@@ -13,7 +13,7 @@
         user-scalable=no"
     >
 
-    <meta name="theme-color" content="#070b18">
+    <meta name="theme-color" content="#07101f">
 
     <title>Wizarding World 3D</title>
 
@@ -23,21 +23,25 @@
 
 <body>
 
-    <!-- =================================================
+    <!-- ==================================================
          GAME
-    ================================================== -->
+    =================================================== -->
 
     <div id="game"></div>
 
 
-    <!-- =================================================
+    <!-- ==================================================
          HUD
-    ================================================== -->
+    =================================================== -->
 
     <div id="hud">
 
-        <div class="title">
+        <div class="gameTitle">
             WIZARDING WORLD 3D
+        </div>
+
+        <div class="location">
+            ✦ Hogwarts Valley
         </div>
 
         <div class="stats">
@@ -55,9 +59,18 @@
     </div>
 
 
-    <!-- =================================================
-         PORTRAIT WARNING
-    ================================================== -->
+    <!-- ==================================================
+         MESSAGE
+    =================================================== -->
+
+    <div id="message">
+        Welcome, young wizard!
+    </div>
+
+
+    <!-- ==================================================
+         PORTRAIT SCREEN
+    =================================================== -->
 
     <div id="rotateScreen">
 
@@ -70,68 +83,70 @@
         </h2>
 
         <p>
-            Please rotate your phone to landscape mode.
+            This game is designed for landscape mode.
         </p>
 
     </div>
 
 
-    <!-- =================================================
+    <!-- ==================================================
          MOBILE CONTROLS
-    ================================================== -->
+    =================================================== -->
 
     <div id="controls">
 
-        <div id="movement">
 
-            <button
-                id="up"
-                class="controlButton"
-            >
-                ▲
-            </button>
+        <!-- JOYSTICK -->
 
-            <div class="horizontal">
+        <div id="joystick">
 
-                <button
-                    id="left"
-                    class="controlButton"
-                >
-                    ◀
-                </button>
+            <div id="joystickBase">
 
-                <button
-                    id="down"
-                    class="controlButton"
-                >
-                    ▼
-                </button>
-
-                <button
-                    id="right"
-                    class="controlButton"
-                >
-                    ▶
-                </button>
+                <div id="joystickKnob"></div>
 
             </div>
 
         </div>
 
 
-        <button
-            id="spell"
-            class="spellButton"
-        >
-            🪄 SPELL
-        </button>
+        <!-- ACTION BUTTONS -->
+
+        <div id="actions">
+
+            <button
+                id="jump"
+                class="actionButton"
+            >
+                ⬆
+                <small>JUMP</small>
+            </button>
+
+
+            <button
+                id="spell"
+                class="spellButton"
+            >
+                🪄
+                <small>CAST</small>
+            </button>
+
+        </div>
 
     </div>
 
 
-    <!-- =================================================
+    <!-- ==================================================
+         CAMERA INSTRUCTION
+    =================================================== -->
+
+    <div id="cameraHint">
+        Drag the screen to look around
+    </div>
+
+
+    <!-- ==================================================
          THREE.JS
-    ================================================== -->
+    =================================================== -->
 
     <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 
