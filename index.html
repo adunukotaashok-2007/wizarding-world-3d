@@ -1,60 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width,
-                   initial-scale=1.0,
-                   maximum-scale=1.0,
-                   user-scalable=no">
+    <meta
+        name="viewport"
+        content="width=device-width,
+        initial-scale=1.0,
+        maximum-scale=1.0,
+        user-scalable=no"
+    >
+
+    <meta name="theme-color" content="#070b18">
 
     <title>Wizarding World 3D</title>
 
     <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
+    <!-- =================================================
+         GAME
+    ================================================== -->
+
     <div id="game"></div>
 
+
+    <!-- =================================================
+         HUD
+    ================================================== -->
+
     <div id="hud">
-        <div class="game-title">WIZARDING WORLD 3D</div>
+
+        <div class="title">
+            WIZARDING WORLD 3D
+        </div>
 
         <div class="stats">
-            ❤️ HP: <span id="hp">100</span>
+
+            ❤️ HP:
+            <span id="hp">100</span>
+
             <br>
-            🪄 Magic: <span id="magic">100</span>
+
+            🪄 Magic:
+            <span id="magic">100</span>
+
         </div>
+
     </div>
 
-    <div id="landscape-message">
-        <div>📱</div>
-        <h2>Rotate Your Phone</h2>
-        <p>Please use landscape mode for the best experience.</p>
+
+    <!-- =================================================
+         PORTRAIT WARNING
+    ================================================== -->
+
+    <div id="rotateScreen">
+
+        <div class="rotateIcon">
+            📱
+        </div>
+
+        <h2>
+            Rotate Your Phone
+        </h2>
+
+        <p>
+            Please rotate your phone to landscape mode.
+        </p>
+
     </div>
+
+
+    <!-- =================================================
+         MOBILE CONTROLS
+    ================================================== -->
 
     <div id="controls">
 
-        <div class="movement">
+        <div id="movement">
 
-            <button id="up">▲</button>
+            <button
+                id="up"
+                class="controlButton"
+            >
+                ▲
+            </button>
 
             <div class="horizontal">
-                <button id="left">◀</button>
-                <button id="down">▼</button>
-                <button id="right">▶</button>
+
+                <button
+                    id="left"
+                    class="controlButton"
+                >
+                    ◀
+                </button>
+
+                <button
+                    id="down"
+                    class="controlButton"
+                >
+                    ▼
+                </button>
+
+                <button
+                    id="right"
+                    class="controlButton"
+                >
+                    ▶
+                </button>
+
             </div>
 
         </div>
 
-        <button id="spell">🪄 SPELL</button>
+
+        <button
+            id="spell"
+            class="spellButton"
+        >
+            🪄 SPELL
+        </button>
 
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.min.js"></script>
+
+    <!-- =================================================
+         THREE.JS
+    ================================================== -->
+
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 
     <script src="game.js"></script>
 
 </body>
+
 </html>
