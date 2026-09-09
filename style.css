@@ -8,34 +8,25 @@ html,
 body {
     width: 100%;
     height: 100%;
-
     overflow: hidden;
 
-    background: #101522;
-
     font-family: Arial, sans-serif;
-}
 
-body {
-    position: relative;
+    background: #050505;
 }
 
 #game {
     position: fixed;
 
-    inset: 0;
+    top: 0;
+    left: 0;
 
     width: 100%;
     height: 100%;
-
-    overflow: hidden;
 }
 
 canvas {
     display: block;
-
-    width: 100%;
-    height: 100%;
 }
 
 /* =========================
@@ -52,27 +43,26 @@ canvas {
 
     color: white;
 
-    text-shadow: 0 2px 5px black;
-
     pointer-events: none;
+
+    text-shadow:
+        0 2px 5px black;
 }
 
-.game-title {
+#title {
     font-size: 18px;
-
     font-weight: bold;
 
     letter-spacing: 2px;
 }
 
-.stats {
+#status {
     margin-top: 8px;
 
-    font-size: 15px;
+    font-size: 14px;
 
-    line-height: 1.6;
+    line-height: 1.5;
 }
-
 
 /* =========================
    CONTROLS
@@ -81,151 +71,72 @@ canvas {
 #controls {
     position: fixed;
 
-    left: 20px;
+    left: 0;
+    right: 0;
     bottom: 20px;
 
     z-index: 20;
 
     display: flex;
 
-    align-items: center;
-
-    gap: 25px;
-}
-
-.movement {
-    display: flex;
-
     flex-direction: column;
 
     align-items: center;
 
-    gap: 5px;
+    gap: 8px;
 }
 
-.horizontal {
+.middle-controls {
     display: flex;
 
-    gap: 5px;
+    align-items: center;
+
+    gap: 8px;
 }
 
 button {
     width: 58px;
     height: 58px;
 
-    border: 2px solid rgba(255,255,255,0.3);
+    border: none;
 
     border-radius: 14px;
 
-    background: rgba(10,10,20,0.75);
+    background: rgba(20, 20, 20, 0.75);
 
     color: white;
 
     font-size: 22px;
 
-    font-weight: bold;
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.5);
 
     touch-action: none;
 
-    user-select: none;
-
     -webkit-user-select: none;
-
-    box-shadow:
-        0 4px 10px rgba(0,0,0,0.5);
+    user-select: none;
 }
 
 button:active {
-    transform: scale(0.9);
+    transform: scale(0.92);
 
-    background: rgba(100,70,160,0.9);
+    background: rgba(80, 60, 120, 0.9);
 }
 
 #spell {
-    width: 125px;
+    width: 120px;
 
-    font-size: 15px;
+    font-size: 14px;
+
+    margin-top: 5px;
 }
 
+/* Desktop */
 
-/* =========================
-   PORTRAIT MESSAGE
-========================= */
-
-#landscape-message {
-    display: none;
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 100;
-
-    background: #090b12;
-
-    color: white;
-
-    text-align: center;
-
-    align-items: center;
-
-    justify-content: center;
-
-    flex-direction: column;
-
-    padding: 30px;
-}
-
-#landscape-message div {
-    font-size: 60px;
-
-    margin-bottom: 15px;
-}
-
-#landscape-message h2 {
-    margin-bottom: 10px;
-}
-
-#landscape-message p {
-    opacity: 0.8;
-
-    max-width: 300px;
-}
-
-
-/* =========================
-   PORTRAIT PHONE
-========================= */
-
-@media (orientation: portrait) {
-
-    #landscape-message {
-        display: flex;
-    }
-
-    #hud,
-    #controls {
-        display: none;
-    }
-}
-
-
-/* =========================
-   LANDSCAPE
-========================= */
-
-@media (orientation: landscape) {
+@media (min-width: 800px) {
 
     #controls {
-        bottom: 15px;
-        left: 15px;
+        bottom: 30px;
     }
 
-    .game-title {
-        font-size: 16px;
-    }
-
-    .stats {
-        font-size: 13px;
-    }
 }
