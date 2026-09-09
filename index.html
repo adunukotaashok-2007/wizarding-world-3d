@@ -1,193 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+<meta charset="UTF-8">
 
-    <meta charset="UTF-8">
+<meta
+  name="viewport"
+  content="width=device-width,
+  initial-scale=1.0,
+  maximum-scale=1.0,
+  user-scalable=no,
+  viewport-fit=cover"
+>
 
-    <meta
-        name="viewport"
-        content="width=device-width,
-        initial-scale=1.0,
-        maximum-scale=1.0,
-        user-scalable=no"
-    >
+<title>Wizarding World 3D</title>
 
-    <meta name="theme-color" content="#08101d">
+<link rel="stylesheet" href="style.css">
 
-    <title>Wizarding World 3D</title>
-
-    <link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 
 </head>
 
 <body>
 
-    <div id="game"></div>
+<div id="game"></div>
 
+<!-- TOP HUD -->
+<div id="hud">
 
-    <!-- ================================
-         HUD
-    ================================= -->
+    <div class="game-title">
+        WIZARDING WORLD
+        <span>3D</span>
+    </div>
 
-    <div id="hud">
-
-        <div class="title">
-            WIZARDING WORLD 3D
-        </div>
-
-        <div class="subtitle">
-            ✦ Hogwarts Valley
-        </div>
+    <div class="stats">
 
         <div class="stat">
-            ❤️ HP:
-            <span id="hp">100</span>
-        </div>
-
-        <div class="stat">
-            🪄 Magic:
-            <span id="magic">100</span>
-        </div>
-
-        <div class="stat">
-            ⭐ XP:
-            <span id="xp">0</span>
-        </div>
-
-    </div>
-
-
-    <!-- ================================
-         CROSSHAIR
-    ================================= -->
-
-    <div id="crosshair">
-        +
-    </div>
-
-
-    <!-- ================================
-         MESSAGE
-    ================================= -->
-
-    <div id="message">
-        Explore the magical valley!
-    </div>
-
-
-    <!-- ================================
-         QUEST
-    ================================= -->
-
-    <div id="quest">
-
-        <div class="questTitle">
-            ✦ QUEST
-        </div>
-
-        <div id="questText">
-            Explore the castle courtyard
-        </div>
-
-    </div>
-
-
-    <!-- ================================
-         MOBILE CONTROLS
-    ================================= -->
-
-    <div id="controls">
-
-
-        <!-- JOYSTICK -->
-
-        <div id="joystick">
-
-            <div id="joystickBase">
-
-                <div id="joystickKnob"></div>
-
+            <span>HP</span>
+            <div class="bar">
+                <div id="hpBar"></div>
             </div>
-
+            <b id="hpText">100</b>
         </div>
 
+        <div class="stat">
+            <span>MAGIC</span>
+            <div class="bar magic">
+                <div id="magicBar"></div>
+            </div>
+            <b id="magicText">100</b>
+        </div>
 
-        <!-- ACTIONS -->
-
-        <div id="actions">
-
-            <button
-                id="jump"
-                class="gameButton"
-            >
-
-                <span>⬆</span>
-
-                <small>
-                    JUMP
-                </small>
-
-            </button>
-
-
-            <button
-                id="spell"
-                class="gameButton spellButton"
-            >
-
-                <span>🪄</span>
-
-                <small>
-                    SPELL
-                </small>
-
-            </button>
-
+        <div class="stat">
+            <span>XP</span>
+            <b id="xpText">0</b>
         </div>
 
     </div>
 
+</div>
 
-    <!-- ================================
-         CAMERA HELP
-    ================================= -->
+<!-- QUEST -->
+<div id="quest">
+    <small>QUEST</small>
+    <div id="questText">
+        Explore the magical valley
+    </div>
+</div>
 
-    <div id="cameraHint">
-        Drag the screen to look around
+<!-- LOCATION -->
+<div id="location">
+    Enchanted Valley
+</div>
+
+<!-- CROSSHAIR -->
+<div id="crosshair">
+    +
+</div>
+
+<!-- MESSAGE -->
+<div id="message"></div>
+
+<!-- JOYSTICK -->
+<div id="joystick">
+
+    <div id="joystickBase">
+        <div id="joystickStick"></div>
     </div>
 
+</div>
 
-    <!-- ================================
-         PORTRAIT SCREEN
-    ================================= -->
+<!-- ACTION BUTTONS -->
 
-    <div id="rotateScreen">
+<div id="actions">
 
-        <div class="phoneIcon">
-            📱
-        </div>
+    <button id="jumpBtn">
+        JUMP
+    </button>
 
-        <h2>
-            Rotate Your Phone
-        </h2>
+    <button id="spellBtn">
+        ✨
+        <small>CAST</small>
+    </button>
 
-        <p>
-            Wizarding World 3D is designed
-            for landscape mode.
-        </p>
+</div>
 
-    </div>
+<div id="cameraHint">
+    DRAG TO LOOK
+</div>
 
+<div id="portrait">
+    Rotate your phone to landscape
+</div>
 
-    <!-- ================================
-         THREE.JS
-    ================================= -->
-
-    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-
-    <script src="game.js"></script>
+<script src="game.js"></script>
 
 </body>
-
 </html>
