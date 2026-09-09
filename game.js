@@ -1,48 +1,50 @@
 /* =========================================================
    WIZARDING WORLD 3D
-   REALISTIC FANTASY VALLEY
-   MOBILE WEBGL VERSION
-========================================================= */
-
-const THREE = window.THREE;
-
-/* =========================================================
-   BASIC SETUP
+   REALISTIC WORLD V2
+   BRIGHT DAY / CASTLE / FOREST / LAKE
 ========================================================= */
 
 const scene = new THREE.Scene();
 
-scene.background =
-    new THREE.Color(0x9db6c9);
+/* =========================================================
+   SKY
+========================================================= */
 
-scene.fog =
-    new THREE.FogExp2(
-        0x91a6b2,
-        0.0045
-    );
+scene.background = new THREE.Color(0x87b7d8);
 
-
-const camera =
-    new THREE.PerspectiveCamera(
-        65,
-        window.innerWidth /
-        window.innerHeight,
-        0.1,
-        900
-    );
-
-camera.position.set(
-    0,
-    5,
-    15
+scene.fog = new THREE.Fog(
+    0x9bbbc9,
+    100,
+    420
 );
 
 
-const renderer =
-    new THREE.WebGLRenderer({
-        antialias: true,
-        powerPreference: "high-performance"
-    });
+/* =========================================================
+   CAMERA
+========================================================= */
+
+const camera = new THREE.PerspectiveCamera(
+    65,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    700
+);
+
+camera.position.set(
+    0,
+    6,
+    18
+);
+
+
+/* =========================================================
+   RENDERER
+========================================================= */
+
+const renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    powerPreference: "high-performance"
+});
 
 renderer.setSize(
     window.innerWidth,
@@ -50,10 +52,7 @@ renderer.setSize(
 );
 
 renderer.setPixelRatio(
-    Math.min(
-        window.devicePixelRatio,
-        1.5
-    )
+    Math.min(window.devicePixelRatio, 1.5)
 );
 
 renderer.shadowMap.enabled = true;
@@ -68,7 +67,7 @@ renderer.toneMapping =
     THREE.ACESFilmicToneMapping;
 
 renderer.toneMappingExposure =
-    1.05;
+    1.35;
 
 document
     .getElementById("game")
@@ -79,26 +78,30 @@ document
    LIGHTING
 ========================================================= */
 
-const hemi =
+/* Bright sky light */
+
+const skyLight =
     new THREE.HemisphereLight(
-        0xc7e2ff,
-        0x31452e,
-        1.8
+        0xd8efff,
+        0x49623e,
+        2.8
     );
 
-scene.add(hemi);
+scene.add(skyLight);
 
+
+/* Sun */
 
 const sun =
     new THREE.DirectionalLight(
-        0xffe7c1,
-        3.0
+        0xfff1d2,
+        4.5
     );
 
 sun.position.set(
     -80,
-    120,
-    50
+    140,
+    70
 );
 
 sun.castShadow = true;
@@ -106,33 +109,47 @@ sun.castShadow = true;
 sun.shadow.mapSize.width = 2048;
 sun.shadow.mapSize.height = 2048;
 
-sun.shadow.camera.left = -150;
-sun.shadow.camera.right = 150;
-sun.shadow.camera.top = 150;
-sun.shadow.camera.bottom = -150;
+sun.shadow.camera.left = -180;
+sun.shadow.camera.right = 180;
+sun.shadow.camera.top = 180;
+sun.shadow.camera.bottom = -180;
 
 sun.shadow.camera.near = 1;
-sun.shadow.camera.far = 400;
+sun.shadow.camera.far = 450;
 
 scene.add(sun);
 
 
+/* soft fill */
+
+const fill =
+    new THREE.DirectionalLight(
+        0x9fc8ff,
+        0.8
+    );
+
+fill.position.set(
+    100,
+    70,
+    100
+);
+
+scene.add(fill);
+
+
 /* =========================================================
-   MATERIAL HELPERS
+   MATERIALS
 ========================================================= */
 
-function mat(
+function material(
     color,
     roughness = 0.8,
     metalness = 0
 ) {
 
     return new THREE.MeshStandardMaterial({
-
         color,
-
         roughness,
-
         metalness
     });
 }
@@ -142,43 +159,48 @@ function mat(
    TERRAIN
 ========================================================= */
 
-const terrainGeo =
+const terrainGeometry =
     new THREE.PlaneGeometry(
         600,
         600,
-        120,
-        120
+        100,
+        100
     );
 
-terrainGeo.rotateX(
+terrainGeometry.rotateX(
     -Math.PI / 2
 );
 
-const vertices =
-    terrainGeo.attributes.position;
+const positions =
+    terrainGeometry.attributes.position;
 
 for (
     let i = 0;
-    i < vertices.count;
+    i < positions.count;
     i++
 ) {
 
     const x =
-        vertices.getX(i);
+        positions.getX(i);
 
     const z =
-        vertices.getZ(i);
+        positions.getZ(i);
 
-    const wave1 =
-        Math.sin(x * 0.035) * 3;
+    let y = 0;
 
-    const wave2 =
-        Math.cos(z * 0.045) * 2;
+    y +=
+        Math.sin(x * 0.035) *
+        2.2;
 
-    const wave3 =
+    y +=
+        Math.cos(z * 0.04) *
+        1.8;
+
+    y +=
         Math.sin(
             (x + z) * 0.025
-        ) * 3;
+        ) *
+        2;
 
     const distance =
         Math.sqrt(
@@ -186,39 +208,31 @@ for (
             z * z
         );
 
-    const valley =
-        Math.max(
-            0,
-            1 -
-            distance / 280
-        );
+    if (
+        distance < 100
+    ) {
 
-    const height =
-        (
-            wave1 +
-            wave2 +
-            wave3
-        ) * .35;
+        y *=
+            distance / 100;
+    }
 
-    vertices.setY(
+    positions.setY(
         i,
-        height * valley
+        y * 0.35
     );
 }
 
-terrainGeo.computeVertexNormals();
+terrainGeometry.computeVertexNormals();
+
 
 const terrain =
     new THREE.Mesh(
-        terrainGeo,
-        new THREE.MeshStandardMaterial({
+        terrainGeometry,
 
-            color: 0x385c35,
-
-            roughness: 1,
-
-            metalness: 0
-        })
+        material(
+            0x426b3d,
+            1
+        )
     );
 
 terrain.receiveShadow = true;
@@ -227,77 +241,107 @@ scene.add(terrain);
 
 
 /* =========================================================
-   PATH
+   GRASS PATCHES
 ========================================================= */
 
-const path =
-    new THREE.Mesh(
+function createGrassPatch(
+    x,
+    z
+) {
 
-        new THREE.PlaneGeometry(
-            12,
-            250
-        ),
+    const group =
+        new THREE.Group();
 
+    const grassMaterial =
         new THREE.MeshStandardMaterial({
-
-            color: 0x695b4b,
-
+            color: 0x4e7e3f,
             roughness: 1
-        })
+        });
+
+    for (
+        let i = 0;
+        i < 8;
+        i++
+    ) {
+
+        const blade =
+            new THREE.Mesh(
+                new THREE.ConeGeometry(
+                    0.08,
+                    0.8,
+                    4
+                ),
+                grassMaterial
+            );
+
+        blade.position.set(
+            (Math.random() - .5) * 2,
+            .4,
+            (Math.random() - .5) * 2
+        );
+
+        blade.rotation.z =
+            (Math.random() - .5) * .4;
+
+        group.add(blade);
+    }
+
+    group.position.set(
+        x,
+        0,
+        z
     );
 
-path.rotation.x =
-    -Math.PI / 2;
+    scene.add(group);
+}
 
-path.position.y =
-    0.08;
 
-scene.add(path);
+for (
+    let i = 0;
+    i < 180;
+    i++
+) {
+
+    const x =
+        (Math.random() - .5) *
+        250;
+
+    const z =
+        (Math.random() - .5) *
+        280;
+
+    createGrassPatch(
+        x,
+        z
+    );
+}
 
 
 /* =========================================================
-   WATER
+   MAIN ROAD
 ========================================================= */
 
-const waterGeo =
-    new THREE.CircleGeometry(
-        48,
-        96
-    );
-
-waterGeo.rotateX(
-    -Math.PI / 2
-);
-
-const waterMat =
-    new THREE.MeshPhysicalMaterial({
-
-        color: 0x24566a,
-
-        roughness: 0.08,
-
-        metalness: 0.05,
-
-        transparent: true,
-
-        opacity: 0.82,
-
-        transmission: 0.1
-    });
-
-const water =
+const road =
     new THREE.Mesh(
-        waterGeo,
-        waterMat
+
+        new THREE.PlaneGeometry(
+            14,
+            270
+        ),
+
+        material(
+            0x806b55,
+            1
+        )
     );
 
-water.position.set(
-    75,
-    0.18,
-    -55
-);
+road.rotation.x =
+    -Math.PI / 2;
 
-scene.add(water);
+road.position.y =
+    0.15;
+
+scene.add(road);
 
 
 /* =========================================================
@@ -309,39 +353,40 @@ function createCastle() {
     const castle =
         new THREE.Group();
 
+
     const stone =
-        mat(
-            0x777b7b,
-            0.9
+        material(
+            0x858b8d,
+            .9
         );
 
-    const darkStone =
-        mat(
-            0x45494a,
-            0.95
+    const stoneDark =
+        material(
+            0x62686a,
+            .95
         );
 
-    const roofMat =
-        mat(
-            0x25292c,
-            0.75
+    const roof =
+        material(
+            0x343b42,
+            .75
         );
+
 
     /* Main building */
 
     const main =
         new THREE.Mesh(
-
             new THREE.BoxGeometry(
-                44,
-                30,
-                28
+                52,
+                28,
+                30
             ),
-
             stone
         );
 
-    main.position.y = 15;
+    main.position.y =
+        14;
 
     main.castShadow = true;
     main.receiveShadow = true;
@@ -349,68 +394,66 @@ function createCastle() {
     castle.add(main);
 
 
-    /* Side wings */
+    /* Side buildings */
 
     for (
-        let side of [-1, 1]
+        const side of [-1, 1]
     ) {
 
-        const wing =
+        const building =
             new THREE.Mesh(
-
                 new THREE.BoxGeometry(
-                    18,
-                    22,
-                    24
+                    20,
+                    23,
+                    28
                 ),
-
-                stone
+                stoneDark
             );
 
-        wing.position.set(
-            side * 30,
-            11,
-            1
+        building.position.set(
+            side * 34,
+            11.5,
+            0
         );
 
-        wing.castShadow = true;
-        wing.receiveShadow = true;
+        building.castShadow = true;
 
-        castle.add(wing);
+        castle.add(building);
     }
 
 
     /* Towers */
 
-    const towerPositions = [
+    const towers = [
 
-        [-32, 0],
-        [32, 0],
-        [-20, -18],
-        [20, -18]
+        [-38, -2],
+        [38, -2],
+        [-24, -19],
+        [24, -19]
 
     ];
 
-    towerPositions.forEach(
-        p => {
+
+    towers.forEach(
+        position => {
 
             const tower =
                 new THREE.Mesh(
 
                     new THREE.CylinderGeometry(
-                        6,
                         7,
-                        34,
-                        16
+                        8,
+                        38,
+                        20
                     ),
 
-                    darkStone
+                    stoneDark
                 );
 
             tower.position.set(
-                p[0],
-                17,
-                p[1]
+                position[0],
+                19,
+                position[1]
             );
 
             tower.castShadow = true;
@@ -419,66 +462,86 @@ function createCastle() {
             castle.add(tower);
 
 
-            const roof =
+            const towerRoof =
                 new THREE.Mesh(
 
                     new THREE.ConeGeometry(
-                        7.5,
-                        10,
-                        16
+                        9,
+                        13,
+                        20
                     ),
 
-                    roofMat
+                    roof
                 );
 
-            roof.position.set(
-                p[0],
-                39,
-                p[1]
+            towerRoof.position.set(
+                position[0],
+                44,
+                position[1]
             );
 
-            roof.castShadow = true;
+            towerRoof.castShadow =
+                true;
 
-            castle.add(roof);
+            castle.add(
+                towerRoof
+            );
         }
     );
 
 
     /* Main roof */
 
-    const roof =
+    const mainRoof =
         new THREE.Mesh(
 
             new THREE.ConeGeometry(
-                25,
-                16,
+                31,
+                17,
                 4
             ),
 
-            roofMat
+            roof
         );
 
-    roof.position.y = 38;
+    mainRoof.position.y =
+        36;
 
-    roof.rotation.y =
+    mainRoof.rotation.y =
         Math.PI / 4;
 
-    roof.castShadow = true;
+    mainRoof.castShadow =
+        true;
 
-    castle.add(roof);
+    castle.add(
+        mainRoof
+    );
 
 
     /* Windows */
 
+    const windowMaterial =
+        new THREE.MeshStandardMaterial({
+
+            color: 0xbdeaff,
+
+            emissive: 0x4286aa,
+
+            emissiveIntensity: 1,
+
+            roughness: .15
+        });
+
+
     for (
-        let x = -15;
-        x <= 15;
+        let x = -20;
+        x <= 20;
         x += 10
     ) {
 
         for (
-            let y = 10;
-            y <= 25;
+            let y = 8;
+            y <= 23;
             y += 7
         ) {
 
@@ -486,44 +549,201 @@ function createCastle() {
                 new THREE.Mesh(
 
                     new THREE.BoxGeometry(
-                        2.2,
-                        4,
-                        .3
+                        2.4,
+                        4.5,
+                        .25
                     ),
 
-                    new THREE.MeshStandardMaterial({
-
-                        color: 0x8bc6e8,
-
-                        emissive: 0x32698a,
-
-                        emissiveIntensity: 0.6,
-
-                        roughness: .15
-                    })
+                    windowMaterial
                 );
 
             window.position.set(
                 x,
                 y,
-                -14.15
+                -15.15
             );
 
-            castle.add(window);
+            castle.add(
+                window
+            );
         }
     }
 
 
+    /* Entrance */
+
+    const door =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                7,
+                10,
+                .7
+            ),
+
+            material(
+                0x281a13,
+                .9
+            )
+        );
+
+    door.position.set(
+        0,
+        5,
+        15.3
+    );
+
+    castle.add(
+        door
+    );
+
+
+    /* Entrance arch */
+
+    const arch =
+        new THREE.Mesh(
+
+            new THREE.TorusGeometry(
+                4,
+                .55,
+                10,
+                32,
+                Math.PI
+            ),
+
+            stoneDark
+        );
+
+    arch.position.set(
+        0,
+        10,
+        15.5
+    );
+
+    arch.rotation.x =
+        Math.PI / 2;
+
+    castle.add(
+        arch
+    );
+
+
+    /* Castle position */
+
     castle.position.set(
         0,
         0,
-        -125
+        -95
     );
 
-    scene.add(castle);
+    scene.add(
+        castle
+    );
 }
 
 createCastle();
+
+
+/* =========================================================
+   CASTLE TORCHES
+========================================================= */
+
+function createTorch(
+    x,
+    z
+) {
+
+    const group =
+        new THREE.Group();
+
+
+    const stick =
+        new THREE.Mesh(
+
+            new THREE.CylinderGeometry(
+                .12,
+                .16,
+                3,
+                8
+            ),
+
+            material(
+                0x382217,
+                1
+            )
+        );
+
+    stick.position.y =
+        1.5;
+
+    group.add(
+        stick
+    );
+
+
+    const flame =
+        new THREE.Mesh(
+
+            new THREE.SphereGeometry(
+                .35,
+                12,
+                12
+            ),
+
+            new THREE.MeshStandardMaterial({
+
+                color: 0xffb32b,
+
+                emissive: 0xff6a00,
+
+                emissiveIntensity: 3
+            })
+        );
+
+    flame.position.y =
+        3.2;
+
+    group.add(
+        flame
+    );
+
+
+    const light =
+        new THREE.PointLight(
+            0xff8a32,
+            3,
+            15
+        );
+
+    light.position.y =
+        3.2;
+
+    group.add(
+        light
+    );
+
+
+    group.position.set(
+        x,
+        0,
+        z
+    );
+
+    scene.add(
+        group
+    );
+}
+
+
+createTorch(
+    -7,
+    -78
+);
+
+createTorch(
+    7,
+    -78
+);
 
 
 /* =========================================================
@@ -544,65 +764,70 @@ function createTree(
         new THREE.Mesh(
 
             new THREE.CylinderGeometry(
-                .55,
-                .9,
-                8,
-                8
+                .45,
+                .8,
+                7,
+                10
             ),
 
-            mat(
-                0x4a3020,
+            material(
+                0x493021,
                 1
             )
         );
 
-    trunk.position.y = 4;
+    trunk.position.y =
+        3.5;
 
-    trunk.castShadow = true;
+    trunk.castShadow =
+        true;
 
-    tree.add(trunk);
-
-
-    const leafMaterial =
-        new THREE.MeshStandardMaterial({
-
-            color: 0x173d25,
-
-            roughness: 1
-        });
+    tree.add(
+        trunk
+    );
 
 
-    const levels = [
+    const leaves =
+        material(
+            0x214b2a,
+            1
+        );
 
-        [2.8, 8],
-        [4.8, 7],
-        [6.8, 5.5],
-        [8.4, 4]
+
+    const foliage = [
+
+        [3.5, 7],
+        [5.5, 6],
+        [7.2, 4.8],
+        [8.5, 3.5]
 
     ];
 
 
-    levels.forEach(
-        level => {
+    foliage.forEach(
+        item => {
 
-            const leaves =
+            const cone =
                 new THREE.Mesh(
 
                     new THREE.ConeGeometry(
-                        level[1],
-                        6,
-                        10
+                        item[1],
+                        5,
+                        12
                     ),
 
-                    leafMaterial
+                    leaves
                 );
 
-            leaves.position.y =
-                level[0] + 3;
+            cone.position.y =
+                item[0] + 2;
 
-            leaves.castShadow = true;
+            cone.castShadow =
+                true;
 
-            tree.add(leaves);
+            tree.add(
+                cone
+            );
         }
     );
 
@@ -617,15 +842,17 @@ function createTree(
         scale
     );
 
-    scene.add(tree);
+    scene.add(
+        tree
+    );
 }
 
 
-/* Forest */
+/* Forest on both sides */
 
 for (
     let i = 0;
-    i < 75;
+    i < 110;
     i++
 ) {
 
@@ -636,20 +863,20 @@ for (
 
     const x =
         side *
-        (18 + Math.random() * 110);
+        (
+            18 +
+            Math.random() * 115
+        );
 
     const z =
-        -140 +
-        Math.random() * 260;
-
-    const scale =
-        .7 +
-        Math.random() * .8;
+        -160 +
+        Math.random() * 280;
 
     createTree(
         x,
         z,
-        scale
+        .7 +
+        Math.random() * .8
     );
 }
 
@@ -661,7 +888,7 @@ for (
 function createRock(
     x,
     z,
-    scale
+    size
 ) {
 
     const rock =
@@ -672,48 +899,59 @@ function createRock(
                 1
             ),
 
-            mat(
-                0x5d625e,
-                1
+            material(
+                0x626766,
+                .95
             )
         );
 
     rock.position.set(
         x,
-        1,
+        size,
         z
     );
 
     rock.scale.set(
-        scale * 1.3,
-        scale,
-        scale * .8
+        size * 1.4,
+        size,
+        size * .8
     );
 
-    rock.rotation.y =
-        Math.random() * 5;
+    rock.rotation.set(
+        Math.random(),
+        Math.random(),
+        Math.random()
+    );
 
-    rock.castShadow = true;
-    rock.receiveShadow = true;
+    rock.castShadow =
+        true;
 
-    scene.add(rock);
+    rock.receiveShadow =
+        true;
+
+    scene.add(
+        rock
+    );
 }
 
 
 for (
     let i = 0;
-    i < 40;
+    i < 45;
     i++
 ) {
 
     createRock(
 
-        (Math.random() - .5) * 240,
+        (Math.random() - .5) *
+        250,
 
-        (Math.random() - .5) * 250,
+        -150 +
+        Math.random() *
+        300,
 
         .5 +
-        Math.random() * 1.5
+        Math.random() * 1.7
     );
 }
 
@@ -735,77 +973,133 @@ function createMountain(
             new THREE.ConeGeometry(
                 radius,
                 height,
-                12
+                18
             ),
 
-            mat(
-                0x45504b,
+            material(
+                0x53615e,
                 1
             )
         );
 
     mountain.position.set(
         x,
-        height / 2 - 2,
+        height / 2 - 3,
         z
     );
 
-    mountain.castShadow = true;
+    mountain.castShadow =
+        true;
 
-    scene.add(mountain);
+    scene.add(
+        mountain
+    );
 
+
+    /* snow cap */
 
     const snow =
         new THREE.Mesh(
 
             new THREE.ConeGeometry(
                 radius * .28,
-                height * .3,
-                8
+                height * .25,
+                12
             ),
 
-            mat(
-                0xc8d2d3,
+            material(
+                0xe1e8e8,
                 .9
             )
         );
 
     snow.position.set(
         x,
-        height * .83,
+        height * .86,
         z
     );
 
-    scene.add(snow);
+    scene.add(
+        snow
+    );
 }
 
 
 createMountain(
-    -150,
-    -160,
-    100,
-    65
-);
-
-createMountain(
-    150,
+    -145,
     -180,
-    130,
-    80
+    120,
+    70
 );
 
 createMountain(
-    -170,
-    20,
-    80,
-    60
+    145,
+    -190,
+    145,
+    85
 );
 
 createMountain(
-    170,
-    20,
-    90,
+    -180,
+    -20,
+    85,
     65
+);
+
+createMountain(
+    180,
+    -40,
+    100,
+    70
+);
+
+
+/* =========================================================
+   LAKE
+========================================================= */
+
+const waterGeometry =
+    new THREE.CircleGeometry(
+        43,
+        80
+    );
+
+waterGeometry.rotateX(
+    -Math.PI / 2
+);
+
+
+const waterMaterial =
+    new THREE.MeshPhysicalMaterial({
+
+        color: 0x28718b,
+
+        roughness: .12,
+
+        metalness: .05,
+
+        transparent: true,
+
+        opacity: .8,
+
+        transmission: .15
+    });
+
+
+const water =
+    new THREE.Mesh(
+        waterGeometry,
+        waterMaterial
+    );
+
+water.position.set(
+    65,
+    .25,
+    -35
+);
+
+scene.add(
+    water
 );
 
 
@@ -817,76 +1111,116 @@ const player =
     new THREE.Group();
 
 
-/* legs */
+const skin =
+    material(
+        0xc99176,
+        .8
+    );
 
-const legMat =
-    mat(
-        0x20242a,
+const robe =
+    material(
+        0x26344b,
+        .85
+    );
+
+const dark =
+    material(
+        0x171b24,
         .9
     );
 
-const robeMat =
-    mat(
-        0x252b3b,
-        .8
-    );
 
-const skinMat =
-    mat(
-        0xc58d72,
-        .8
+/* legs */
+
+const legGeometry =
+    new THREE.CylinderGeometry(
+        .38,
+        .5,
+        2.5,
+        12
     );
 
 
 const leg1 =
     new THREE.Mesh(
-        new THREE.CylinderGeometry(
-            .45,
-            .55,
-            2.5,
-            10
-        ),
-        legMat
+        legGeometry,
+        dark
     );
 
 leg1.position.set(
-    -.45,
+    -.42,
     1.25,
     0
 );
 
-player.add(leg1);
+player.add(
+    leg1
+);
 
 
 const leg2 =
     leg1.clone();
 
 leg2.position.x =
-    .45;
+    .42;
 
-player.add(leg2);
+player.add(
+    leg2
+);
 
 
 /* robe */
 
-const robe =
+const robeBody =
     new THREE.Mesh(
 
         new THREE.ConeGeometry(
-            1.6,
-            3.8,
-            16
+            1.55,
+            4.1,
+            20
         ),
 
-        robeMat
+        robe
     );
 
-robe.position.y =
-    3.2;
+robeBody.position.y =
+    3.3;
 
-robe.castShadow = true;
+robeBody.castShadow =
+    true;
 
-player.add(robe);
+player.add(
+    robeBody
+);
+
+
+/* belt */
+
+const belt =
+    new THREE.Mesh(
+
+        new THREE.TorusGeometry(
+            .92,
+            .13,
+            8,
+            20
+        ),
+
+        material(
+            0x6f4b25,
+            .8
+        )
+    );
+
+belt.position.y =
+    3.9;
+
+belt.rotation.x =
+    Math.PI / 2;
+
+player.add(
+    belt
+);
 
 
 /* head */
@@ -895,20 +1229,23 @@ const head =
     new THREE.Mesh(
 
         new THREE.SphereGeometry(
-            1,
+            1.02,
             24,
-            16
+            18
         ),
 
-        skinMat
+        skin
     );
 
 head.position.y =
-    5.7;
+    5.8;
 
-head.castShadow = true;
+head.castShadow =
+    true;
 
-player.add(head);
+player.add(
+    head
+);
 
 
 /* hair */
@@ -917,24 +1254,23 @@ const hair =
     new THREE.Mesh(
 
         new THREE.SphereGeometry(
-            1.06,
+            1.08,
             20,
-            12
+            14
         ),
 
-        mat(
-            0x191512,
-            1
-        )
+        dark
     );
 
 hair.scale.y =
     .75;
 
 hair.position.y =
-    6.15;
+    6.2;
 
-player.add(hair);
+player.add(
+    hair
+);
 
 
 /* hat */
@@ -948,10 +1284,7 @@ const hat =
             24
         ),
 
-        mat(
-            0x171827,
-            .8
-        )
+        dark
     );
 
 hat.position.y =
@@ -960,14 +1293,17 @@ hat.position.y =
 hat.rotation.z =
     -.08;
 
-hat.castShadow = true;
+hat.castShadow =
+    true;
 
-player.add(hat);
+player.add(
+    hat
+);
 
 
 /* hat rim */
 
-const rim =
+const hatRim =
     new THREE.Mesh(
 
         new THREE.CylinderGeometry(
@@ -977,16 +1313,15 @@ const rim =
             24
         ),
 
-        mat(
-            0x171827,
-            .8
-        )
+        dark
     );
 
-rim.position.y =
+hatRim.position.y =
     6.55;
 
-player.add(rim);
+player.add(
+    hatRim
+);
 
 
 /* wand */
@@ -995,81 +1330,86 @@ const wand =
     new THREE.Mesh(
 
         new THREE.CylinderGeometry(
-            .06,
+            .055,
             .09,
-            2.7,
+            2.8,
             8
         ),
 
-        mat(
-            0x4b2818,
+        material(
+            0x4b2b19,
             .9
         )
     );
 
 wand.rotation.z =
-    -.8;
+    -.85;
 
 wand.position.set(
-    1.4,
-    4,
-    -.4
+    1.35,
+    4.1,
+    -.3
 );
 
-player.add(wand);
+player.add(
+    wand
+);
 
 
-/* wand glow */
+/* wand light */
 
 const wandLight =
     new THREE.PointLight(
-        0x7f8cff,
+        0x8877ff,
         1.5,
         10
     );
 
 wandLight.position.set(
-    2.3,
-    4.9,
-    -.7
+    2,
+    5,
+    -.5
 );
 
-player.add(wandLight);
+player.add(
+    wandLight
+);
 
 
 player.position.set(
     0,
     0,
-    10
+    15
 );
 
-scene.add(player);
+scene.add(
+    player
+);
 
 
 /* =========================================================
-   CONTROLS
+   INPUT
 ========================================================= */
 
 const keys = {};
 
 window.addEventListener(
     "keydown",
-    e => {
+    event => {
 
-        keys[e.key.toLowerCase()] = true;
+        keys[
+            event.key.toLowerCase()
+        ] = true;
 
         if (
-            e.key === " " ||
-            e.key === "ArrowUp"
+            event.key === " "
         ) {
-
             jump();
         }
 
         if (
-            e.key.toLowerCase() === "f"
+            event.key.toLowerCase() === "f"
         ) {
-
             castSpell();
         }
     }
@@ -1078,10 +1418,11 @@ window.addEventListener(
 
 window.addEventListener(
     "keyup",
-    e => {
+    event => {
 
-        keys[e.key.toLowerCase()] =
-            false;
+        keys[
+            event.key.toLowerCase()
+        ] = false;
     }
 );
 
@@ -1102,34 +1443,37 @@ const joystickStick =
 
 let joystickX = 0;
 let joystickY = 0;
-
 let joystickActive = false;
 
 
 joystickBase.addEventListener(
     "pointerdown",
-    e => {
+    event => {
 
         joystickActive = true;
 
         joystickBase.setPointerCapture(
-            e.pointerId
+            event.pointerId
         );
 
-        updateJoystick(e);
+        updateJoystick(
+            event
+        );
     }
 );
 
 
 joystickBase.addEventListener(
     "pointermove",
-    e => {
+    event => {
 
         if (
             joystickActive
         ) {
 
-            updateJoystick(e);
+            updateJoystick(
+                event
+            );
         }
     }
 );
@@ -1146,7 +1490,9 @@ joystickBase.addEventListener(
 );
 
 
-function updateJoystick(e) {
+function updateJoystick(
+    event
+) {
 
     const rect =
         joystickBase.getBoundingClientRect();
@@ -1160,11 +1506,11 @@ function updateJoystick(e) {
         rect.height / 2;
 
     let dx =
-        e.clientX -
+        event.clientX -
         centerX;
 
     let dy =
-        e.clientY -
+        event.clientY -
         centerY;
 
     const max =
@@ -1196,16 +1542,20 @@ function updateJoystick(e) {
         dy / max;
 
     joystickStick.style.transform =
-        `translate(${dx}px, ${dy}px)`;
+        `translate(${dx}px,${dy}px)`;
 }
 
 
 function resetJoystick() {
 
-    joystickActive = false;
+    joystickActive =
+        false;
 
-    joystickX = 0;
-    joystickY = 0;
+    joystickX =
+        0;
+
+    joystickY =
+        0;
 
     joystickStick.style.transform =
         "translate(0,0)";
@@ -1213,35 +1563,36 @@ function resetJoystick() {
 
 
 /* =========================================================
-   CAMERA
+   CAMERA LOOK
 ========================================================= */
 
 let cameraYaw = 0;
 
-let cameraPitch = -.18;
-
-let lookStartX = 0;
-let lookStartY = 0;
+let cameraPitch = -.15;
 
 let looking = false;
+
+let previousX = 0;
+
+let previousY = 0;
 
 
 renderer.domElement.addEventListener(
     "pointerdown",
-    e => {
+    event => {
 
         if (
-            e.clientX <
-            window.innerWidth * .65
+            event.clientX >
+            window.innerWidth * .3
         ) {
 
             looking = true;
 
-            lookStartX =
-                e.clientX;
+            previousX =
+                event.clientX;
 
-            lookStartY =
-                e.clientY;
+            previousY =
+                event.clientY;
         }
     }
 );
@@ -1249,18 +1600,19 @@ renderer.domElement.addEventListener(
 
 renderer.domElement.addEventListener(
     "pointermove",
-    e => {
+    event => {
 
-        if (!looking)
-            return;
+        if (
+            !looking
+        ) return;
 
         const dx =
-            e.clientX -
-            lookStartX;
+            event.clientX -
+            previousX;
 
         const dy =
-            e.clientY -
-            lookStartY;
+            event.clientY -
+            previousY;
 
         cameraYaw -=
             dx * .004;
@@ -1270,18 +1622,18 @@ renderer.domElement.addEventListener(
 
         cameraPitch =
             Math.max(
-                -.8,
+                -.7,
                 Math.min(
-                    .45,
+                    .4,
                     cameraPitch
                 )
             );
 
-        lookStartX =
-            e.clientX;
+        previousX =
+            event.clientX;
 
-        lookStartY =
-            e.clientY;
+        previousY =
+            event.clientY;
     }
 );
 
@@ -1328,12 +1680,14 @@ document
 
 
 /* =========================================================
-   MAGIC
+   SPELL
 ========================================================= */
 
 let magic = 100;
 
 let xp = 0;
+
+const spells = [];
 
 
 function castSpell() {
@@ -1364,33 +1718,32 @@ function castSpell() {
             ),
 
             new THREE.MeshBasicMaterial({
-
-                color:
-                    0x8f7cff
+                color: 0x9c7cff
             })
         );
 
 
     const light =
         new THREE.PointLight(
-            0x8c75ff,
+            0x765cff,
             5,
-            12
+            14
         );
 
+    spell.add(
+        light
+    );
 
-    spell.add(light);
 
-
-    const worldPos =
+    const start =
         new THREE.Vector3();
 
     wand.getWorldPosition(
-        worldPos
+        start
     );
 
     spell.position.copy(
-        worldPos
+        start
     );
 
 
@@ -1407,13 +1760,17 @@ function castSpell() {
 
     spell.userData.velocity =
         direction.multiplyScalar(
-            35
+            38
         );
 
 
-    scene.add(spell);
+    scene.add(
+        spell
+    );
 
-    spells.push(spell);
+    spells.push(
+        spell
+    );
 }
 
 
@@ -1423,9 +1780,6 @@ document
         "pointerdown",
         castSpell
     );
-
-
-const spells = [];
 
 
 /* =========================================================
@@ -1449,56 +1803,61 @@ function createEnemy(
 
             new THREE.SphereGeometry(
                 1.3,
-                16,
-                12
+                18,
+                14
             ),
 
-            mat(
-                0x351f30,
+            material(
+                0x3b2538,
                 .9
             )
         );
 
+    body.scale.y =
+        1.25;
+
     body.position.y =
         1.5;
 
-    body.scale.y =
-        1.2;
+    body.castShadow =
+        true;
 
-    body.castShadow = true;
+    enemy.add(
+        body
+    );
 
-    enemy.add(body);
 
-
-    const eyeMat =
+    const eyeMaterial =
         new THREE.MeshBasicMaterial({
-            color: 0xff3344
+            color: 0xff3030
         });
 
 
     for (
-        let side of [-.35, .35]
+        const xOffset of [-.35, .35]
     ) {
 
         const eye =
             new THREE.Mesh(
 
                 new THREE.SphereGeometry(
-                    .12,
-                    8,
-                    8
+                    .13,
+                    10,
+                    10
                 ),
 
-                eyeMat
+                eyeMaterial
             );
 
         eye.position.set(
-            side,
+            xOffset,
             1.8,
             -1.1
         );
 
-        enemy.add(eye);
+        enemy.add(
+            eye
+        );
     }
 
 
@@ -1508,25 +1867,29 @@ function createEnemy(
         z
     );
 
-    scene.add(enemy);
+    scene.add(
+        enemy
+    );
 
-    enemies.push(enemy);
+    enemies.push(
+        enemy
+    );
 }
 
 
 createEnemy(
-    20,
-    -30
+    25,
+    -25
 );
 
 createEnemy(
     -25,
-    -60
+    -50
 );
 
 createEnemy(
     30,
-    -100
+    -70
 );
 
 
@@ -1535,32 +1898,6 @@ createEnemy(
 ========================================================= */
 
 let hp = 100;
-
-const hpBar =
-    document.getElementById(
-        "hpBar"
-    );
-
-const magicBar =
-    document.getElementById(
-        "magicBar"
-    );
-
-const hpText =
-    document.getElementById(
-        "hpText"
-    );
-
-const magicText =
-    document.getElementById(
-        "magicText"
-    );
-
-const xpText =
-    document.getElementById(
-        "xpText"
-    );
-
 
 function updateHUD() {
 
@@ -1582,19 +1919,34 @@ function updateHUD() {
             )
         );
 
-    hpBar.style.width =
+
+    document.getElementById(
+        "hpBar"
+    ).style.width =
         hp + "%";
 
-    magicBar.style.width =
+
+    document.getElementById(
+        "magicBar"
+    ).style.width =
         magic + "%";
 
-    hpText.textContent =
+
+    document.getElementById(
+        "hpText"
+    ).textContent =
         Math.round(hp);
 
-    magicText.textContent =
+
+    document.getElementById(
+        "magicText"
+    ).textContent =
         Math.round(magic);
 
-    xpText.textContent =
+
+    document.getElementById(
+        "xpText"
+    ).textContent =
         xp;
 }
 
@@ -1603,33 +1955,35 @@ function updateHUD() {
    MESSAGE
 ========================================================= */
 
-let messageTimer = null;
+let messageTimeout;
 
 
 function showMessage(
     text
 ) {
 
-    const el =
+    const element =
         document.getElementById(
             "message"
         );
 
-    el.textContent =
+    element.textContent =
         text;
 
-    el.style.opacity =
+    element.style.opacity =
         "1";
 
+
     clearTimeout(
-        messageTimer
+        messageTimeout
     );
 
-    messageTimer =
+
+    messageTimeout =
         setTimeout(
             () => {
 
-                el.style.opacity =
+                element.style.opacity =
                     "0";
 
             },
@@ -1642,22 +1996,14 @@ function showMessage(
    PLAYER MOVEMENT
 ========================================================= */
 
-const clock =
-    new THREE.Clock();
-
-
 function movePlayer(
     dt
 ) {
 
-    let forward = 0;
-    let strafe = 0;
-
-
-    forward =
+    let forward =
         -joystickY;
 
-    strafe =
+    let strafe =
         joystickX;
 
 
@@ -1669,6 +2015,7 @@ function movePlayer(
         forward += 1;
     }
 
+
     if (
         keys["s"] ||
         keys["arrowdown"]
@@ -1677,6 +2024,7 @@ function movePlayer(
         forward -= 1;
     }
 
+
     if (
         keys["a"] ||
         keys["arrowleft"]
@@ -1684,6 +2032,7 @@ function movePlayer(
 
         strafe -= 1;
     }
+
 
     if (
         keys["d"] ||
@@ -1705,13 +2054,16 @@ function movePlayer(
         length > 1
     ) {
 
-        forward /= length;
-        strafe /= length;
+        forward /=
+            length;
+
+        strafe /=
+            length;
     }
 
 
     const speed =
-        16;
+        15;
 
 
     const sin =
@@ -1725,25 +2077,48 @@ function movePlayer(
         );
 
 
+    const moveX =
+        strafe * cos -
+        forward * sin;
+
+    const moveZ =
+        strafe * sin +
+        forward * cos;
+
+
     player.position.x +=
-        (
-            strafe * cos -
-            forward * sin
-        ) *
+        moveX *
         speed *
         dt;
 
 
     player.position.z +=
-        (
-            strafe * sin +
-            forward * cos
-        ) *
+        moveZ *
         speed *
         dt;
 
 
-    /* animation */
+    /* Keep player in world */
+
+    player.position.x =
+        Math.max(
+            -260,
+            Math.min(
+                260,
+                player.position.x
+            )
+        );
+
+
+    player.position.z =
+        Math.max(
+            -260,
+            Math.min(
+                260,
+                player.position.z
+            )
+        );
+
 
     if (
         length > .1
@@ -1751,22 +2126,9 @@ function movePlayer(
 
         player.rotation.y =
             Math.atan2(
-                -(
-                    strafe * cos -
-                    forward * sin
-                ),
-                -(
-                    strafe * sin +
-                    forward * cos
-                )
+                -moveX,
+                -moveZ
             );
-
-        player.position.y +=
-            Math.sin(
-                performance.now() *
-                .012
-            ) *
-            .008;
     }
 }
 
@@ -1827,37 +2189,35 @@ function updateSpells(
         );
 
 
-        let remove = false;
+        let remove =
+            false;
 
 
         for (
-            const enemy of enemies
+            let j = enemies.length - 1;
+            j >= 0;
+            j--
         ) {
+
+            const enemy =
+                enemies[j];
+
 
             if (
                 spell.position.distanceTo(
                     enemy.position
-                ) < 2.5
+                ) < 3
             ) {
 
                 scene.remove(
                     enemy
                 );
 
-                const index =
-                    enemies.indexOf(
-                        enemy
-                    );
+                enemies.splice(
+                    j,
+                    1
+                );
 
-                if (
-                    index !== -1
-                ) {
-
-                    enemies.splice(
-                        index,
-                        1
-                    );
-                }
 
                 xp += 25;
 
@@ -1867,7 +2227,8 @@ function updateSpells(
 
                 updateHUD();
 
-                remove = true;
+                remove =
+                    true;
 
                 break;
             }
@@ -1879,7 +2240,8 @@ function updateSpells(
             400
         ) {
 
-            remove = true;
+            remove =
+                true;
         }
 
 
@@ -1904,14 +2266,14 @@ function updateSpells(
    ENEMY AI
 ========================================================= */
 
-let damageCooldown = 0;
+let damageTimer = 0;
 
 
 function updateEnemies(
     dt
 ) {
 
-    damageCooldown -= dt;
+    damageTimer -= dt;
 
 
     enemies.forEach(
@@ -1930,7 +2292,7 @@ function updateEnemies(
 
 
             if (
-                distance < 35
+                distance < 45
             ) {
 
                 direction.normalize();
@@ -1939,13 +2301,13 @@ function updateEnemies(
                 enemy.position.x +=
                     direction.x *
                     dt *
-                    2.5;
+                    2.2;
 
 
                 enemy.position.z +=
                     direction.z *
                     dt *
-                    2.5;
+                    2.2;
 
 
                 enemy.lookAt(
@@ -1957,14 +2319,13 @@ function updateEnemies(
 
 
             if (
-                distance < 3
-                &&
-                damageCooldown <= 0
+                distance < 3 &&
+                damageTimer <= 0
             ) {
 
                 hp -= 8;
 
-                damageCooldown =
+                damageTimer =
                     1;
 
                 updateHUD();
@@ -1985,59 +2346,44 @@ function updateEnemies(
 function updateCamera() {
 
     const distance =
-        11;
+        12;
 
-    const height =
-        6;
+    const horizontal =
+        distance *
+        Math.cos(
+            cameraPitch
+        );
 
 
     const target =
         new THREE.Vector3(
             player.position.x,
-            player.position.y +
-            4.5,
+            player.position.y + 4.5,
             player.position.z
         );
 
 
-    const cameraX =
-        player.position.x -
-        Math.sin(
-            cameraYaw
-        ) *
-        distance *
-        Math.cos(
-            cameraPitch
+    const desired =
+        new THREE.Vector3(
+
+            player.position.x -
+            Math.sin(cameraYaw) *
+            horizontal,
+
+            player.position.y +
+            6 +
+            Math.sin(cameraPitch) *
+            distance,
+
+            player.position.z -
+            Math.cos(cameraYaw) *
+            horizontal
         );
-
-
-    const cameraZ =
-        player.position.z -
-        Math.cos(
-            cameraYaw
-        ) *
-        distance *
-        Math.cos(
-            cameraPitch
-        );
-
-
-    const cameraY =
-        player.position.y +
-        height +
-        Math.sin(
-            cameraPitch
-        ) *
-        distance;
 
 
     camera.position.lerp(
-        new THREE.Vector3(
-            cameraX,
-            cameraY,
-            cameraZ
-        ),
-        .12
+        desired,
+        .1
     );
 
 
@@ -2048,108 +2394,25 @@ function updateCamera() {
 
 
 /* =========================================================
-   DAY / NIGHT
-========================================================= */
-
-let worldTime = 0;
-
-
-function updateLighting(
-    dt
-) {
-
-    worldTime +=
-        dt * .025;
-
-
-    const cycle =
-        Math.sin(
-            worldTime
-        );
-
-
-    sun.position.y =
-        80 +
-        cycle * 50;
-
-
-    const daylight =
-        Math.max(
-            .25,
-            .65 +
-            cycle * .35
-        );
-
-
-    sun.intensity =
-        2.2 *
-        daylight;
-
-
-    hemi.intensity =
-        1.2 *
-        daylight;
-
-
-    if (
-        cycle < -.2
-    ) {
-
-        scene.background
-            .lerp(
-                new THREE.Color(
-                    0x101827
-                ),
-                .01
-            );
-
-        scene.fog.color.lerp(
-            new THREE.Color(
-                0x111827
-            ),
-            .01
-        );
-
-    } else {
-
-        scene.background
-            .lerp(
-                new THREE.Color(
-                    0x9db6c9
-                ),
-                .01
-            );
-
-        scene.fog.color.lerp(
-            new THREE.Color(
-                0x91a6b2
-            ),
-            .01
-        );
-    }
-}
-
-
-/* =========================================================
-   WATER ANIMATION
+   WATER
 ========================================================= */
 
 function animateWater() {
 
+    const t =
+        performance.now() *
+        .001;
+
+
     water.position.y =
-        .18 +
-        Math.sin(
-            performance.now() *
-            .0015
-        ) *
-        .05;
+        .25 +
+        Math.sin(t * 1.5) *
+        .035;
+
 
     water.rotation.z =
-        Math.sin(
-            performance.now() *
-            .0003
-        ) *
-        .015;
+        Math.sin(t * .25) *
+        .01;
 }
 
 
@@ -2166,13 +2429,18 @@ function regenerateMagic(
 
     regenTimer += dt;
 
+
     if (
-        regenTimer > .5
+        regenTimer >= .5
     ) {
 
         regenTimer = 0;
 
-        magic += 1;
+        magic =
+            Math.min(
+                100,
+                magic + 1
+            );
 
         updateHUD();
     }
@@ -2182,6 +2450,10 @@ function regenerateMagic(
 /* =========================================================
    MAIN LOOP
 ========================================================= */
+
+const clock =
+    new THREE.Clock();
+
 
 function animate() {
 
@@ -2215,15 +2487,11 @@ function animate() {
 
     updateCamera();
 
-    updateLighting(
-        dt
-    );
+    animateWater();
 
     regenerateMagic(
         dt
     );
-
-    animateWater();
 
 
     renderer.render(
@@ -2247,6 +2515,7 @@ window.addEventListener(
 
         camera.updateProjectionMatrix();
 
+
         renderer.setSize(
             window.innerWidth,
             window.innerHeight
@@ -2262,7 +2531,7 @@ window.addEventListener(
 updateHUD();
 
 showMessage(
-    "Explore the enchanted valley"
+    "Welcome to the Enchanted Valley"
 );
 
 animate();
