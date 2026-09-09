@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width,
-        initial-scale=1.0,
-        maximum-scale=1.0,
-        user-scalable=no"
-    >
+    <meta name="viewport"
+          content="width=device-width,
+                   initial-scale=1.0,
+                   maximum-scale=1.0,
+                   user-scalable=no">
 
     <title>Wizarding World 3D</title>
 
@@ -20,43 +18,40 @@
 
     <div id="game"></div>
 
-    <!-- Game information -->
     <div id="hud">
+        <div class="game-title">WIZARDING WORLD 3D</div>
 
-        <div id="title">
-            WIZARDING WORLD 3D
-        </div>
-
-        <div id="status">
-            HP: 100
+        <div class="stats">
+            ❤️ HP: <span id="hp">100</span>
             <br>
-            Magic: 100
+            🪄 Magic: <span id="magic">100</span>
         </div>
-
     </div>
 
-    <!-- Mobile controls -->
+    <div id="landscape-message">
+        <div>📱</div>
+        <h2>Rotate Your Phone</h2>
+        <p>Please use landscape mode for the best experience.</p>
+    </div>
+
     <div id="controls">
 
-        <button id="up">▲</button>
+        <div class="movement">
 
-        <div class="middle-controls">
+            <button id="up">▲</button>
 
-            <button id="left">◀</button>
-
-            <button id="down">▼</button>
-
-            <button id="right">▶</button>
+            <div class="horizontal">
+                <button id="left">◀</button>
+                <button id="down">▼</button>
+                <button id="right">▶</button>
+            </div>
 
         </div>
 
-        <button id="spell">
-            🪄 SPELL
-        </button>
+        <button id="spell">🪄 SPELL</button>
 
     </div>
 
-    <!-- Three.js -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.min.js"></script>
 
     <script src="game.js"></script>
