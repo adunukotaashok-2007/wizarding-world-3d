@@ -1,0 +1,142 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    font-family: Arial, sans-serif;
+
+    background: #050505;
+}
+
+#game {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+}
+
+canvas {
+    display: block;
+}
+
+/* =========================
+   HUD
+========================= */
+
+#hud {
+    position: fixed;
+
+    top: 15px;
+    left: 15px;
+
+    z-index: 10;
+
+    color: white;
+
+    pointer-events: none;
+
+    text-shadow:
+        0 2px 5px black;
+}
+
+#title {
+    font-size: 18px;
+    font-weight: bold;
+
+    letter-spacing: 2px;
+}
+
+#status {
+    margin-top: 8px;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+/* =========================
+   CONTROLS
+========================= */
+
+#controls {
+    position: fixed;
+
+    left: 0;
+    right: 0;
+    bottom: 20px;
+
+    z-index: 20;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.middle-controls {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+button {
+    width: 58px;
+    height: 58px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    background: rgba(20, 20, 20, 0.75);
+
+    color: white;
+
+    font-size: 22px;
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.5);
+
+    touch-action: none;
+
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+button:active {
+    transform: scale(0.92);
+
+    background: rgba(80, 60, 120, 0.9);
+}
+
+#spell {
+    width: 120px;
+
+    font-size: 14px;
+
+    margin-top: 5px;
+}
+
+/* Desktop */
+
+@media (min-width: 800px) {
+
+    #controls {
+        bottom: 30px;
+    }
+
+}
