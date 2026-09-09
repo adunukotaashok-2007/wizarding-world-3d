@@ -13,7 +13,7 @@
         user-scalable=no"
     >
 
-    <meta name="theme-color" content="#07101f">
+    <meta name="theme-color" content="#08101d">
 
     <title>Wizarding World 3D</title>
 
@@ -23,75 +23,79 @@
 
 <body>
 
-    <!-- ==================================================
-         GAME
-    =================================================== -->
-
     <div id="game"></div>
 
 
-    <!-- ==================================================
+    <!-- ================================
          HUD
-    =================================================== -->
+    ================================= -->
 
     <div id="hud">
 
-        <div class="gameTitle">
+        <div class="title">
             WIZARDING WORLD 3D
         </div>
 
-        <div class="location">
+        <div class="subtitle">
             ✦ Hogwarts Valley
         </div>
 
-        <div class="stats">
-
+        <div class="stat">
             ❤️ HP:
             <span id="hp">100</span>
+        </div>
 
-            <br>
-
+        <div class="stat">
             🪄 Magic:
             <span id="magic">100</span>
+        </div>
 
+        <div class="stat">
+            ⭐ XP:
+            <span id="xp">0</span>
         </div>
 
     </div>
 
 
-    <!-- ==================================================
+    <!-- ================================
+         CROSSHAIR
+    ================================= -->
+
+    <div id="crosshair">
+        +
+    </div>
+
+
+    <!-- ================================
          MESSAGE
-    =================================================== -->
+    ================================= -->
 
     <div id="message">
-        Welcome, young wizard!
+        Explore the magical valley!
     </div>
 
 
-    <!-- ==================================================
-         PORTRAIT SCREEN
-    =================================================== -->
+    <!-- ================================
+         QUEST
+    ================================= -->
 
-    <div id="rotateScreen">
+    <div id="quest">
 
-        <div class="rotateIcon">
-            📱
+        <div class="questTitle">
+            ✦ QUEST
         </div>
 
-        <h2>
-            Rotate Your Phone
-        </h2>
-
-        <p>
-            This game is designed for landscape mode.
-        </p>
+        <div id="questText">
+            Explore the castle courtyard
+        </div>
 
     </div>
 
 
-    <!-- ==================================================
+    <!-- ================================
          MOBILE CONTROLS
-    =================================================== -->
+    ================================= -->
 
     <div id="controls">
 
@@ -109,25 +113,35 @@
         </div>
 
 
-        <!-- ACTION BUTTONS -->
+        <!-- ACTIONS -->
 
         <div id="actions">
 
             <button
                 id="jump"
-                class="actionButton"
+                class="gameButton"
             >
-                ⬆
-                <small>JUMP</small>
+
+                <span>⬆</span>
+
+                <small>
+                    JUMP
+                </small>
+
             </button>
 
 
             <button
                 id="spell"
-                class="spellButton"
+                class="gameButton spellButton"
             >
-                🪄
-                <small>CAST</small>
+
+                <span>🪄</span>
+
+                <small>
+                    SPELL
+                </small>
+
             </button>
 
         </div>
@@ -135,18 +149,40 @@
     </div>
 
 
-    <!-- ==================================================
-         CAMERA INSTRUCTION
-    =================================================== -->
+    <!-- ================================
+         CAMERA HELP
+    ================================= -->
 
     <div id="cameraHint">
         Drag the screen to look around
     </div>
 
 
-    <!-- ==================================================
+    <!-- ================================
+         PORTRAIT SCREEN
+    ================================= -->
+
+    <div id="rotateScreen">
+
+        <div class="phoneIcon">
+            📱
+        </div>
+
+        <h2>
+            Rotate Your Phone
+        </h2>
+
+        <p>
+            Wizarding World 3D is designed
+            for landscape mode.
+        </p>
+
+    </div>
+
+
+    <!-- ================================
          THREE.JS
-    =================================================== -->
+    ================================= -->
 
     <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 
