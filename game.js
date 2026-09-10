@@ -1,39 +1,37 @@
+/* =========================================================
+   WIZARDING WORLD 3D — V4 REALISTIC ENVIRONMENT
+   Three.js + PBR Ground + PBR Castle
+   Mobile Friendly
+   ========================================================= */
+
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
-
 /* =========================================================
-   SCENE
-========================================================= */
+   BASIC SETUP
+   ========================================================= */
 
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color(0x86b8dc);
+scene.background = new THREE.Color(0x91b8d2);
 
-scene.fog = new THREE.Fog(
-  0x86b8dc,
-  90,
-  420
+scene.fog = new THREE.FogExp2(
+  0x91b8d2,
+  0.006
 );
-
-
-/* =========================================================
-   CAMERA
-========================================================= */
 
 const camera = new THREE.PerspectiveCamera(
-  60,
+  65,
   window.innerWidth / window.innerHeight,
   0.1,
-  600
+  500
 );
 
-camera.position.set(0, 5.5, 15);
-
-
-/* =========================================================
-   RENDERER
-========================================================= */
+camera.position.set(
+  0,
+  6,
+  14
+);
 
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
@@ -46,7 +44,7 @@ renderer.setSize(
 );
 
 renderer.setPixelRatio(
-  Math.min(window.devicePixelRatio, 1.25)
+  Math.min(window.devicePixelRatio, 1.5)
 );
 
 renderer.shadowMap.enabled = true;
@@ -54,91 +52,204 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.25;
+renderer.toneMapping =
+  THREE.ACESFilmicToneMapping;
+
+renderer.toneMappingExposure = 1.15;
 
 document.body.appendChild(renderer.domElement);
 
 
 /* =========================================================
+   LOADING SCREEN
+   ========================================================= */
+
+const loading =
+  document.getElementById("loading");
+
+if (loading) {
+  loading.innerText =
+    "Loading magical world...";
+}
+
+
+/* =========================================================
    LIGHTING
-========================================================= */
+   ========================================================= */
 
-const hemi = new THREE.HemisphereLight(
-  0xbfe5ff,
-  0x40502f,
-  2.2
-);
+const hemiLight =
+  new THREE.HemisphereLight(
+    0xd9edff,
+    0x41523b,
+    2.0
+  );
 
-scene.add(hemi);
+scene.add(hemiLight);
 
 
-const sun = new THREE.DirectionalLight(
-  0xfff1d0,
-  4
-);
+const sun =
+  new THREE.DirectionalLight(
+    0xfff4dc,
+    4.0
+  );
 
 sun.position.set(
-  -80,
-  120,
-  70
+  -40,
+  70,
+  35
 );
 
 sun.castShadow = true;
 
-sun.shadow.mapSize.width = 1024;
-sun.shadow.mapSize.height = 1024;
+sun.shadow.mapSize.width = 2048;
+sun.shadow.mapSize.height = 2048;
 
-sun.shadow.camera.left = -120;
-sun.shadow.camera.right = 120;
-sun.shadow.camera.top = 120;
-sun.shadow.camera.bottom = -120;
+sun.shadow.camera.left = -80;
+sun.shadow.camera.right = 80;
+sun.shadow.camera.top = 80;
+sun.shadow.camera.bottom = -80;
+
+sun.shadow.camera.near = 1;
+sun.shadow.camera.far = 180;
+
+sun.shadow.bias = -0.0003;
 
 scene.add(sun);
 
 
 /* =========================================================
-   GROUND
-========================================================= */
+   TEXTURE LOADER
+   ========================================================= */
+
+const textureLoader =
+  new THREE.TextureLoader();
+
+
+function loadTexture(
+  path,
+  colorTexture = false
+) {
+
+  const texture =
+    textureLoader.load(
+      path,
+      undefined,
+      undefined,
+      () => {
+        console.warn(
+          "Texture failed:",
+          path
+        );
+      }
+    );
+
+  texture.wrapS =
+    THREE.RepeatWrapping;
+
+  texture.wrapT =
+    THREE.RepeatWrapping;
+
+  texture.anisotropy =
+    Math.min(
+      renderer.capabilities.getMaxAnisotropy(),
+      8
+    );
+
+  if (colorTexture) {
+    texture.colorSpace =
+      THREE.SRGBColorSpace;
+  }
+
+  return texture;
+}
+
+
+/* =========================================================
+   REALISTIC GROUND
+   ========================================================= */
+
+const groundDiffuse =
+  loadTexture(
+    "./assets/ground/diffuse.jpg",
+    true
+  );
+
+const groundNormal =
+  loadTexture(
+    "./assets/ground/normal.jpg"
+  );
+
+const groundRough =
+  loadTexture(
+    "./assets/ground/rough.jpg"
+  );
+
+const groundDisp =
+  loadTexture(
+    "./assets/ground/disp.png"
+  );
+
+
+groundDiffuse.repeat.set(
+  18,
+  18
+);
+
+groundNormal.repeat.set(
+  18,
+  18
+);
+
+groundRough.repeat.set(
+  18,
+  18
+);
+
+groundDisp.repeat.set(
+  18,
+  18
+);
+
+
+/*
+   Large geometry with moderate subdivisions.
+   Enough for subtle displacement without
+   destroying mobile performance.
+*/
 
 const groundGeometry =
   new THREE.PlaneGeometry(
-    600,
-    600,
-    80,
-    80
+    180,
+    180,
+    120,
+    120
   );
 
-const groundPosition =
-  groundGeometry.attributes.position;
+groundGeometry.rotateX(
+  -Math.PI / 2
+);
 
-for (
-  let i = 0;
-  i < groundPosition.count;
-  i++
-) {
 
-  const x =
-    groundPosition.getX(i);
-
-  const y =
-    groundPosition.getY(i);
-
-  const height =
-    Math.sin(x * 0.035) * 1.2 +
-    Math.cos(y * 0.045) * 1.0;
-
-  groundPosition.setZ(i, height);
-}
-
-groundGeometry.computeVertexNormals();
-
+/* =========================================================
+   GROUND MATERIAL
+   ========================================================= */
 
 const groundMaterial =
   new THREE.MeshStandardMaterial({
-    color: 0x52784a,
-    roughness: 1,
-    metalness: 0
+
+    map: groundDiffuse,
+
+    normalMap: groundNormal,
+
+    roughnessMap: groundRough,
+
+    displacementMap: groundDisp,
+
+    displacementScale: 0.12,
+
+    roughness: 0.92,
+
+    metalness: 0.0
   });
 
 
@@ -148,7 +259,7 @@ const ground =
     groundMaterial
   );
 
-ground.rotation.x = -Math.PI / 2;
+ground.position.y = -0.15;
 
 ground.receiveShadow = true;
 
@@ -156,753 +267,1151 @@ scene.add(ground);
 
 
 /* =========================================================
-   ROAD
-========================================================= */
+   CASTLE PBR TEXTURES
+   ========================================================= */
 
-const roadMaterial =
-  new THREE.MeshStandardMaterial({
-    color: 0x81745e,
-    roughness: 1
-  });
-
-const road =
-  new THREE.Mesh(
-    new THREE.PlaneGeometry(
-      16,
-      250
-    ),
-    roadMaterial
+const castleDiffuse =
+  loadTexture(
+    "./assets/castle/diffuse.jpg",
+    true
   );
 
-road.rotation.x = -Math.PI / 2;
+const castleNormal =
+  loadTexture(
+    "./assets/castle/normal.jpg"
+  );
 
-road.position.set(
-  0,
-  0.03,
-  -80
+const castleRough =
+  loadTexture(
+    "./assets/castle/rough.jpg"
+  );
+
+const castleAO =
+  loadTexture(
+    "./assets/castle/ao.jpg"
+  );
+
+const castleDisp =
+  loadTexture(
+    "./assets/castle/disp.png"
+  );
+
+
+castleDiffuse.repeat.set(
+  2,
+  2
 );
 
-scene.add(road);
+castleNormal.repeat.set(
+  2,
+  2
+);
+
+castleRough.repeat.set(
+  2,
+  2
+);
+
+castleAO.repeat.set(
+  2,
+  2
+);
+
+castleDisp.repeat.set(
+  2,
+  2
+);
 
 
 /* =========================================================
-   WATER
-========================================================= */
+   CASTLE MATERIAL
+   ========================================================= */
 
-const waterMaterial =
+const castleMaterial =
   new THREE.MeshStandardMaterial({
-    color: 0x3b8eaa,
-    transparent: true,
-    opacity: 0.72,
-    roughness: 0.15,
-    metalness: 0.05
+
+    map: castleDiffuse,
+
+    normalMap: castleNormal,
+
+    roughnessMap: castleRough,
+
+    aoMap: castleAO,
+
+    displacementMap: castleDisp,
+
+    displacementScale: 0.025,
+
+    roughness: 0.82,
+
+    metalness: 0.0
   });
 
-const lake =
-  new THREE.Mesh(
-    new THREE.PlaneGeometry(
-      100,
-      80
-    ),
-    waterMaterial
-  );
 
-lake.rotation.x = -Math.PI / 2;
+/* =========================================================
+   CASTLE GROUP
+   ========================================================= */
 
-lake.position.set(
-  75,
-  0.15,
-  -45
+const castle =
+  new THREE.Group();
+
+castle.position.set(
+  0,
+  0,
+  -65
 );
 
-scene.add(lake);
+scene.add(castle);
+
+
+/* =========================================================
+   CASTLE MAIN BUILDING
+   ========================================================= */
+
+const castleBodyGeometry =
+  new THREE.BoxGeometry(
+    30,
+    18,
+    16,
+    2,
+    2,
+    2
+  );
+
+const castleBody =
+  new THREE.Mesh(
+    castleBodyGeometry,
+    castleMaterial
+  );
+
+castleBody.position.y = 9;
+
+castleBody.castShadow = true;
+castleBody.receiveShadow = true;
+
+castle.add(castleBody);
+
+
+/* =========================================================
+   CASTLE TOWERS
+   ========================================================= */
+
+function createTower(
+  x,
+  z,
+  height = 30
+) {
+
+  const towerGroup =
+    new THREE.Group();
+
+  const towerGeometry =
+    new THREE.CylinderGeometry(
+      4.2,
+      5,
+      height,
+      16,
+      3
+    );
+
+  const tower =
+    new THREE.Mesh(
+      towerGeometry,
+      castleMaterial
+    );
+
+    tower.position.y =
+      height / 2;
+
+    tower.castShadow = true;
+    tower.receiveShadow = true;
+
+    towerGroup.add(tower);
+
+
+    /* Tower roof */
+
+    const roofGeometry =
+      new THREE.ConeGeometry(
+        5.8,
+        8,
+        16
+      );
+
+    const roofMaterial =
+      new THREE.MeshStandardMaterial({
+
+        color: 0x20262d,
+
+        roughness: 0.75,
+
+        metalness: 0.05
+      });
+
+    const roof =
+      new THREE.Mesh(
+        roofGeometry,
+        roofMaterial
+      );
+
+    roof.position.y =
+      height + 4;
+
+    roof.castShadow = true;
+
+    towerGroup.add(roof);
+
+
+    towerGroup.position.set(
+      x,
+      0,
+      z
+    );
+
+    castle.add(
+      towerGroup
+    );
+}
+
+
+/* Four large towers */
+
+createTower(
+  -14,
+  -5,
+  31
+);
+
+createTower(
+  14,
+  -5,
+  31
+);
+
+createTower(
+  -14,
+  8,
+  27
+);
+
+createTower(
+  14,
+  8,
+  27
+);
+
+
+/* =========================================================
+   CASTLE CENTRAL ROOF
+   ========================================================= */
+
+const mainRoofGeometry =
+  new THREE.ConeGeometry(
+    17,
+    12,
+    4
+  );
+
+const mainRoofMaterial =
+  new THREE.MeshStandardMaterial({
+
+    color: 0x242a32,
+
+    roughness: 0.7,
+
+    metalness: 0.08
+  });
+
+const mainRoof =
+  new THREE.Mesh(
+    mainRoofGeometry,
+    mainRoofMaterial
+  );
+
+mainRoof.position.set(
+  0,
+  25,
+  -65
+);
+
+mainRoof.rotation.y =
+  Math.PI / 4;
+
+mainRoof.castShadow = true;
+
+scene.add(mainRoof);
+
+
+/* =========================================================
+   CASTLE WINDOWS
+   ========================================================= */
+
+const windowMaterial =
+  new THREE.MeshStandardMaterial({
+
+    color: 0x87c9df,
+
+    emissive: 0x244e60,
+
+    emissiveIntensity: 0.7,
+
+    roughness: 0.3,
+
+    metalness: 0.1
+  });
+
+
+function addWindow(
+  x,
+  y,
+  z
+) {
+
+  const geometry =
+    new THREE.BoxGeometry(
+      1.6,
+      3,
+      0.25
+    );
+
+  const mesh =
+    new THREE.Mesh(
+      geometry,
+      windowMaterial
+    );
+
+  mesh.position.set(
+    x,
+    y,
+    z
+  );
+
+  castle.add(mesh);
+}
+
+
+/* Front windows */
+
+for (
+  let x = -10;
+  x <= 10;
+  x += 5
+) {
+
+  addWindow(
+    x,
+    10,
+    -73.1
+  );
+
+  addWindow(
+    x,
+    15,
+    -73.1
+  );
+}
 
 
 /* =========================================================
    MOUNTAINS
-========================================================= */
+   ========================================================= */
 
 function createMountain(
   x,
   z,
-  scale
+  height,
+  width
 ) {
+
+  const geometry =
+    new THREE.ConeGeometry(
+      width,
+      height,
+      32,
+      4
+    );
+
+  const material =
+    new THREE.MeshStandardMaterial({
+
+      color: 0x596b62,
+
+      roughness: 0.95,
+
+      metalness: 0.0
+    });
 
   const mountain =
     new THREE.Mesh(
-      new THREE.ConeGeometry(
-        30,
-        65,
-        9
-      ),
-      new THREE.MeshStandardMaterial({
-        color: 0x53665a,
-        roughness: 1
-      })
+      geometry,
+      material
     );
 
   mountain.position.set(
     x,
-    30,
+    height / 2 - 1,
     z
   );
 
-  mountain.scale.setScalar(scale);
-
   mountain.castShadow = true;
+
   mountain.receiveShadow = true;
 
   scene.add(mountain);
 }
 
 
-createMountain(-115, -150, 1.7);
-createMountain(-65, -190, 2.2);
-createMountain(0, -220, 2.7);
-createMountain(70, -190, 2.0);
-createMountain(125, -150, 1.8);
-
-
-/* =========================================================
-   CASTLE
-========================================================= */
-
-function createCastle() {
-
-  const castle =
-    new THREE.Group();
-
-  castle.position.set(
-    0,
-    0,
-    -105
-  );
-
-
-  const stone =
-    new THREE.MeshStandardMaterial({
-      color: 0x77777b,
-      roughness: 0.9
-    });
-
-
-  const darkStone =
-    new THREE.MeshStandardMaterial({
-      color: 0x55565b,
-      roughness: 1
-    });
-
-
-  const main =
-    new THREE.Mesh(
-      new THREE.BoxGeometry(
-        55,
-        30,
-        30
-      ),
-      stone
-    );
-
-  main.position.y = 15;
-
-  main.castShadow = true;
-  main.receiveShadow = true;
-
-  castle.add(main);
-
-
-  function tower(x, z) {
-
-    const t =
-      new THREE.Mesh(
-        new THREE.CylinderGeometry(
-          7,
-          8,
-          38,
-          12
-        ),
-        darkStone
-      );
-
-    t.position.set(
-      x,
-      19,
-      z
-    );
-
-    t.castShadow = true;
-    t.receiveShadow = true;
-
-    castle.add(t);
-
-
-    const roof =
-      new THREE.Mesh(
-        new THREE.ConeGeometry(
-          9,
-          13,
-          12
-        ),
-        new THREE.MeshStandardMaterial({
-          color: 0x303846,
-          roughness: 0.8
-        })
-      );
-
-    roof.position.set(
-      x,
-      44,
-      z
-    );
-
-    roof.castShadow = true;
-
-    castle.add(roof);
-  }
-
-
-  tower(-28, -14);
-  tower(28, -14);
-  tower(-28, 14);
-  tower(28, 14);
-
-
-  const door =
-    new THREE.Mesh(
-      new THREE.BoxGeometry(
-        7,
-        12,
-        1
-      ),
-      new THREE.MeshStandardMaterial({
-        color: 0x251c18,
-        roughness: 0.9
-      })
-    );
-
-  door.position.set(
-    0,
-    6,
-    15.3
-  );
-
-  castle.add(door);
-
-
-  for (
-    let x = -20;
-    x <= 20;
-    x += 10
-  ) {
-
-    const window =
-      new THREE.Mesh(
-        new THREE.BoxGeometry(
-          3,
-          5,
-          0.7
-        ),
-        new THREE.MeshStandardMaterial({
-          color: 0x92c9df,
-          emissive: 0x224455,
-          emissiveIntensity: 0.5
-        })
-      );
-
-    window.position.set(
-      x,
-      17,
-      15.5
-    );
-
-    castle.add(window);
-  }
-
-
-  scene.add(castle);
-}
-
-createCastle();
-
-
-/* =========================================================
-   REAL 3D TREE
-========================================================= */
-
-let realTree = null;
-
-const loader =
-  new GLTFLoader();
-
-
-loader.load(
-
-  "./assets/tree.glb",
-
-  function(gltf) {
-
-    realTree = gltf.scene;
-
-    realTree.traverse(
-      function(object) {
-
-        if (
-          object.isMesh
-        ) {
-
-          object.castShadow = true;
-          object.receiveShadow = true;
-
-          object.frustumCulled = true;
-
-        }
-
-      }
-    );
-
-
-    /*
-      The downloaded model may have a different
-      original size, so calculate its dimensions.
-    */
-
-    const box =
-      new THREE.Box3()
-        .setFromObject(realTree);
-
-    const size =
-      new THREE.Vector3();
-
-    box.getSize(size);
-
-
-    if (size.y > 0) {
-
-      const desiredHeight = 14;
-
-      const scale =
-        desiredHeight / size.y;
-
-      realTree.scale.setScalar(
-        scale
-      );
-    }
-
-
-    /*
-      Put the real tree beside
-      the player.
-    */
-
-    realTree.position.set(
-      -13,
-      0,
-      2
-    );
-
-
-    scene.add(realTree);
-
-
-    /*
-      Second tree far away.
-      We use only two copies to
-      protect mobile performance.
-    */
-
-    const secondTree =
-      realTree.clone(true);
-
-    secondTree.position.set(
-      18,
-      0,
-      -35
-    );
-
-    secondTree.scale.copy(
-      realTree.scale
-    );
-
-    scene.add(secondTree);
-
-  },
-
-  undefined,
-
-  function(error) {
-
-    console.error(
-      "TREE LOAD ERROR:",
-      error
-    );
-
-    showMessage(
-      "Tree model could not load"
-    );
-
-  }
+createMountain(
+  -65,
+  -95,
+  70,
+  40
+);
+
+createMountain(
+  65,
+  -105,
+  85,
+  45
+);
+
+createMountain(
+  -90,
+  -150,
+  110,
+  60
+);
+
+createMountain(
+  90,
+  -170,
+  120,
+  65
 );
 
 
 /* =========================================================
-   FALLBACK SMALL TREES
-========================================================= */
-
-function createFallbackTree(
-  x,
-  z,
-  scale = 1
-) {
-
-  const group =
-    new THREE.Group();
-
-
-  const trunk =
-    new THREE.Mesh(
-      new THREE.CylinderGeometry(
-        0.45,
-        0.7,
-        4,
-        8
-      ),
-      new THREE.MeshStandardMaterial({
-        color: 0x60452e,
-        roughness: 1
-      })
-    );
-
-  trunk.position.y = 2;
-
-  trunk.castShadow = true;
-
-  group.add(trunk);
-
-
-  const leaves =
-    new THREE.Mesh(
-      new THREE.SphereGeometry(
-        2.8,
-        10,
-        8
-      ),
-      new THREE.MeshStandardMaterial({
-        color: 0x315f32,
-        roughness: 1
-      })
-    );
-
-  leaves.position.y = 5;
-
-  leaves.castShadow = true;
-
-  group.add(leaves);
-
-
-  group.position.set(
-    x,
-    0,
-    z
-  );
-
-  group.scale.setScalar(
-    scale
-  );
-
-  scene.add(group);
-}
-
-
-/*
-  Distant fallback vegetation.
-  These remain until we later replace
-  the whole environment with real assets.
-*/
-
-createFallbackTree(-35, -45, 2);
-createFallbackTree(35, -60, 2);
-createFallbackTree(-50, -80, 2.5);
-createFallbackTree(48, -95, 2.3);
-
-
-/* =========================================================
    ROCKS
-========================================================= */
+   ========================================================= */
 
 function createRock(
   x,
+  y,
   z,
   scale
 ) {
 
+  const geometry =
+    new THREE.DodecahedronGeometry(
+      scale,
+      1
+    );
+
+  const material =
+    new THREE.MeshStandardMaterial({
+
+      color: 0x59605a,
+
+      roughness: 0.92,
+
+      metalness: 0
+    });
+
   const rock =
     new THREE.Mesh(
-      new THREE.DodecahedronGeometry(
-        2,
-        1
-      ),
-      new THREE.MeshStandardMaterial({
-        color: 0x62665f,
-        roughness: 1
-      })
+      geometry,
+      material
     );
 
   rock.position.set(
     x,
-    1,
+    y,
     z
   );
 
-  rock.scale.set(
-    scale * 1.4,
-    scale,
-    scale
+  rock.rotation.set(
+    Math.random(),
+    Math.random(),
+    Math.random()
   );
 
-  rock.rotation.y =
-    Math.random() * Math.PI;
-
   rock.castShadow = true;
+
   rock.receiveShadow = true;
 
   scene.add(rock);
 }
 
 
-createRock(-8, -18, 1.5);
-createRock(10, -30, 1.2);
-createRock(-20, -55, 2);
-createRock(20, -75, 1.5);
+/* Natural scattered rocks */
+
+for (
+  let i = 0;
+  i < 35;
+  i++
+) {
+
+  const side =
+    Math.random() < 0.5
+      ? -1
+      : 1;
+
+  const x =
+    side *
+    (20 + Math.random() * 55);
+
+  const z =
+    -10 -
+    Math.random() * 130;
+
+  createRock(
+    x,
+    0.4,
+    z,
+    0.5 +
+    Math.random() * 1.3
+  );
+}
 
 
 /* =========================================================
-   WIZARD
-========================================================= */
+   WATER
+   ========================================================= */
+
+const waterGeometry =
+  new THREE.PlaneGeometry(
+    95,
+    70,
+    32,
+    32
+  );
+
+waterGeometry.rotateX(
+  -Math.PI / 2
+);
+
+
+const waterMaterial =
+  new THREE.MeshPhysicalMaterial({
+
+    color: 0x285d75,
+
+    roughness: 0.16,
+
+    metalness: 0.08,
+
+    transparent: true,
+
+    opacity: 0.72,
+
+    transmission: 0.05,
+
+    clearcoat: 0.8,
+
+    clearcoatRoughness: 0.15
+  });
+
+
+const water =
+  new THREE.Mesh(
+    waterGeometry,
+    waterMaterial
+  );
+
+water.position.set(
+  0,
+  -0.05,
+  -30
+);
+
+water.receiveShadow = true;
+
+scene.add(water);
+
+
+/* =========================================================
+   REAL TREE MODEL
+   ========================================================= */
+
+const gltfLoader =
+  new GLTFLoader();
+
+let realTree = null;
+
+
+gltfLoader.load(
+  "./assets/tree.glb",
+
+  (gltf) => {
+
+    realTree =
+      gltf.scene;
+
+    realTree.scale.set(
+      3.5,
+      3.5,
+      3.5
+    );
+
+    realTree.position.set(
+      -18,
+      0,
+      -20
+    );
+
+    realTree.traverse(
+      (object) => {
+
+        if (
+          object.isMesh
+        ) {
+
+          object.castShadow =
+            true;
+
+          object.receiveShadow =
+            true;
+        }
+      }
+    );
+
+    scene.add(
+      realTree
+    );
+
+
+    /* Additional trees */
+
+    const treePositions = [
+
+      [18, -28, 4],
+      [-28, -45, 4.5],
+      [32, -55, 5],
+      [-42, -70, 5],
+      [40, -85, 5.5],
+      [-52, -105, 6],
+      [55, -125, 6]
+    ];
+
+
+    treePositions.forEach(
+      (pos) => {
+
+        const clone =
+          realTree.clone(
+            true
+          );
+
+        clone.position.set(
+          pos[0],
+          0,
+          pos[1]
+        );
+
+        const s =
+          pos[2] / 4;
+
+        clone.scale.set(
+          s,
+          s,
+          s
+        );
+
+        scene.add(
+          clone
+        );
+      }
+    );
+
+
+    if (loading) {
+      loading.style.display =
+        "none";
+    }
+  },
+
+  undefined,
+
+  (error) => {
+
+    console.error(
+      "Tree loading error:",
+      error
+    );
+
+    if (loading) {
+      loading.innerText =
+        "World loaded";
+    }
+  }
+);
+
+
+/* =========================================================
+   PLAYER / WIZARD
+   ========================================================= */
 
 const player =
   new THREE.Group();
 
-
 player.position.set(
   0,
   0,
-  15
+  8
 );
 
+scene.add(player);
 
-/* legs */
 
-const legMaterial =
+/* Body */
+
+const bodyGeometry =
+  new THREE.CylinderGeometry(
+    0.7,
+    0.9,
+    2.2,
+    16
+  );
+
+const robeMaterial =
   new THREE.MeshStandardMaterial({
-    color: 0x242832,
-    roughness: 0.9
+
+    color: 0x171c2b,
+
+    roughness: 0.85,
+
+    metalness: 0.0
   });
 
-
-const leftLeg =
+const body =
   new THREE.Mesh(
-    new THREE.CylinderGeometry(
-      0.28,
-      0.32,
-      2.2,
-      8
-    ),
-    legMaterial
+    bodyGeometry,
+    robeMaterial
   );
 
-leftLeg.position.set(
-  -0.45,
-  1.1,
-  0
-);
+body.position.y = 1.1;
 
-leftLeg.castShadow = true;
+body.castShadow = true;
 
-player.add(leftLeg);
+player.add(body);
 
 
-const rightLeg =
-  leftLeg.clone();
+/* Head */
 
-rightLeg.position.x = 0.45;
-
-player.add(rightLeg);
-
-
-/* robe */
-
-const robe =
-  new THREE.Mesh(
-    new THREE.ConeGeometry(
-      1.45,
-      3.8,
-      16
-    ),
-    new THREE.MeshStandardMaterial({
-      color: 0x243b6b,
-      roughness: 0.85
-    })
+const headGeometry =
+  new THREE.SphereGeometry(
+    0.48,
+    20,
+    20
   );
 
-robe.position.y = 3.1;
+const skinMaterial =
+  new THREE.MeshStandardMaterial({
 
-robe.castShadow = true;
+    color: 0xb87959,
 
-player.add(robe);
-
-
-/* head */
+    roughness: 0.75
+  });
 
 const head =
   new THREE.Mesh(
-    new THREE.SphereGeometry(
-      0.75,
-      16,
-      12
-    ),
-    new THREE.MeshStandardMaterial({
-      color: 0xd4a07b,
-      roughness: 0.8
-    })
+    headGeometry,
+    skinMaterial
   );
 
-head.position.y = 5.5;
+head.position.y = 2.65;
 
 head.castShadow = true;
 
 player.add(head);
 
 
-/* hair */
+/* Hat */
 
-const hair =
-  new THREE.Mesh(
-    new THREE.SphereGeometry(
-      0.8,
-      16,
-      10
-    ),
-    new THREE.MeshStandardMaterial({
-      color: 0x211b19,
-      roughness: 1
-    })
+const hatMaterial =
+  new THREE.MeshStandardMaterial({
+
+    color: 0x10121b,
+
+    roughness: 0.9
+  });
+
+const hatGeometry =
+  new THREE.ConeGeometry(
+    0.65,
+    1.25,
+    20
   );
-
-hair.position.set(
-  0,
-  5.85,
-  -0.05
-);
-
-hair.scale.set(
-  1,
-  0.65,
-  1
-);
-
-hair.castShadow = true;
-
-player.add(hair);
-
-
-/* hat */
 
 const hat =
   new THREE.Mesh(
-    new THREE.ConeGeometry(
-      0.9,
-      1.8,
-      16
-    ),
-    new THREE.MeshStandardMaterial({
-      color: 0x33275a,
-      roughness: 0.8
-    })
+    hatGeometry,
+    hatMaterial
   );
 
-hat.position.y = 6.65;
+hat.position.y = 3.55;
 
 hat.castShadow = true;
 
 player.add(hat);
 
 
-/* hat rim */
+/* =========================================================
+   STAFF
+   ========================================================= */
 
-const rim =
-  new THREE.Mesh(
-    new THREE.CylinderGeometry(
-      1.25,
-      1.25,
-      0.15,
-      16
-    ),
-    new THREE.MeshStandardMaterial({
-      color: 0x33275a,
-      roughness: 0.8
-    })
+const staffGeometry =
+  new THREE.CylinderGeometry(
+    0.055,
+    0.08,
+    2.8,
+    10
   );
 
-rim.position.y = 5.95;
+const staffMaterial =
+  new THREE.MeshStandardMaterial({
 
-rim.castShadow = true;
+    color: 0x4d2d18,
 
-player.add(rim);
+    roughness: 0.9
+  });
 
-
-/* wand */
-
-const wand =
+const staff =
   new THREE.Mesh(
-    new THREE.CylinderGeometry(
-      0.05,
-      0.08,
-      2.2,
-      8
-    ),
-    new THREE.MeshStandardMaterial({
-      color: 0x5b3921,
-      roughness: 0.9
-    })
+    staffGeometry,
+    staffMaterial
   );
 
-wand.rotation.z =
-  -Math.PI / 3;
-
-wand.position.set(
-  1.25,
-  3.7,
-  -0.2
+staff.position.set(
+  0.9,
+  1.5,
+  0
 );
 
-wand.castShadow = true;
+staff.rotation.z =
+  -0.15;
 
-player.add(wand);
+staff.castShadow = true;
 
-
-scene.add(player);
+player.add(staff);
 
 
 /* =========================================================
-   PLAYER STATE
-========================================================= */
+   MAGIC ORB
+   ========================================================= */
 
-let hp = 100;
-let magic = 100;
-let xp = 0;
+const orbGeometry =
+  new THREE.SphereGeometry(
+    0.13,
+    16,
+    16
+  );
 
-let velocityY = 0;
-let onGround = true;
+const orbMaterial =
+  new THREE.MeshBasicMaterial({
 
-const speed = 0.18;
+    color: 0x8ddcff
+  });
 
-let moveX = 0;
-let moveZ = 0;
+const orb =
+  new THREE.Mesh(
+    orbGeometry,
+    orbMaterial
+  );
+
+orb.position.set(
+  0.9,
+  2.9,
+  0
+);
+
+player.add(orb);
+
+
+/* =========================================================
+   ENEMY
+   ========================================================= */
+
+const enemies = [];
+
+
+function createEnemy(
+  x,
+  z
+) {
+
+  const enemy =
+    new THREE.Group();
+
+  enemy.position.set(
+    x,
+    0,
+    z
+  );
+
+
+  const bodyGeo =
+    new THREE.CylinderGeometry(
+      0.7,
+      0.85,
+      2,
+      12
+    );
+
+  const enemyMat =
+    new THREE.MeshStandardMaterial({
+
+      color: 0x351b22,
+
+      roughness: 0.95
+    });
+
+  const enemyBody =
+    new THREE.Mesh(
+      bodyGeo,
+      enemyMat
+    );
+
+  enemyBody.position.y = 1;
+
+  enemyBody.castShadow = true;
+
+  enemy.add(enemyBody);
+
+
+  const headGeo =
+    new THREE.SphereGeometry(
+      0.45,
+      16,
+      16
+    );
+
+  const enemyHead =
+    new THREE.Mesh(
+      headGeo,
+      enemyMat
+    );
+
+  enemyHead.position.y =
+    2.35;
+
+  enemyHead.castShadow = true;
+
+  enemy.add(enemyHead);
+
+
+  scene.add(enemy);
+
+  enemies.push(enemy);
+}
+
+
+createEnemy(
+  -10,
+  -12
+);
+
+createEnemy(
+  12,
+  -25
+);
+
+createEnemy(
+  -16,
+  -42
+);
+
+
+/* =========================================================
+   SPELL PROJECTILES
+   ========================================================= */
+
+const spells = [];
+
+
+function castSpell() {
+
+  const geometry =
+    new THREE.SphereGeometry(
+      0.18,
+      16,
+      16
+    );
+
+  const material =
+    new THREE.MeshBasicMaterial({
+
+      color: 0x72d7ff
+    });
+
+  const spell =
+    new THREE.Mesh(
+      geometry,
+      material
+    );
+
+
+  const direction =
+    new THREE.Vector3(
+      0,
+      0,
+      -1
+    );
+
+  direction.applyQuaternion(
+    player.quaternion
+  );
+
+
+  spell.position.copy(
+    player.position
+  );
+
+  spell.position.y +=
+    2.2;
+
+
+  scene.add(spell);
+
+
+  spells.push({
+    mesh: spell,
+    velocity:
+      direction.multiplyScalar(
+        0.8
+      ),
+    life: 180
+  });
+}
+
+
+/* =========================================================
+   PLAYER MOVEMENT
+   ========================================================= */
+
+const keys = {};
+
+window.addEventListener(
+  "keydown",
+  (event) => {
+
+    keys[event.key.toLowerCase()] =
+      true;
+
+    if (
+      event.key === " "
+    ) {
+
+      jump();
+    }
+
+    if (
+      event.key.toLowerCase() ===
+      "f"
+    ) {
+
+      castSpell();
+    }
+  }
+);
+
+
+window.addEventListener(
+  "keyup",
+  (event) => {
+
+    keys[event.key.toLowerCase()] =
+      false;
+  }
+);
+
+
+/* =========================================================
+   JUMP
+   ========================================================= */
+
+let verticalVelocity = 0;
+
+let isGrounded = true;
+
+
+function jump() {
+
+  if (
+    !isGrounded
+  ) {
+    return;
+  }
+
+  verticalVelocity =
+    0.42;
+
+  isGrounded =
+    false;
+}
+
+
+const jumpButton =
+  document.getElementById(
+    "jumpBtn"
+  );
+
+if (jumpButton) {
+
+  jumpButton.addEventListener(
+    "touchstart",
+    (event) => {
+
+      event.preventDefault();
+
+      jump();
+    },
+    {
+      passive: false
+    }
+  );
+
+  jumpButton.addEventListener(
+    "click",
+    jump
+  );
+}
+
+
+/* =========================================================
+   SPELL BUTTON
+   ========================================================= */
+
+const spellButton =
+  document.getElementById(
+    "spellBtn"
+  );
+
+if (spellButton) {
+
+  spellButton.addEventListener(
+    "touchstart",
+    (event) => {
+
+      event.preventDefault();
+
+      castSpell();
+    },
+    {
+      passive: false
+    }
+  );
+
+  spellButton.addEventListener(
+    "click",
+    castSpell
+  );
+}
 
 
 /* =========================================================
    JOYSTICK
-========================================================= */
+   ========================================================= */
 
 const joystickBase =
   document.getElementById(
@@ -915,350 +1424,638 @@ const joystickStick =
   );
 
 
-let joystickActive = false;
+let joystickX = 0;
+let joystickY = 0;
+
+let joystickActive =
+  false;
 
 
-function updateJoystick(
-  clientX,
-  clientY
+if (
+  joystickBase &&
+  joystickStick
 ) {
 
-  const rect =
-    joystickBase.getBoundingClientRect();
-
-  const centerX =
-    rect.left + rect.width / 2;
-
-  const centerY =
-    rect.top + rect.height / 2;
-
-  let dx =
-    clientX - centerX;
-
-  let dy =
-    clientY - centerY;
-
-
-  const max =
-    rect.width * 0.32;
-
-  const distance =
-    Math.sqrt(
-      dx * dx +
-      dy * dy
-    );
-
-
-  if (distance > max) {
-
-    dx =
-      dx / distance * max;
-
-    dy =
-      dy / distance * max;
-  }
-
-
-  joystickStick.style.transform =
-    `translate(${dx}px, ${dy}px)`;
-
-
-  moveX =
-    dx / max;
-
-  moveZ =
-    dy / max;
-}
-
-
-function resetJoystick() {
-
-  joystickActive = false;
-
-  moveX = 0;
-  moveZ = 0;
-
-  joystickStick.style.transform =
-    "translate(0px, 0px)";
-}
-
-
-joystickBase.addEventListener(
-  "pointerdown",
-  function(e) {
-
-    joystickActive = true;
-
-    joystickBase.setPointerCapture(
-      e.pointerId
-    );
-
-    updateJoystick(
-      e.clientX,
-      e.clientY
-    );
-  }
-);
-
-
-joystickBase.addEventListener(
-  "pointermove",
-  function(e) {
-
-    if (!joystickActive) return;
-
-    updateJoystick(
-      e.clientX,
-      e.clientY
-    );
-  }
-);
-
-
-joystickBase.addEventListener(
-  "pointerup",
-  resetJoystick
-);
-
-
-joystickBase.addEventListener(
-  "pointercancel",
-  resetJoystick
-);
-
-
-/* =========================================================
-   KEYBOARD
-========================================================= */
-
-const keys = {};
-
-window.addEventListener(
-  "keydown",
-  e => {
-    keys[e.key.toLowerCase()] = true;
-  }
-);
-
-window.addEventListener(
-  "keyup",
-  e => {
-    keys[e.key.toLowerCase()] = false;
-  }
-);
-
-
-/* =========================================================
-   JUMP
-========================================================= */
-
-document
-  .getElementById("jumpBtn")
-  .addEventListener(
-    "pointerdown",
-    jump
-  );
-
-
-function jump() {
-
-  if (!onGround) return;
-
-  velocityY = 0.38;
-
-  onGround = false;
-}
-
-
-/* =========================================================
-   SPELL
-========================================================= */
-
-document
-  .getElementById("spellBtn")
-  .addEventListener(
-    "pointerdown",
-    castSpell
-  );
-
-
-function castSpell() {
-
-  if (magic < 10) {
-
-    showMessage(
-      "Not enough magic!"
-    );
-
-    return;
-  }
-
-
-  magic -= 10;
-
-  xp += 5;
-
-  updateHUD();
-
-
-  const spell =
-    new THREE.Mesh(
-      new THREE.SphereGeometry(
-        0.22,
-        10,
-        10
-      ),
-      new THREE.MeshBasicMaterial({
-        color: 0x9eeaff
-      })
-    );
-
-
-  spell.position.copy(
-    player.position
-  );
-
-  spell.position.y += 4;
-
-
-  scene.add(spell);
-
-
-  let life = 0;
-
-
-  const timer =
-    setInterval(
-      () => {
-
-        spell.position.z -= 1.2;
-
-        life++;
-
-
-        if (life > 35) {
-
-          clearInterval(timer);
-
-          scene.remove(
-            spell
-          );
-        }
-
-      },
-      16
-    );
-
-
-  showMessage(
-    "✨ Spell cast!"
-  );
-}
-
-
-/* =========================================================
-   HUD
-========================================================= */
-
-function updateHUD() {
-
-  document.getElementById(
-    "hpBar"
-  ).style.width =
-    `${hp}%`;
-
-  document.getElementById(
-    "magicBar"
-  ).style.width =
-    `${magic}%`;
-
-  document.getElementById(
-    "hpText"
-  ).textContent =
-    Math.round(hp);
-
-  document.getElementById(
-    "magicText"
-  ).textContent =
-    Math.round(magic);
-
-  document.getElementById(
-    "xpText"
-  ).textContent =
-    xp;
-}
-
-
-function showMessage(
-  text
-) {
-
-  const message =
-    document.getElementById(
-      "message"
-    );
-
-  message.textContent =
-    text;
-
-  setTimeout(
-    () => {
-      message.textContent = "";
+  joystickBase.addEventListener(
+    "touchstart",
+    (event) => {
+
+      joystickActive =
+        true;
     },
-    1800
+    {
+      passive: true
+    }
+  );
+
+
+  joystickBase.addEventListener(
+    "touchmove",
+    (event) => {
+
+      if (
+        !joystickActive
+      ) {
+        return;
+      }
+
+      const touch =
+        event.touches[0];
+
+      const rect =
+        joystickBase.getBoundingClientRect();
+
+      const centerX =
+        rect.left +
+        rect.width / 2;
+
+      const centerY =
+        rect.top +
+        rect.height / 2;
+
+      let dx =
+        touch.clientX -
+        centerX;
+
+      let dy =
+        touch.clientY -
+        centerY;
+
+
+      const radius =
+        rect.width / 2;
+
+
+      const distance =
+        Math.sqrt(
+          dx * dx +
+          dy * dy
+        );
+
+
+      if (
+        distance > radius
+      ) {
+
+        dx =
+          dx /
+          distance *
+          radius;
+
+        dy =
+          dy /
+          distance *
+          radius;
+      }
+
+
+      joystickX =
+        dx / radius;
+
+      joystickY =
+        dy / radius;
+
+
+      joystickStick.style.transform =
+        `translate(${dx}px, ${dy}px)`;
+    },
+    {
+      passive: true
+    }
+  );
+
+
+  joystickBase.addEventListener(
+    "touchend",
+    () => {
+
+      joystickActive =
+        false;
+
+      joystickX = 0;
+      joystickY = 0;
+
+      joystickStick.style.transform =
+        "translate(0px, 0px)";
+    }
   );
 }
 
 
 /* =========================================================
-   CAMERA SWIPE
-========================================================= */
+   CAMERA
+   ========================================================= */
 
 let cameraYaw = 0;
 
-let swipeActive = false;
-let lastX = 0;
+let cameraPitch = 0.15;
+
+let swipeActive =
+  false;
+
+let lastTouchX = 0;
+let lastTouchY = 0;
 
 
-renderer.domElement.addEventListener(
-  "pointerdown",
-  e => {
+window.addEventListener(
+  "touchstart",
+  (event) => {
+
+    if (
+      event.touches.length !== 1
+    ) {
+      return;
+    }
+
+    const target =
+      event.target;
+
+    if (
+      target.closest(
+        "#joystickBase"
+      ) ||
+      target.closest(
+        "#jumpBtn"
+      ) ||
+      target.closest(
+        "#spellBtn"
+      )
+    ) {
+      return;
+    }
 
     swipeActive = true;
 
-    lastX = e.clientX;
+    lastTouchX =
+      event.touches[0].clientX;
+
+    lastTouchY =
+      event.touches[0].clientY;
+  },
+  {
+    passive: true
   }
 );
 
 
-renderer.domElement.addEventListener(
-  "pointermove",
-  e => {
+window.addEventListener(
+  "touchmove",
+  (event) => {
 
-    if (!swipeActive) return;
+    if (
+      !swipeActive
+    ) {
+      return;
+    }
+
+    const touch =
+      event.touches[0];
 
     const dx =
-      e.clientX - lastX;
+      touch.clientX -
+      lastTouchX;
+
+    const dy =
+      touch.clientY -
+      lastTouchY;
 
     cameraYaw -=
       dx * 0.004;
 
-    lastX = e.clientX;
+    cameraPitch -=
+      dy * 0.003;
+
+    cameraPitch =
+      THREE.MathUtils.clamp(
+        cameraPitch,
+        -0.1,
+        0.65
+      );
+
+    lastTouchX =
+      touch.clientX;
+
+    lastTouchY =
+      touch.clientY;
+  },
+  {
+    passive: true
   }
 );
 
 
-renderer.domElement.addEventListener(
-  "pointerup",
+window.addEventListener(
+  "touchend",
   () => {
+
     swipeActive = false;
   }
 );
 
 
 /* =========================================================
-   GAME LOOP
-========================================================= */
+   HUD
+   ========================================================= */
+
+let hp = 100;
+
+let magic = 100;
+
+let xp = 0;
+
+
+function updateHUD() {
+
+  const hpBar =
+    document.getElementById(
+      "hpBar"
+    );
+
+  const magicBar =
+    document.getElementById(
+      "magicBar"
+    );
+
+  const hpText =
+    document.getElementById(
+      "hpText"
+    );
+
+  const magicText =
+    document.getElementById(
+      "magicText"
+    );
+
+  const xpText =
+    document.getElementById(
+      "xpText"
+    );
+
+
+  if (hpBar) {
+
+    hpBar.style.width =
+      hp + "%";
+  }
+
+  if (magicBar) {
+
+    magicBar.style.width =
+      magic + "%";
+  }
+
+  if (hpText) {
+
+    hpText.innerText =
+      "HP " +
+      Math.round(hp);
+  }
+
+  if (magicText) {
+
+    magicText.innerText =
+      "Magic " +
+      Math.round(magic);
+  }
+
+  if (xpText) {
+
+    xpText.innerText =
+      "XP " +
+      Math.round(xp);
+  }
+}
+
+
+/* =========================================================
+   PLAYER UPDATE
+   ========================================================= */
+
+function updatePlayer() {
+
+  let moveX =
+    joystickX;
+
+  let moveZ =
+    joystickY;
+
+
+  if (
+    keys["w"] ||
+    keys["arrowup"]
+  ) {
+    moveZ -= 1;
+  }
+
+  if (
+    keys["s"] ||
+    keys["arrowdown"]
+  ) {
+    moveZ += 1;
+  }
+
+  if (
+    keys["a"] ||
+    keys["arrowleft"]
+  ) {
+    moveX -= 1;
+  }
+
+  if (
+    keys["d"] ||
+    keys["arrowright"]
+  ) {
+    moveX += 1;
+  }
+
+
+  const movement =
+    new THREE.Vector3(
+      moveX,
+      0,
+      moveZ
+    );
+
+
+  if (
+    movement.length() > 1
+  ) {
+
+    movement.normalize();
+  }
+
+
+  const speed =
+    0.18;
+
+
+  /* Camera-relative movement */
+
+  const forward =
+    new THREE.Vector3(
+      -Math.sin(cameraYaw),
+      0,
+      -Math.cos(cameraYaw)
+    );
+
+  const right =
+    new THREE.Vector3(
+      Math.cos(cameraYaw),
+      0,
+      -Math.sin(cameraYaw)
+    );
+
+
+  const finalMovement =
+    new THREE.Vector3();
+
+
+  finalMovement.addScaledVector(
+    right,
+    movement.x
+  );
+
+  finalMovement.addScaledVector(
+    forward,
+    -movement.z
+  );
+
+
+  if (
+    finalMovement.length() > 0
+  ) {
+
+    finalMovement.normalize();
+
+    player.position.addScaledVector(
+      finalMovement,
+      speed
+    );
+
+
+    player.rotation.y =
+      Math.atan2(
+        finalMovement.x,
+        finalMovement.z
+      );
+  }
+
+
+  /* Gravity */
+
+  verticalVelocity -=
+    0.018;
+
+  player.position.y +=
+    verticalVelocity;
+
+
+  if (
+    player.position.y <= 0
+  ) {
+
+    player.position.y = 0;
+
+    verticalVelocity = 0;
+
+    isGrounded = true;
+  }
+
+
+  /* World boundaries */
+
+  player.position.x =
+    THREE.MathUtils.clamp(
+      player.position.x,
+      -75,
+      75
+    );
+
+  player.position.z =
+    THREE.MathUtils.clamp(
+      player.position.z,
+      -150,
+      25
+    );
+}
+
+
+/* =========================================================
+   ENEMY UPDATE
+   ========================================================= */
+
+function updateEnemies() {
+
+  enemies.forEach(
+    (enemy) => {
+
+      const distance =
+        enemy.position.distanceTo(
+          player.position
+        );
+
+
+      if (
+        distance < 20
+      ) {
+
+        const direction =
+          new THREE.Vector3()
+            .subVectors(
+              player.position,
+              enemy.position
+            )
+            .normalize();
+
+        direction.y = 0;
+
+
+        enemy.position.addScaledVector(
+          direction,
+          0.025
+        );
+
+
+        enemy.lookAt(
+          player.position.x,
+          enemy.position.y,
+          player.position.z
+        );
+      }
+    }
+  );
+}
+
+
+/* =========================================================
+   SPELL UPDATE
+   ========================================================= */
+
+function updateSpells() {
+
+  for (
+    let i = spells.length - 1;
+    i >= 0;
+    i--
+  ) {
+
+    const spell =
+      spells[i];
+
+    spell.mesh.position.add(
+      spell.velocity
+    );
+
+    spell.life--;
+
+
+    /* Enemy collision */
+
+    enemies.forEach(
+      (enemy) => {
+
+        if (
+          spell.mesh.position.distanceTo(
+            enemy.position
+          ) < 1.4
+        ) {
+
+          enemy.position.y =
+            -100;
+
+          xp += 10;
+
+          spell.life = 0;
+        }
+      }
+    );
+
+
+    if (
+      spell.life <= 0
+    ) {
+
+      scene.remove(
+        spell.mesh
+      );
+
+      spells.splice(
+        i,
+        1
+      );
+    }
+  }
+}
+
+
+/* =========================================================
+   CAMERA FOLLOW
+   ========================================================= */
+
+function updateCamera() {
+
+  const distance = 10;
+
+  const height = 5.5;
+
+
+  const offset =
+    new THREE.Vector3(
+      Math.sin(cameraYaw) *
+        distance,
+
+      height +
+        cameraPitch * 4,
+
+      Math.cos(cameraYaw) *
+        distance
+    );
+
+
+  const desiredPosition =
+    player.position
+      .clone()
+      .add(offset);
+
+
+  camera.position.lerp(
+    desiredPosition,
+    0.12
+  );
+
+
+  const target =
+    player.position
+      .clone();
+
+  target.y += 2;
+
+
+  camera.lookAt(
+    target
+  );
+}
+
+
+/* =========================================================
+   MAGIC REGENERATION
+   ========================================================= */
+
+function updateMagic() {
+
+  magic += 0.035;
+
+  if (
+    magic > 100
+  ) {
+    magic = 100;
+  }
+}
+
+
+/* =========================================================
+   ANIMATION
+   ========================================================= */
 
 const clock =
   new THREE.Clock();
@@ -1272,156 +2069,41 @@ function animate() {
 
 
   const delta =
-    Math.min(
-      clock.getDelta(),
-      0.05
-    );
+    clock.getDelta();
 
 
-  let inputX = moveX;
-  let inputZ = moveZ;
+  updatePlayer();
+
+  updateEnemies();
+
+  updateSpells();
+
+  updateCamera();
+
+  updateMagic();
+
+  updateHUD();
 
 
-  if (keys["a"])
-    inputX = -1;
+  /* Magic orb animation */
 
-  if (keys["d"])
-    inputX = 1;
-
-  if (keys["w"])
-    inputZ = -1;
-
-  if (keys["s"])
-    inputZ = 1;
+  orb.position.y =
+    2.9 +
+    Math.sin(
+      performance.now() *
+      0.004
+    ) *
+    0.08;
 
 
-  /*
-    Player movement
-  */
+  /* Very subtle water movement */
 
-  player.position.x +=
-    inputX * speed;
-
-  player.position.z +=
-    inputZ * speed;
-
-
-  /*
-    Keep player inside world
-  */
-
-  player.position.x =
-    THREE.MathUtils.clamp(
-      player.position.x,
-      -110,
-      110
-    );
-
-  player.position.z =
-    THREE.MathUtils.clamp(
-      player.position.z,
-      -240,
-      40
-    );
-
-
-  /*
-    Jump physics
-  */
-
-  velocityY -=
-    0.018;
-
-  player.position.y +=
-    velocityY;
-
-
-  if (
-    player.position.y <= 0
-  ) {
-
-    player.position.y = 0;
-
-    velocityY = 0;
-
-    onGround = true;
-  }
-
-
-  /*
-    Rotate wizard toward movement
-  */
-
-  if (
-    Math.abs(inputX) +
-    Math.abs(inputZ) > 0.1
-  ) {
-
-    const target =
-      Math.atan2(
-        inputX,
-        inputZ
-      );
-
-    player.rotation.y =
-      THREE.MathUtils.lerp(
-        player.rotation.y,
-        target,
-        0.12
-      );
-  }
-
-
-  /*
-    Camera follows player
-  */
-
-  const cameraDistance = 13;
-
-  const cameraHeight = 6;
-
-
-  const desiredX =
-    player.position.x +
-    Math.sin(cameraYaw) *
-    cameraDistance;
-
-  const desiredZ =
-    player.position.z +
-    Math.cos(cameraYaw) *
-    cameraDistance;
-
-
-  camera.position.x =
-    THREE.MathUtils.lerp(
-      camera.position.x,
-      desiredX,
-      0.08
-    );
-
-
-  camera.position.z =
-    THREE.MathUtils.lerp(
-      camera.position.z,
-      desiredZ,
-      0.08
-    );
-
-
-  camera.position.y =
-    THREE.MathUtils.lerp(
-      camera.position.y,
-      player.position.y +
-      cameraHeight,
-      0.08
-    );
-
-
-  camera.lookAt(
-    player.position.x,
-    player.position.y + 3,
-    player.position.z
-  );
+  water.rotation.z =
+    Math.sin(
+      performance.now() *
+      0.0002
+    ) *
+    0.002;
 
 
   renderer.render(
@@ -1432,8 +2114,8 @@ function animate() {
 
 
 /* =========================================================
-   WINDOW RESIZE
-========================================================= */
+   RESIZE
+   ========================================================= */
 
 window.addEventListener(
   "resize",
@@ -1455,25 +2137,8 @@ window.addEventListener(
 
 /* =========================================================
    START
-========================================================= */
+   ========================================================= */
 
 updateHUD();
 
 animate();
-
-
-/*
-  Give the GLB a little time to load,
-  then remove loading screen.
-*/
-
-setTimeout(
-  () => {
-
-    document
-      .getElementById("loading")
-      .classList.add("hidden");
-
-  },
-  1800
-);
