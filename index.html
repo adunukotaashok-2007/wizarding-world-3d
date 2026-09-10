@@ -1,118 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<meta
-  name="viewport"
-  content="width=device-width,
-  initial-scale=1.0,
-  maximum-scale=1.0,
-  user-scalable=no,
-  viewport-fit=cover"
->
+  <title>Wizarding World 3D</title>
 
-<title>Wizarding World 3D</title>
+  <link rel="stylesheet" href="./style.css">
 
-<link rel="stylesheet" href="style.css">
-
-<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
 </head>
 
 <body>
 
-<div id="game"></div>
+  <div id="loading">
+    <div class="loading-title">WIZARDING WORLD 3D</div>
+    <div class="loading-text">Loading magical world...</div>
+  </div>
 
-<!-- TOP HUD -->
-<div id="hud">
+  <div id="game">
 
-    <div class="game-title">
-        WIZARDING WORLD
-        <span>3D</span>
-    </div>
+    <div id="topHud">
+      <div class="title">WIZARDING WORLD 3D</div>
 
-    <div class="stats">
+      <div class="bars">
 
-        <div class="stat">
-            <span>HP</span>
-            <div class="bar">
-                <div id="hpBar"></div>
-            </div>
-            <b id="hpText">100</b>
+        <div class="bar-row">
+          <span>HP</span>
+          <div class="bar">
+            <div id="hpBar"></div>
+          </div>
+          <span id="hpText">100</span>
         </div>
 
-        <div class="stat">
-            <span>MAGIC</span>
-            <div class="bar magic">
-                <div id="magicBar"></div>
-            </div>
-            <b id="magicText">100</b>
+        <div class="bar-row">
+          <span>MAGIC</span>
+          <div class="bar">
+            <div id="magicBar"></div>
+          </div>
+          <span id="magicText">100</span>
         </div>
 
-        <div class="stat">
-            <span>XP</span>
-            <b id="xpText">0</b>
+        <div class="xp">
+          XP: <span id="xpText">0</span>
         </div>
 
+      </div>
     </div>
 
-</div>
-
-<!-- QUEST -->
-<div id="quest">
-    <small>QUEST</small>
-    <div id="questText">
-        Explore the magical valley
+    <div id="quest">
+      <b>QUEST</b>
+      <br>
+      Explore the magical valley
     </div>
-</div>
 
-<!-- LOCATION -->
-<div id="location">
-    Enchanted Valley
-</div>
-
-<!-- CROSSHAIR -->
-<div id="crosshair">
-    +
-</div>
-
-<!-- MESSAGE -->
-<div id="message"></div>
-
-<!-- JOYSTICK -->
-<div id="joystick">
+    <div id="message"></div>
 
     <div id="joystickBase">
-        <div id="joystickStick"></div>
+      <div id="joystickStick"></div>
     </div>
 
-</div>
+    <button id="jumpBtn">JUMP</button>
+    <button id="spellBtn">SPELL</button>
 
-<!-- ACTION BUTTONS -->
+  </div>
 
-<div id="actions">
-
-    <button id="jumpBtn">
-        JUMP
-    </button>
-
-    <button id="spellBtn">
-        ✨
-        <small>CAST</small>
-    </button>
-
-</div>
-
-<div id="cameraHint">
-    DRAG TO LOOK
-</div>
-
-<div id="portrait">
-    Rotate your phone to landscape
-</div>
-
-<script src="game.js"></script>
+  <script type="module" src="./game.js"></script>
 
 </body>
 </html>
