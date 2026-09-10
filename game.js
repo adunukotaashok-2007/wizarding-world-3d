@@ -1,6 +1,7 @@
 /* =========================================================
    WIZARDING WORLD 3D
-   V6 - VISIBILITY + HERO + ENEMIES + WATER
+   REAL PLAYER GLB VERSION
+   Mobile / Tablet
    ========================================================= */
 
 import * as THREE from "three";
@@ -12,32 +13,34 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color(0x87a9b8);
+scene.background = new THREE.Color(0x87b8dc);
 
 scene.fog = new THREE.FogExp2(
-    0x87a9b8,
-    0.008
+  0x87b8dc,
+  0.0035
 );
 
 const camera = new THREE.PerspectiveCamera(
-    60,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
+  65,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  500
 );
 
+camera.position.set(0, 5, 10);
+
 const renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    powerPreference: "high-performance"
+  antialias: false,
+  powerPreference: "high-performance"
 });
 
 renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
+  window.innerWidth,
+  window.innerHeight
 );
 
 renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio, 1.5)
+  Math.min(window.devicePixelRatio, 1.5)
 );
 
 renderer.shadowMap.enabled = true;
@@ -46,25 +49,9 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
-
-renderer.domElement.style.position = "fixed";
-renderer.domElement.style.left = "0";
-renderer.domElement.style.top = "0";
-renderer.domElement.style.zIndex = "0";
+renderer.toneMappingExposure = 1.05;
 
 document.body.appendChild(renderer.domElement);
-
-
-/* =========================================================
-   WORLD
-   ========================================================= */
-
-const clock = new THREE.Clock();
-
-const world = new THREE.Group();
-
-scene.add(world);
 
 
 /* =========================================================
@@ -72,121 +59,223 @@ scene.add(world);
    ========================================================= */
 
 const hemiLight = new THREE.HemisphereLight(
-    0xcfe8ff,
-    0x34452f,
-    2.2
+  0xbfdfff,
+  0x405040,
+  2.0
 );
 
 scene.add(hemiLight);
 
 
 const sun = new THREE.DirectionalLight(
-    0xfff1d2,
-    4
+  0xffffff,
+  3.0
 );
 
 sun.position.set(
-    80,
-    120,
-    60
+  50,
+  80,
+  30
 );
 
 sun.castShadow = true;
 
-sun.shadow.mapSize.width = 2048;
-sun.shadow.mapSize.height = 2048;
+sun.shadow.mapSize.width = 1024;
+sun.shadow.mapSize.height = 1024;
 
-sun.shadow.camera.left = -150;
-sun.shadow.camera.right = 150;
-sun.shadow.camera.top = 150;
-sun.shadow.camera.bottom = -150;
+sun.shadow.camera.near = 1;
+sun.shadow.camera.far = 200;
+
+sun.shadow.camera.left = -70;
+sun.shadow.camera.right = 70;
+sun.shadow.camera.top = 70;
+sun.shadow.camera.bottom = -70;
 
 scene.add(sun);
+
+
+/* =========================================================
+   GAME VARIABLES
+   ========================================================= */
+
+let player = null;
+let playerMixer = null;
+let playerAnimations = [];
+
+let currentAction = null;
+
+let hp = 100;
+let magic = 100;
+let xp = 0;
+
+let velocityY = 0;
+let onGround = true;
+
+let spellCooldown = 0;
+
+const clock = new THREE.Clock();
+
+
+/* =========================================================
+   PLAYER POSITION
+   ========================================================= */
+
+const playerPosition = new THREE.Vector3(
+  0,
+  0,
+  8
+);
 
 
 /* =========================================================
    GROUND
    ========================================================= */
 
-const groundLoader = new THREE.TextureLoader();
+const textureLoader = new THREE.TextureLoader();
 
-const groundDiffuse =
-    groundLoader.load("./assets/ground/diffuse.jpg");
+const groundTexture =
+  textureLoader.load("./assets/ground/diffuse.jpg");
 
 const groundNormal =
-    groundLoader.load("./assets/ground/normal.jpg");
+  textureLoader.load("./assets/ground/normal.jpg");
 
 const groundRough =
-    groundLoader.load("./assets/ground/rough.jpg");
+  textureLoader.load("./assets/ground/rough.jpg");
 
-groundDiffuse.wrapS =
-groundDiffuse.wrapT =
-THREE.RepeatWrapping;
+groundTexture.colorSpace =
+  THREE.SRGBColorSpace;
+
+groundTexture.wrapS =
+  THREE.RepeatWrapping;
+
+groundTexture.wrapT =
+  THREE.RepeatWrapping;
 
 groundNormal.wrapS =
+  THREE.RepeatWrapping;
+
 groundNormal.wrapT =
-THREE.RepeatWrapping;
+  THREE.RepeatWrapping;
 
 groundRough.wrapS =
+  THREE.RepeatWrapping;
+
 groundRough.wrapT =
-THREE.RepeatWrapping;
+  THREE.RepeatWrapping;
 
-groundDiffuse.repeat.set(18, 18);
-groundNormal.repeat.set(18, 18);
-groundRough.repeat.set(18, 18);
+groundTexture.repeat.set(35, 35);
+groundNormal.repeat.set(35, 35);
+groundRough.repeat.set(35, 35);
 
 
-const groundMaterial = new THREE.MeshStandardMaterial({
-    map: groundDiffuse,
+const groundMaterial =
+  new THREE.MeshStandardMaterial({
+
+    map: groundTexture,
+
     normalMap: groundNormal,
+
     roughnessMap: groundRough,
-    roughness: 0.92,
+
+    roughness: 1,
+
     metalness: 0
-});
+
+  });
 
 
 const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(
-        300,
-        300,
-        100,
-        100
-    ),
-    groundMaterial
+  new THREE.PlaneGeometry(
+    220,
+    220,
+    1,
+    1
+  ),
+  groundMaterial
 );
 
 ground.rotation.x = -Math.PI / 2;
 
+ground.position.y = 0;
+
 ground.receiveShadow = true;
 
-world.add(ground);
+scene.add(ground);
 
 
 /* =========================================================
-   STONE PATH
+   CASTLE MATERIAL
    ========================================================= */
 
-const pathMaterial = new THREE.MeshStandardMaterial({
-    color: 0x77766f,
-    roughness: 0.95
-});
+const castleDiffuse =
+  textureLoader.load(
+    "./assets/castle/diffuse.jpg"
+  );
 
-const path = new THREE.Mesh(
-    new THREE.PlaneGeometry(14, 180),
-    pathMaterial
-);
+const castleNormal =
+  textureLoader.load(
+    "./assets/castle/normal.jpg"
+  );
 
-path.rotation.x = -Math.PI / 2;
+const castleRough =
+  textureLoader.load(
+    "./assets/castle/rough.jpg"
+  );
 
-path.position.set(
-    0,
-    0.025,
-    -50
-);
+const castleAO =
+  textureLoader.load(
+    "./assets/castle/ao.jpg"
+  );
 
-path.receiveShadow = true;
+castleDiffuse.colorSpace =
+  THREE.SRGBColorSpace;
 
-world.add(path);
+castleDiffuse.wrapS =
+  THREE.RepeatWrapping;
+
+castleDiffuse.wrapT =
+  THREE.RepeatWrapping;
+
+castleNormal.wrapS =
+  THREE.RepeatWrapping;
+
+castleNormal.wrapT =
+  THREE.RepeatWrapping;
+
+castleRough.wrapS =
+  THREE.RepeatWrapping;
+
+castleRough.wrapT =
+  THREE.RepeatWrapping;
+
+castleAO.wrapS =
+  THREE.RepeatWrapping;
+
+castleAO.wrapT =
+  THREE.RepeatWrapping;
+
+castleDiffuse.repeat.set(5, 4);
+castleNormal.repeat.set(5, 4);
+castleRough.repeat.set(5, 4);
+castleAO.repeat.set(5, 4);
+
+
+const castleMaterial =
+  new THREE.MeshStandardMaterial({
+
+    map: castleDiffuse,
+
+    normalMap: castleNormal,
+
+    roughnessMap: castleRough,
+
+    aoMap: castleAO,
+
+    roughness: 0.9,
+
+    metalness: 0
+
+  });
 
 
 /* =========================================================
@@ -195,435 +284,464 @@ world.add(path);
 
 function createCastle() {
 
-    const castle = new THREE.Group();
+  const castle = new THREE.Group();
 
-    castle.position.set(
-        0,
-        0,
-        -70
-    );
+  castle.position.set(
+    0,
+    0,
+    -45
+  );
 
-    world.add(castle);
-
-
-    const castleDiffuse =
-        groundLoader.load("./assets/castle/diffuse.jpg");
-
-    const castleNormal =
-        groundLoader.load("./assets/castle/normal.jpg");
-
-    const castleRough =
-        groundLoader.load("./assets/castle/rough.jpg");
-
-    castleDiffuse.wrapS =
-    castleDiffuse.wrapT =
-    THREE.RepeatWrapping;
-
-    castleNormal.wrapS =
-    castleNormal.wrapT =
-    THREE.RepeatWrapping;
-
-    castleRough.wrapS =
-    castleRough.wrapT =
-    THREE.RepeatWrapping;
-
-    castleDiffuse.repeat.set(5, 5);
-    castleNormal.repeat.set(5, 5);
-    castleRough.repeat.set(5, 5);
+  scene.add(castle);
 
 
-    const wallMaterial =
-        new THREE.MeshStandardMaterial({
+  /* Main building */
 
-            map: castleDiffuse,
+  const mainBuilding =
+    new THREE.Mesh(
 
-            normalMap: castleNormal,
+      new THREE.BoxGeometry(
+        38,
+        25,
+        18
+      ),
 
-            roughnessMap: castleRough,
-
-            roughness: 0.82,
-
-            metalness: 0
-
-        });
-
-
-    /* MAIN CASTLE */
-
-    const main = new THREE.Mesh(
-
-        new THREE.BoxGeometry(
-            50,
-            30,
-            28
-        ),
-
-        wallMaterial
+      castleMaterial
 
     );
 
-    main.position.y = 15;
+  mainBuilding.position.y = 12.5;
 
-    main.castShadow = true;
-    main.receiveShadow = true;
+  mainBuilding.castShadow = true;
+  mainBuilding.receiveShadow = true;
 
-    castle.add(main);
-
-
-    /* CASTLE ROOF */
-
-    const roofMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x242832,
-            roughness: 0.75
-        });
+  castle.add(mainBuilding);
 
 
-    const roof = new THREE.Mesh(
+  /* Towers */
 
-        new THREE.ConeGeometry(
+  const towerPositions = [
+
+    [-23, 0, -5],
+    [23, 0, -5],
+    [-23, 0, 5],
+    [23, 0, 5]
+
+  ];
+
+
+  towerPositions.forEach(
+    position => {
+
+      const tower =
+        new THREE.Mesh(
+
+          new THREE.CylinderGeometry(
+            5,
+            6,
             32,
-            14,
-            4
-        ),
+            12
+          ),
 
-        roofMaterial
+          castleMaterial
+
+        );
+
+      tower.position.set(
+        position[0],
+        16,
+        position[2]
+      );
+
+      tower.castShadow = true;
+      tower.receiveShadow = true;
+
+      castle.add(tower);
+
+
+      /* Tower roof */
+
+      const roof =
+        new THREE.Mesh(
+
+          new THREE.ConeGeometry(
+            7,
+            9,
+            12
+          ),
+
+          new THREE.MeshStandardMaterial({
+            color: 0x252a30,
+            roughness: 0.8
+          })
+
+        );
+
+      roof.position.set(
+        position[0],
+        36.5,
+        position[2]
+      );
+
+      roof.castShadow = true;
+
+      castle.add(roof);
+
+    }
+  );
+
+
+  /* Main roof */
+
+  const roof =
+    new THREE.Mesh(
+
+      new THREE.ConeGeometry(
+        25,
+        14,
+        4
+      ),
+
+      new THREE.MeshStandardMaterial({
+        color: 0x292d32,
+        roughness: 0.85
+      })
 
     );
 
-    roof.rotation.y = Math.PI / 4;
+  roof.rotation.y =
+    Math.PI / 4;
 
-    roof.position.y = 37;
+  roof.position.y = 32;
 
-    roof.castShadow = true;
+  roof.scale.set(
+    1,
+    1,
+    0.65
+  );
 
-    castle.add(roof);
+  roof.castShadow = true;
 
-
-    /* TOWERS */
-
-    const towerPositions = [
-
-        [-25, -13],
-        [25, -13],
-        [-25, 13],
-        [25, 13]
-
-    ];
+  castle.add(roof);
 
 
-    towerPositions.forEach(pos => {
+  /* Entrance */
 
-        const tower = new THREE.Mesh(
+  const entrance =
+    new THREE.Mesh(
 
-            new THREE.CylinderGeometry(
-                7,
-                8,
-                40,
-                20
-            ),
+      new THREE.BoxGeometry(
+        7,
+        12,
+        2
+      ),
 
-            wallMaterial
+      new THREE.MeshStandardMaterial({
+        color: 0x15191d,
+        roughness: 0.8
+      })
 
-        );
+    );
 
-        tower.position.set(
-            pos[0],
-            20,
-            pos[1]
-        );
+  entrance.position.set(
+    0,
+    6,
+    9.2
+  );
 
-        tower.castShadow = true;
-        tower.receiveShadow = true;
-
-        castle.add(tower);
-
-
-        const towerRoof = new THREE.Mesh(
-
-            new THREE.ConeGeometry(
-                9,
-                13,
-                20
-            ),
-
-            roofMaterial
-
-        );
-
-        towerRoof.position.set(
-            pos[0],
-            46,
-            pos[1]
-        );
-
-        towerRoof.castShadow = true;
-
-        castle.add(towerRoof);
-
-    });
+  castle.add(entrance);
 
 
-    /* WINDOWS */
+  /* Windows */
 
-    const windowMaterial =
-        new THREE.MeshStandardMaterial({
-
-            color: 0x9edfff,
-
-            emissive: 0x2b7fb0,
-
-            emissiveIntensity: 2
-
-        });
-
+  for (
+    let row = 0;
+    row < 2;
+    row++
+  ) {
 
     for (
-        let x = -18;
-        x <= 18;
-        x += 9
+      let i = -3;
+      i <= 3;
+      i += 2
     ) {
 
-        const window = new THREE.Mesh(
+      const window =
+        new THREE.Mesh(
 
-            new THREE.BoxGeometry(
-                2.2,
-                5,
-                0.5
-            ),
+          new THREE.BoxGeometry(
+            1.5,
+            3,
+            0.3
+          ),
 
-            windowMaterial
+          new THREE.MeshStandardMaterial({
+            color: 0x73bfff,
+            emissive: 0x164d7a,
+            emissiveIntensity: 0.5
+          })
 
         );
 
-        window.position.set(
-            x,
-            15,
-            -14.3
-        );
+      window.position.set(
+        i * 4,
+        8 + row * 9,
+        9.25
+      );
 
-        castle.add(window);
+      castle.add(window);
 
     }
 
+  }
 
-    /* DOOR */
-
-    const doorMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x19120d,
-            roughness: 0.65
-        });
-
-
-    const door = new THREE.Mesh(
-
-        new THREE.BoxGeometry(
-            7,
-            11,
-            1
-        ),
-
-        doorMaterial
-
-    );
-
-    door.position.set(
-        0,
-        5.5,
-        -14.5
-    );
-
-    castle.add(door);
-
-
-    return castle;
 }
 
 createCastle();
 
 
 /* =========================================================
-   WATER - LARGE AND CLOSE TO SPAWN
+   WATER
    ========================================================= */
 
-let water;
+const waterGeometry =
+  new THREE.PlaneGeometry(
+    70,
+    45,
+    30,
+    20
+  );
 
-function createWater() {
+const waterMaterial =
+  new THREE.MeshPhysicalMaterial({
 
-    const geometry =
-        new THREE.PlaneGeometry(
-            65,
-            50,
-            40,
-            30
-        );
+    color: 0x245d80,
 
+    transparent: true,
 
-    const material =
-        new THREE.MeshPhysicalMaterial({
+    opacity: 0.58,
 
-            color: 0x176b83,
+    roughness: 0.12,
 
-            roughness: 0.18,
+    metalness: 0.05,
 
-            metalness: 0.08,
+    transmission: 0.08
 
-            transmission: 0.05,
-
-            transparent: true,
-
-            opacity: 0.88
-
-        });
+  });
 
 
-    water = new THREE.Mesh(
-        geometry,
-        material
-    );
+const water =
+  new THREE.Mesh(
+    waterGeometry,
+    waterMaterial
+  );
 
-    water.rotation.x = -Math.PI / 2;
+water.rotation.x =
+  -Math.PI / 2;
 
+water.position.set(
+  35,
+  0.08,
+  -10
+);
 
-    /* IMPORTANT:
-       PUT WATER CLOSE TO PLAYER */
+water.receiveShadow = true;
 
-    water.position.set(
-        34,
-        0.12,
-        -10
-    );
-
-
-    water.receiveShadow = true;
-
-    world.add(water);
-
-}
-
-createWater();
+scene.add(water);
 
 
 /* =========================================================
-   WATER SHORE
+   WATER ANIMATION
    ========================================================= */
 
-function createShoreRocks() {
+const waterPositions =
+  water.geometry.attributes.position;
 
-    const rockMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x57544d,
-            roughness: 0.9
-        });
+function animateWater(time) {
 
+  for (
+    let i = 0;
+    i < waterPositions.count;
+    i++
+  ) {
 
-    for (let i = 0; i < 18; i++) {
+    const x =
+      waterPositions.getX(i);
 
-        const rock = new THREE.Mesh(
+    const y =
+      waterPositions.getY(i);
 
-            new THREE.DodecahedronGeometry(
-                0.7 + Math.random() * 1.4,
-                1
-            ),
+    const wave =
+      Math.sin(
+        x * 0.35 +
+        time * 1.5
+      ) * 0.08;
 
-            rockMaterial
+    const wave2 =
+      Math.cos(
+        y * 0.45 +
+        time * 1.2
+      ) * 0.06;
 
-        );
+    waterPositions.setZ(
+      i,
+      wave + wave2
+    );
 
+  }
 
-        rock.position.set(
-
-            7 + Math.random() * 50,
-
-            0.5,
-
-            -30 + Math.random() * 40
-
-        );
-
-
-        rock.scale.y =
-            0.5 + Math.random() * 0.7;
-
-
-        rock.rotation.set(
-
-            Math.random(),
-
-            Math.random(),
-
-            Math.random()
-
-        );
-
-
-        rock.castShadow = true;
-
-        world.add(rock);
-
-    }
+  waterPositions.needsUpdate = true;
 
 }
-
-createShoreRocks();
 
 
 /* =========================================================
    MOUNTAINS
    ========================================================= */
 
-function createMountains() {
+function createMountain(
+  x,
+  y,
+  z,
+  scale
+) {
 
-    const mountainMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x59645e,
-            roughness: 1
-        });
+  const mountain =
+    new THREE.Mesh(
 
+      new THREE.ConeGeometry(
+        22,
+        45,
+        7
+      ),
 
-    const positions = [
+      new THREE.MeshStandardMaterial({
 
-        [-90, -70],
-        [90, -70],
-        [-110, 10],
-        [110, 10],
-        [-100, 90],
-        [100, 90]
+        color: 0x56636a,
 
-    ];
+        roughness: 1
 
+      })
 
-    positions.forEach(pos => {
+    );
 
-        const mountain = new THREE.Mesh(
+  mountain.position.set(
+    x,
+    y,
+    z
+  );
 
-            new THREE.ConeGeometry(
-                35 + Math.random() * 20,
-                70 + Math.random() * 40,
-                8
-            ),
+  mountain.scale.set(
+    scale,
+    scale,
+    scale
+  );
 
-            mountainMaterial
+  mountain.castShadow = true;
+  mountain.receiveShadow = true;
 
-        );
-
-
-        mountain.position.set(
-            pos[0],
-            30,
-            pos[1]
-        );
-
-        mountain.castShadow = true;
-
-        world.add(mountain);
-
-    });
+  scene.add(mountain);
 
 }
 
-createMountains();
+
+createMountain(
+  -65,
+  18,
+  -75,
+  2.2
+);
+
+createMountain(
+  55,
+  20,
+  -90,
+  2.5
+);
+
+createMountain(
+  90,
+  15,
+  -40,
+  2
+);
+
+createMountain(
+  -100,
+  20,
+  -20,
+  2.4
+);
+
+
+/* =========================================================
+   ROCKS
+   ========================================================= */
+
+function createRock(
+  x,
+  y,
+  z,
+  scale
+) {
+
+  const rock =
+    new THREE.Mesh(
+
+      new THREE.DodecahedronGeometry(
+        2.5,
+        1
+      ),
+
+      new THREE.MeshStandardMaterial({
+
+        color: 0x4c5558,
+
+        roughness: 1
+
+      })
+
+    );
+
+  rock.position.set(
+    x,
+    y,
+    z
+  );
+
+  rock.scale.setScalar(scale);
+
+  rock.rotation.set(
+    Math.random(),
+    Math.random(),
+    Math.random()
+  );
+
+  rock.castShadow = true;
+  rock.receiveShadow = true;
+
+  scene.add(rock);
+
+}
+
+
+[
+  [-12, 1, -10],
+  [15, 1, -5],
+  [-25, 1, 15],
+  [28, 1, 15],
+  [50, 1, 12],
+  [-48, 1, 8],
+  [65, 1, -35],
+  [-60, 1, -45]
+].forEach(
+  p => createRock(
+    p[0],
+    p[1],
+    p[2],
+    0.8 + Math.random()
+  )
+);
 
 
 /* =========================================================
@@ -631,754 +749,412 @@ createMountains();
    ========================================================= */
 
 const gltfLoader =
-    new GLTFLoader();
+  new GLTFLoader();
 
 let treeModel = null;
 
 
 gltfLoader.load(
 
-    "./assets/tree.glb",
+  "./assets/tree.glb",
 
-    function(gltf) {
+  gltf => {
 
-        treeModel = gltf.scene;
+    treeModel =
+      gltf.scene;
 
-        treeModel.scale.setScalar(5);
+    treeModel.traverse(
+      object => {
 
-        treeModel.traverse(obj => {
+        if (
+          object.isMesh
+        ) {
 
-            if (obj.isMesh) {
+          object.castShadow = true;
 
-                obj.castShadow = true;
-                obj.receiveShadow = true;
+          object.receiveShadow = true;
 
-            }
+        }
 
-        });
-
-
-        createTrees();
-
-    },
-
-    undefined,
-
-    function(error) {
-
-        console.log(
-            "Tree loading failed:",
-            error
-        );
-
-    }
-
-);
-
-
-function createTrees() {
-
-    if (!treeModel) return;
+      }
+    );
 
 
     const treePositions = [
 
-        [-18, 5],
-        [-25, -8],
-        [-32, 4],
-        [-40, -15],
-
-        [15, 5],
-        [20, -2],
-        [27, 10],
-        [45, 8],
-
-        [-18, -25],
-        [-28, -30],
-
-        [55, -20],
-        [65, -30],
-
-        [-55, 15],
-        [-65, -5],
-
-        [18, -35],
-        [-20, -45],
-
-        [70, 0],
-        [-70, -25],
-
-        [35, -45],
-        [-45, -50]
+      [-20, -15],
+      [-32, -8],
+      [-42, -20],
+      [-52, -5],
+      [18, 5],
+      [27, -5],
+      [45, 8],
+      [55, 20],
+      [-65, 20],
+      [70, -15],
+      [-75, -35],
+      [80, -50],
+      [-85, 0],
+      [10, -25],
+      [25, -35],
+      [-10, -30],
+      [40, -30],
+      [60, -5]
 
     ];
 
 
-    treePositions.forEach(pos => {
+    treePositions.forEach(
+      p => {
 
         const tree =
-            treeModel.clone(true);
-
+          treeModel.clone(true);
 
         tree.position.set(
-            pos[0],
-            0,
-            pos[1]
+          p[0],
+          0,
+          p[1]
         );
-
 
         const scale =
-            4.2 + Math.random() * 1.5;
+          1.8 +
+          Math.random() * 1.0;
 
-        tree.scale.setScalar(scale);
-
+        tree.scale.setScalar(
+          scale
+        );
 
         tree.rotation.y =
-            Math.random() * Math.PI * 2;
+          Math.random() *
+          Math.PI *
+          2;
+
+        scene.add(tree);
+
+      }
+    );
+
+  },
+
+  undefined,
+
+  error => {
+
+    console.error(
+      "Tree loading error:",
+      error
+    );
+
+  }
+
+);
 
 
-        world.add(tree);
+/* =========================================================
+   REAL PLAYER — AREN VALEN
+   ========================================================= */
 
-    });
+function loadPlayer() {
+
+  gltfLoader.load(
+
+    "./assets/player/aren_valen.glb",
+
+    gltf => {
+
+      console.log(
+        "AREN VALEN LOADED",
+        gltf
+      );
+
+
+      player =
+        gltf.scene;
+
+
+      player.position.copy(
+        playerPosition
+      );
+
+
+      /*
+       * Change this value if your
+       * MetaPerson model is extremely
+       * large or extremely small.
+       */
+
+      player.scale.setScalar(
+        1
+      );
+
+
+      player.rotation.y =
+        Math.PI;
+
+
+      player.traverse(
+        object => {
+
+          if (
+            object.isMesh
+          ) {
+
+            object.castShadow = true;
+
+            object.receiveShadow = true;
+
+            if (
+              object.material
+            ) {
+
+              object.material.side =
+                THREE.FrontSide;
+
+            }
+
+          }
+
+        }
+      );
+
+
+      scene.add(player);
+
+
+      /* =====================================================
+         ANIMATIONS
+         ===================================================== */
+
+      if (
+        gltf.animations &&
+        gltf.animations.length > 0
+      ) {
+
+        playerMixer =
+          new THREE.AnimationMixer(
+            player
+          );
+
+        playerAnimations =
+          gltf.animations;
+
+
+        console.log(
+          "Player animations:",
+          playerAnimations.map(
+            animation =>
+              animation.name
+          )
+        );
+
+
+        /*
+         * Start first animation.
+         */
+
+        playAnimation(
+          playerAnimations[0].name
+        );
+
+      }
+
+
+      /*
+       * Hide loading screen.
+       */
+
+      setTimeout(
+        () => {
+
+          const loading =
+            document.getElementById(
+              "loading"
+            );
+
+          if (loading) {
+
+            loading.classList.add(
+              "hidden"
+            );
+
+          }
+
+        },
+        700
+      );
+
+    },
+
+    progress => {
+
+      if (
+        progress.total > 0
+      ) {
+
+        const percent =
+          Math.round(
+            progress.loaded /
+            progress.total *
+            100
+          );
+
+        const loadingText =
+          document.querySelector(
+            ".loading-text"
+          );
+
+        if (loadingText) {
+
+          loadingText.textContent =
+            "Loading Aren Valen... " +
+            percent +
+            "%";
+
+        }
+
+      }
+
+    },
+
+    error => {
+
+      console.error(
+        "AREN VALEN GLB ERROR:",
+        error
+      );
+
+
+      const loadingText =
+        document.querySelector(
+          ".loading-text"
+        );
+
+      if (loadingText) {
+
+        loadingText.textContent =
+          "Could not load Aren Valen. Check assets/player/aren_valen.glb";
+
+      }
+
+    }
+
+  );
+
+}
+
+loadPlayer();
+
+
+/* =========================================================
+   ANIMATION HELPER
+   ========================================================= */
+
+function playAnimation(
+  animationName
+) {
+
+  if (
+    !playerMixer
+  ) return;
+
+
+  const clip =
+    THREE.AnimationClip.findByName(
+      playerAnimations,
+      animationName
+    );
+
+
+  if (!clip) {
+
+    console.log(
+      "Animation not found:",
+      animationName
+    );
+
+    return;
+
+  }
+
+
+  const action =
+    playerMixer.clipAction(
+      clip
+    );
+
+
+  if (
+    currentAction &&
+    currentAction !== action
+  ) {
+
+    currentAction.fadeOut(
+      0.15
+    );
+
+  }
+
+
+  action.reset();
+
+  action.fadeIn(
+    0.15
+  );
+
+  action.play();
+
+  currentAction =
+    action;
 
 }
 
 
 /* =========================================================
-   PLAYER
+   FIND ANIMATION
    ========================================================= */
 
-const player = {
+function findAnimation(
+  words
+) {
 
-    position: new THREE.Vector3(
-        0,
-        0,
-        8
-    ),
-
-    velocityY: 0,
-
-    speed: 0.16,
-
-    hp: 100,
-
-    magic: 100,
-
-    xp: 0,
-
-    grounded: true,
-
-    group: null
-
-};
+  if (
+    !playerAnimations.length
+  ) return null;
 
 
-/* =========================================================
-   WIZARD HERO
-   ========================================================= */
-
-function createWizard() {
-
-    const wizard =
-        new THREE.Group();
-
-
-    wizard.name = "PLAYER_WIZARD";
-
-
-    /* =====================================================
-       LEGS
-       ===================================================== */
-
-    const darkMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x161822,
-            roughness: 0.8
-        });
-
-
-    const bootMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x0b0b0d,
-            roughness: 0.6
-        });
-
-
-    const robeMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x202c4d,
-            roughness: 0.72
-        });
-
-
-    const beltMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x6b4325,
-            roughness: 0.7
-        });
-
-
-    const skinMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0xc98d6d,
-            roughness: 0.75
-        });
-
-
-    const hairMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x2b1a12,
-            roughness: 0.8
-        });
-
-
-    const hatMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x151c35,
-            roughness: 0.72
-        });
-
-
-    /* LEGS */
-
-    const leftLeg = new THREE.Mesh(
-        new THREE.CylinderGeometry(
-            0.55,
-            0.6,
-            2.4,
-            12
-        ),
-        darkMaterial
+  const lower =
+    words.map(
+      word =>
+        word.toLowerCase()
     );
 
-    leftLeg.position.set(
-        -0.65,
-        1.2,
-        0
-    );
 
-    leftLeg.castShadow = true;
+  for (
+    const animation
+    of playerAnimations
+  ) {
 
-    wizard.add(leftLeg);
+    const name =
+      animation.name.toLowerCase();
 
 
-    const rightLeg = leftLeg.clone();
+    if (
+      lower.some(
+        word =>
+          name.includes(word)
+      )
+    ) {
 
-    rightLeg.position.x = 0.65;
+      return animation.name;
 
-    wizard.add(rightLeg);
+    }
 
+  }
 
-    /* BOOTS */
 
-    const leftBoot = new THREE.Mesh(
-        new THREE.BoxGeometry(
-            1.1,
-            0.6,
-            1.8
-        ),
-        bootMaterial
-    );
+  return null;
 
-    leftBoot.position.set(
-        -0.65,
-        0.25,
-        -0.25
-    );
-
-    leftBoot.castShadow = true;
-
-    wizard.add(leftBoot);
-
-
-    const rightBoot = leftBoot.clone();
-
-    rightBoot.position.x = 0.65;
-
-    wizard.add(rightBoot);
-
-
-    /* =====================================================
-       ROBE
-       ===================================================== */
-
-    const robe = new THREE.Mesh(
-        new THREE.ConeGeometry(
-            2.35,
-            4.2,
-            16
-        ),
-        robeMaterial
-    );
-
-    robe.position.y = 3.2;
-
-    robe.castShadow = true;
-
-    wizard.add(robe);
-
-
-    /* CHEST */
-
-    const chest = new THREE.Mesh(
-        new THREE.CylinderGeometry(
-            1.35,
-            1.5,
-            2.2,
-            16
-        ),
-        robeMaterial
-    );
-
-    chest.position.y = 5.2;
-
-    chest.castShadow = true;
-
-    wizard.add(chest);
-
-
-    /* BELT */
-
-    const belt = new THREE.Mesh(
-        new THREE.TorusGeometry(
-            1.35,
-            0.12,
-            8,
-            24
-        ),
-        beltMaterial
-    );
-
-    belt.rotation.x = Math.PI / 2;
-
-    belt.position.y = 4.5;
-
-    wizard.add(belt);
-
-
-    /* =====================================================
-       HEAD
-       ===================================================== */
-
-    const head = new THREE.Mesh(
-        new THREE.SphereGeometry(
-            1.25,
-            24,
-            18
-        ),
-        skinMaterial
-    );
-
-    head.position.y = 7.2;
-
-    head.castShadow = true;
-
-    wizard.add(head);
-
-
-    /* HAIR */
-
-    const hair = new THREE.Mesh(
-        new THREE.SphereGeometry(
-            1.3,
-            24,
-            16,
-            0,
-            Math.PI * 2,
-            0,
-            Math.PI * 0.55
-        ),
-        hairMaterial
-    );
-
-    hair.position.y = 7.65;
-
-    hair.scale.set(
-        1.05,
-        0.85,
-        1.05
-    );
-
-    wizard.add(hair);
-
-
-    /* EYES */
-
-    const eyeMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0xffffff,
-            emissive: 0x111111
-        });
-
-
-    const pupilMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x111111
-        });
-
-
-    [-0.42, 0.42].forEach(x => {
-
-        const eye = new THREE.Mesh(
-            new THREE.SphereGeometry(
-                0.18,
-                12,
-                12
-            ),
-            eyeMaterial
-        );
-
-        eye.position.set(
-            x,
-            7.3,
-            -1.12
-        );
-
-        wizard.add(eye);
-
-
-        const pupil = new THREE.Mesh(
-            new THREE.SphereGeometry(
-                0.09,
-                10,
-                10
-            ),
-            pupilMaterial
-        );
-
-        pupil.position.set(
-            x,
-            7.3,
-            -1.28
-        );
-
-        wizard.add(pupil);
-
-    });
-
-
-    /* NOSE */
-
-    const nose = new THREE.Mesh(
-        new THREE.ConeGeometry(
-            0.15,
-            0.45,
-            8
-        ),
-        skinMaterial
-    );
-
-    nose.rotation.x = -Math.PI / 2;
-
-    nose.position.set(
-        0,
-        7.0,
-        -1.22
-    );
-
-    wizard.add(nose);
-
-
-    /* =====================================================
-       ARMS
-       ===================================================== */
-
-    const armMaterial = robeMaterial;
-
-
-    const leftArm = new THREE.Mesh(
-        new THREE.CylinderGeometry(
-            0.38,
-            0.45,
-            2.8,
-            12
-        ),
-        armMaterial
-    );
-
-    leftArm.position.set(
-        -1.65,
-        4.8,
-        0
-    );
-
-    leftArm.rotation.z = 0.25;
-
-    leftArm.castShadow = true;
-
-    wizard.add(leftArm);
-
-
-    const rightArm = new THREE.Mesh(
-        new THREE.CylinderGeometry(
-            0.38,
-            0.45,
-            2.8,
-            12
-        ),
-        armMaterial
-    );
-
-    rightArm.position.set(
-        1.65,
-        4.8,
-        -0.35
-    );
-
-    rightArm.rotation.z = -0.35;
-
-    rightArm.castShadow = true;
-
-    wizard.add(rightArm);
-
-
-    /* HAND */
-
-    const hand = new THREE.Mesh(
-        new THREE.SphereGeometry(
-            0.42,
-            14,
-            14
-        ),
-        skinMaterial
-    );
-
-    hand.position.set(
-        2.1,
-        3.5,
-        -0.75
-    );
-
-    wizard.add(hand);
-
-
-    /* =====================================================
-       WAND
-       ===================================================== */
-
-    const wandMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x4a2815,
-            roughness: 0.6
-        });
-
-
-    const wand = new THREE.Mesh(
-        new THREE.CylinderGeometry(
-            0.08,
-            0.13,
-            3.8,
-            10
-        ),
-        wandMaterial
-    );
-
-    wand.position.set(
-        2.35,
-        4.4,
-        -1.15
-    );
-
-    wand.rotation.z = -0.15;
-
-    wand.rotation.x = 0.35;
-
-    wand.castShadow = true;
-
-    wizard.add(wand);
-
-
-    /* MAGIC TIP */
-
-    const magicTip =
-        new THREE.PointLight(
-            0x6ddcff,
-            7,
-            10
-        );
-
-    magicTip.position.set(
-        2.45,
-        6.25,
-        -1.5
-    );
-
-    wizard.add(magicTip);
-
-
-    const tipSphere = new THREE.Mesh(
-        new THREE.SphereGeometry(
-            0.22,
-            16,
-            16
-        ),
-        new THREE.MeshBasicMaterial({
-            color: 0x8fffff
-        })
-    );
-
-    tipSphere.position.copy(
-        magicTip.position
-    );
-
-    wizard.add(tipSphere);
-
-
-    /* =====================================================
-       WIZARD HAT
-       ===================================================== */
-
-    const hat = new THREE.Mesh(
-        new THREE.ConeGeometry(
-            1.45,
-            2.8,
-            24
-        ),
-        hatMaterial
-    );
-
-    hat.position.y = 9.2;
-
-    hat.castShadow = true;
-
-    wizard.add(hat);
-
-
-    const hatBrim = new THREE.Mesh(
-        new THREE.CylinderGeometry(
-            1.85,
-            1.85,
-            0.25,
-            24
-        ),
-        hatMaterial
-    );
-
-    hatBrim.position.y = 8.05;
-
-    wizard.add(hatBrim);
-
-
-    /* =====================================================
-       CAPE
-       ===================================================== */
-
-    const capeMaterial =
-        new THREE.MeshStandardMaterial({
-
-            color: 0x11182c,
-
-            roughness: 0.8,
-
-            side: THREE.DoubleSide
-
-        });
-
-
-    const cape = new THREE.Mesh(
-        new THREE.PlaneGeometry(
-            4.5,
-            6
-        ),
-        capeMaterial
-    );
-
-    cape.position.set(
-        0,
-        4,
-        1.15
-    );
-
-    cape.rotation.x =
-        -Math.PI / 2.3;
-
-    wizard.add(cape);
-
-
-    /* =====================================================
-       HERO MAGIC AURA
-       ===================================================== */
-
-    const aura = new THREE.Mesh(
-
-        new THREE.SphereGeometry(
-            3.8,
-            20,
-            20
-        ),
-
-        new THREE.MeshBasicMaterial({
-
-            color: 0x5ddcff,
-
-            transparent: true,
-
-            opacity: 0.055,
-
-            depthWrite: false
-
-        })
-
-    );
-
-    aura.position.y = 4.5;
-
-    wizard.add(aura);
-
-
-    /* =====================================================
-       SHADOW CIRCLE
-       ===================================================== */
-
-    const shadow = new THREE.Mesh(
-
-        new THREE.CircleGeometry(
-            2.2,
-            32
-        ),
-
-        new THREE.MeshBasicMaterial({
-
-            color: 0x000000,
-
-            transparent: true,
-
-            opacity: 0.32
-
-        })
-
-    );
-
-    shadow.rotation.x =
-        -Math.PI / 2;
-
-    shadow.position.y = 0.05;
-
-    wizard.add(shadow);
-
-
-    /* =====================================================
-       FINAL SCALE / POSITION
-       ===================================================== */
-
-    wizard.scale.setScalar(1.15);
-
-    wizard.position.copy(
-        player.position
-    );
-
-    wizard.position.y = 0;
-
-
-    return wizard;
 }
-
-
-player.group =
-    createWizard();
-
-
-world.add(player.group);
 
 
 /* =========================================================
@@ -1389,337 +1165,258 @@ const enemies = [];
 
 
 function createEnemy(
-    x,
-    z,
-    type = "Shadow Beast"
+  x,
+  z,
+  type
 ) {
 
-    const enemy =
-        new THREE.Group();
+  const enemy =
+    new THREE.Group();
 
 
-    enemy.name = type;
+  enemy.position.set(
+    x,
+    0,
+    z
+  );
 
 
-    const bodyMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x351b45,
-            roughness: 0.8
-        });
+  /* Body */
 
+  const body =
+    new THREE.Mesh(
 
-    const darkMaterial =
-        new THREE.MeshStandardMaterial({
-            color: 0x120d18,
-            roughness: 0.9
-        });
+      new THREE.CapsuleGeometry(
+        0.75,
+        1.7,
+        5,
+        8
+      ),
 
+      new THREE.MeshStandardMaterial({
 
-    const eyeMaterial =
-        new THREE.MeshStandardMaterial({
+        color:
+          type === "mage"
+            ? 0x25163b
+            : 0x17191c,
 
-            color: 0xff3344,
+        roughness: 0.9
 
-            emissive: 0xff0011,
+      })
 
-            emissiveIntensity: 4
-
-        });
-
-
-    /* BODY */
-
-    const body = new THREE.Mesh(
-        new THREE.SphereGeometry(
-            1.6,
-            18,
-            18
-        ),
-        bodyMaterial
     );
 
-    body.scale.set(
-        1,
-        1.35,
-        0.9
+  body.position.y =
+    1.6;
+
+  body.castShadow = true;
+
+  enemy.add(body);
+
+
+  /* Head */
+
+  const head =
+    new THREE.Mesh(
+
+      new THREE.SphereGeometry(
+        0.62,
+        12,
+        8
+      ),
+
+      new THREE.MeshStandardMaterial({
+
+        color: 0x5a3e32,
+
+        roughness: 0.9
+
+      })
+
     );
 
-    body.position.y = 2.1;
+  head.position.y =
+    3.15;
 
-    body.castShadow = true;
+  head.castShadow = true;
 
-    enemy.add(body);
-
-
-    /* HEAD */
-
-    const head = new THREE.Mesh(
-        new THREE.SphereGeometry(
-            1.15,
-            18,
-            18
-        ),
-        bodyMaterial
-    );
-
-    head.position.set(
-        0,
-        4,
-        -0.1
-    );
-
-    head.castShadow = true;
-
-    enemy.add(head);
+  enemy.add(head);
 
 
-    /* EYES */
+  /* Eyes */
 
-    [-0.4, 0.4].forEach(x => {
+  [-0.22, 0.22].forEach(
+    eyeX => {
 
-        const eye = new THREE.Mesh(
-            new THREE.SphereGeometry(
-                0.18,
-                12,
-                12
-            ),
-            eyeMaterial
+      const eye =
+        new THREE.Mesh(
+
+          new THREE.SphereGeometry(
+            0.09,
+            8,
+            6
+          ),
+
+          new THREE.MeshBasicMaterial({
+            color: 0xff2222
+          })
+
         );
 
-        eye.position.set(
-            x,
-            4.1,
-            -1.05
-        );
+      eye.position.set(
+        eyeX,
+        3.18,
+        0.55
+      );
 
-        enemy.add(eye);
+      enemy.add(eye);
 
-    });
+    }
+  );
 
 
-    /* HORNS */
+  /* Horns */
 
-    [-0.65, 0.65].forEach(x => {
+  if (
+    type !== "mage"
+  ) {
 
-        const horn = new THREE.Mesh(
+    [-0.35, 0.35].forEach(
+      hornX => {
+
+        const horn =
+          new THREE.Mesh(
+
             new THREE.ConeGeometry(
-                0.25,
-                1.3,
-                10
+              0.12,
+              0.75,
+              6
             ),
-            darkMaterial
-        );
+
+            new THREE.MeshStandardMaterial({
+              color: 0x252525,
+              roughness: 1
+            })
+
+          );
 
         horn.position.set(
-            x,
-            5.05,
-            0
+          hornX,
+          3.75,
+          0
         );
 
         horn.rotation.z =
-            x > 0 ? -0.35 : 0.35;
-
-        horn.castShadow = true;
+          hornX > 0
+            ? -0.35
+            : 0.35;
 
         enemy.add(horn);
 
-    });
-
-
-    /* ARMS */
-
-    [-1.8, 1.8].forEach(x => {
-
-        const arm = new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                0.3,
-                0.45,
-                2.5,
-                10
-            ),
-            bodyMaterial
-        );
-
-        arm.position.set(
-            x,
-            2.3,
-            0
-        );
-
-        arm.rotation.z =
-            x > 0 ? -0.8 : 0.8;
-
-        enemy.add(arm);
-
-    });
-
-
-    /* LEGS */
-
-    [-0.65, 0.65].forEach(x => {
-
-        const leg = new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                0.38,
-                0.48,
-                2.2,
-                10
-            ),
-            darkMaterial
-        );
-
-        leg.position.set(
-            x,
-            0.75,
-            0
-        );
-
-        enemy.add(leg);
-
-    });
-
-
-    /* GLOW */
-
-    const glow =
-        new THREE.PointLight(
-            0xff1744,
-            5,
-            9
-        );
-
-    glow.position.y = 3.5;
-
-    enemy.add(glow);
-
-
-    /* HEALTH BAR */
-
-    const healthGroup =
-        new THREE.Group();
-
-
-    const barBack =
-        new THREE.Mesh(
-
-            new THREE.PlaneGeometry(
-                3.2,
-                0.3
-            ),
-
-            new THREE.MeshBasicMaterial({
-                color: 0x200000
-            })
-
-        );
-
-
-    const barFront =
-        new THREE.Mesh(
-
-            new THREE.PlaneGeometry(
-                3,
-                0.22
-            ),
-
-            new THREE.MeshBasicMaterial({
-                color: 0xff3333
-            })
-
-        );
-
-
-    barFront.position.z = 0.02;
-
-
-    healthGroup.add(barBack);
-    healthGroup.add(barFront);
-
-
-    healthGroup.position.y = 6.3;
-
-
-    enemy.add(healthGroup);
-
-
-    /* =====================================================
-       POSITION
-       ===================================================== */
-
-    enemy.position.set(
-        x,
-        0,
-        z
+      }
     );
 
-
-    enemy.userData = {
-
-        hp: 100,
-
-        maxHp: 100,
-
-        speed: 0.035,
-
-        attackCooldown: 0,
-
-        healthBar: barFront,
-
-        healthGroup: healthGroup,
-
-        dead: false
-
-    };
+  }
 
 
-    enemy.traverse(obj => {
+  /* Health bar */
 
-        if (obj.isMesh) {
+  const healthBackground =
+    new THREE.Mesh(
 
-            obj.castShadow = true;
-            obj.receiveShadow = true;
+      new THREE.PlaneGeometry(
+        1.6,
+        0.16
+      ),
 
-        }
+      new THREE.MeshBasicMaterial({
+        color: 0x222222
+      })
 
-    });
+    );
+
+  healthBackground.position.y =
+    4.3;
+
+  enemy.add(
+    healthBackground
+  );
 
 
-    world.add(enemy);
+  const healthBar =
+    new THREE.Mesh(
 
-    enemies.push(enemy);
+      new THREE.PlaneGeometry(
+        1.5,
+        0.10
+      ),
 
-    return enemy;
+      new THREE.MeshBasicMaterial({
+        color: 0xff3030
+      })
+
+    );
+
+  healthBar.position.set(
+    0,
+    4.3,
+    0.02
+  );
+
+  enemy.add(
+    healthBar
+  );
+
+
+  enemy.userData = {
+
+    type,
+
+    hp: 100,
+
+    healthBar,
+
+    attackTimer:
+      Math.random() * 2
+
+  };
+
+
+  scene.add(enemy);
+
+  enemies.push(
+    enemy
+  );
 
 }
 
 
 /* =========================================================
-   IMPORTANT:
-   ENEMIES ARE VERY CLOSE TO START
+   ENEMY POSITIONS
    ========================================================= */
 
 createEnemy(
-    9,
-    0,
-    "Shadow Beast"
+  7,
+  1,
+  "shadow"
 );
 
 createEnemy(
-    -9,
-    -4,
-    "Dark Creature"
+  -9,
+  -3,
+  "shadow"
 );
 
 createEnemy(
-    12,
-    -14,
-    "Forest Demon"
+  15,
+  -8,
+  "mage"
 );
 
 createEnemy(
-    -14,
-    -16,
-    "Night Beast"
+  -17,
+  3,
+  "shadow"
 );
 
 
@@ -1732,273 +1429,106 @@ const spells = [];
 
 function castSpell() {
 
-    if (player.magic < 10) {
-
-        showMessage(
-            "Not enough magic!"
-        );
-
-        return;
-
-    }
+  if (
+    !player
+  ) return;
 
 
-    player.magic -= 10;
+  if (
+    magic < 10
+  ) {
+
+    showMessage(
+      "Not enough magic!"
+    );
+
+    return;
+
+  }
 
 
-    const direction =
-        new THREE.Vector3(
-            0,
-            0,
-            -1
-        );
+  if (
+    spellCooldown > 0
+  ) return;
 
 
-    direction.applyQuaternion(
-        player.group.quaternion
+  magic -= 10;
+
+  spellCooldown =
+    0.35;
+
+
+  const direction =
+    new THREE.Vector3(
+      0,
+      0,
+      -1
     );
 
 
-    const spell =
-        new THREE.Mesh(
-
-            new THREE.SphereGeometry(
-                0.35,
-                16,
-                16
-            ),
-
-            new THREE.MeshBasicMaterial({
-
-                color: 0x64e8ff
-
-            })
-
-        );
+  direction.applyQuaternion(
+    player.quaternion
+  );
 
 
-    spell.position.copy(
-        player.group.position
+  const start =
+    player.position.clone();
+
+
+  start.y += 2.2;
+
+
+  const orb =
+    new THREE.Mesh(
+
+      new THREE.SphereGeometry(
+        0.18,
+        10,
+        10
+      ),
+
+      new THREE.MeshBasicMaterial({
+        color: 0xb86cff
+      })
+
     );
 
 
-    spell.position.y += 5.5;
+  orb.position.copy(
+    start
+  );
 
 
-    spell.userData = {
-
-        velocity:
-            direction.multiplyScalar(0.8),
-
-        life: 3
-
-    };
-
-
-    const light =
-        new THREE.PointLight(
-            0x59e9ff,
-            6,
-            8
-        );
-
-
-    spell.add(light);
-
-
-    world.add(spell);
-
-    spells.push(spell);
-
-}
-
-
-/* =========================================================
-   SPELL IMPACT
-   ========================================================= */
-
-function createImpact(position) {
-
-    const ring =
-        new THREE.Mesh(
-
-            new THREE.RingGeometry(
-                0.2,
-                1.5,
-                32
-            ),
-
-            new THREE.MeshBasicMaterial({
-
-                color: 0x8fffff,
-
-                transparent: true,
-
-                opacity: 0.9,
-
-                side: THREE.DoubleSide
-
-            })
-
-        );
-
-
-    ring.rotation.x =
-        -Math.PI / 2;
-
-    ring.position.copy(
-        position
+  const glow =
+    new THREE.PointLight(
+      0xb86cff,
+      2,
+      6
     );
 
-    ring.position.y += 0.2;
+
+  orb.add(
+    glow
+  );
 
 
-    world.add(ring);
+  scene.add(
+    orb
+  );
 
 
-    let scale = 0.3;
+  spells.push({
 
+    mesh: orb,
 
-    function animateRing() {
+    velocity:
+      direction.multiplyScalar(
+        28
+      ),
 
-        scale += 0.08;
+    life: 2
 
-        ring.scale.setScalar(
-            scale
-        );
-
-        ring.material.opacity -=
-            0.04;
-
-
-        if (
-            ring.material.opacity <= 0
-        ) {
-
-            world.remove(ring);
-
-            return;
-
-        }
-
-
-        requestAnimationFrame(
-            animateRing
-        );
-
-    }
-
-
-    animateRing();
-
-}
-
-
-/* =========================================================
-   ENEMY UPDATE
-   ========================================================= */
-
-function updateEnemies(delta) {
-
-    enemies.forEach(enemy => {
-
-        if (
-            enemy.userData.dead
-        ) return;
-
-
-        const distance =
-            enemy.position.distanceTo(
-                player.group.position
-            );
-
-
-        /* LOOK AT PLAYER */
-
-        enemy.lookAt(
-            player.group.position.x,
-            enemy.position.y,
-            player.group.position.z
-        );
-
-
-        /* CHASE */
-
-        if (
-            distance < 35 &&
-            distance > 3
-        ) {
-
-            const direction =
-                new THREE.Vector3()
-                    .subVectors(
-                        player.group.position,
-                        enemy.position
-                    )
-                    .normalize();
-
-
-            enemy.position.x +=
-                direction.x *
-                enemy.userData.speed *
-                delta *
-                60;
-
-
-            enemy.position.z +=
-                direction.z *
-                enemy.userData.speed *
-                delta *
-                60;
-
-
-        }
-
-
-        /* ATTACK */
-
-        if (
-            distance < 3.5
-        ) {
-
-            enemy.userData.attackCooldown -=
-                delta;
-
-
-            if (
-                enemy.userData.attackCooldown <= 0
-            ) {
-
-                player.hp -= 5;
-
-                enemy.userData.attackCooldown =
-                    1.2;
-
-                showMessage(
-                    "The Shadow Beast attacked!"
-                );
-
-            }
-
-        }
-
-
-        /* FLOATING ANIMATION */
-
-        enemy.position.y =
-            Math.sin(
-                clock.elapsedTime * 3 +
-                enemy.position.x
-            ) * 0.12;
-
-
-        /* HEALTH BAR FACE CAMERA */
-
-        enemy.userData.healthGroup.quaternion.copy(
-            camera.quaternion
-        );
-
-    });
+  });
 
 }
 
@@ -2007,109 +1537,191 @@ function updateEnemies(delta) {
    SPELL UPDATE
    ========================================================= */
 
-function updateSpells(delta) {
+function updateSpells(
+  delta
+) {
+
+  for (
+    let i = spells.length - 1;
+    i >= 0;
+    i--
+  ) {
+
+    const spell =
+      spells[i];
+
+
+    spell.mesh.position.addScaledVector(
+      spell.velocity,
+      delta
+    );
+
+
+    spell.life -=
+      delta;
+
 
     for (
-        let i = spells.length - 1;
-        i >= 0;
-        i--
+      let j = enemies.length - 1;
+      j >= 0;
+      j--
     ) {
 
-        const spell =
-            spells[i];
+      const enemy =
+        enemies[j];
 
 
-        spell.position.add(
-            spell.userData.velocity
+      if (
+        spell.mesh.position.distanceTo(
+          enemy.position
+        ) < 2.0
+      ) {
+
+        enemy.userData.hp -=
+          35;
+
+
+        const health =
+          Math.max(
+            enemy.userData.hp,
+            0
+          ) / 100;
+
+
+        enemy.userData.healthBar.scale.x =
+          health;
+
+
+        xp += 10;
+
+
+        scene.remove(
+          spell.mesh
         );
 
 
-        spell.userData.life -=
-            delta;
-
-
-        let hit = false;
-
-
-        enemies.forEach(enemy => {
-
-            if (
-                enemy.userData.dead
-            ) return;
-
-
-            const distance =
-                spell.position.distanceTo(
-                    enemy.position
-                );
-
-
-            if (
-                distance < 3
-            ) {
-
-                enemy.userData.hp -= 35;
-
-                hit = true;
-
-
-                createImpact(
-                    enemy.position
-                );
-
-
-                player.xp += 25;
-
-
-                if (
-                    enemy.userData.hp <= 0
-                ) {
-
-                    enemy.userData.dead =
-                        true;
-
-
-                    enemy.visible = false;
-
-
-                    player.xp += 50;
-
-
-                    showMessage(
-                        "Enemy defeated! +75 XP"
-                    );
-
-                }
-
-
-                else {
-
-                    showMessage(
-                        "Spell hit!"
-                    );
-
-                }
-
-            }
-
-        });
+        spells.splice(
+          i,
+          1
+        );
 
 
         if (
-            hit ||
-            spell.userData.life <= 0
+          enemy.userData.hp <= 0
         ) {
 
-            world.remove(spell);
+          scene.remove(
+            enemy
+          );
 
-            spells.splice(
-                i,
-                1
-            );
+          enemies.splice(
+            j,
+            1
+          );
 
         }
 
+
+        break;
+
+      }
+
     }
+
+
+    if (
+      spell.life <= 0
+    ) {
+
+      scene.remove(
+        spell.mesh
+      );
+
+      spells.splice(
+        i,
+        1
+      );
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   ENEMY AI
+   ========================================================= */
+
+function updateEnemies(
+  delta
+) {
+
+  if (
+    !player
+  ) return;
+
+
+  enemies.forEach(
+    enemy => {
+
+      const distance =
+        enemy.position.distanceTo(
+          player.position
+        );
+
+
+      if (
+        distance > 2.7
+      ) {
+
+        const direction =
+          new THREE.Vector3()
+            .subVectors(
+              player.position,
+              enemy.position
+            )
+            .normalize();
+
+
+        enemy.position.addScaledVector(
+          direction,
+          delta * 1.5
+        );
+
+
+        enemy.lookAt(
+          player.position.x,
+          enemy.position.y,
+          player.position.z
+        );
+
+      } else {
+
+        enemy.userData.attackTimer -=
+          delta;
+
+
+        if (
+          enemy.userData.attackTimer <= 0
+        ) {
+
+          hp -= 5;
+
+          enemy.userData.attackTimer =
+            1.5;
+
+
+          showMessage(
+            "You were attacked!"
+          );
+
+        }
+
+      }
+
+    }
+  );
 
 }
 
@@ -2118,140 +1730,168 @@ function updateSpells(delta) {
    PLAYER MOVEMENT
    ========================================================= */
 
-const keys = {
-
-    forward: false,
-
-    backward: false,
-
-    left: false,
-
-    right: false
-
-};
-
-
 let joystickX = 0;
 let joystickY = 0;
 
 
-function updatePlayer(delta) {
+function updatePlayer(
+  delta
+) {
 
-    const movement =
-        new THREE.Vector3(
-            joystickX,
-            0,
-            joystickY
-        );
-
-
-    if (keys.forward)
-        movement.z -= 1;
-
-    if (keys.backward)
-        movement.z += 1;
-
-    if (keys.left)
-        movement.x -= 1;
-
-    if (keys.right)
-        movement.x += 1;
+  if (
+    !player
+  ) return;
 
 
-    if (
-        movement.length() > 0
-    ) {
-
-        movement.normalize();
+  const speed =
+    6;
 
 
-        /* CAMERA RELATIVE */
+  if (
+    Math.abs(joystickX) > 0.05 ||
+    Math.abs(joystickY) > 0.05
+  ) {
 
-        movement.applyAxisAngle(
-            new THREE.Vector3(0, 1, 0),
-            cameraYaw
-        );
-
-
-        player.position.x +=
-            movement.x *
-            player.speed *
-            delta *
-            60;
+    const move =
+      new THREE.Vector3(
+        joystickX,
+        0,
+        joystickY
+      );
 
 
-        player.position.z +=
-            movement.z *
-            player.speed *
-            delta *
-            60;
+    move.normalize();
 
 
-        /* WIZARD FACES MOVEMENT */
+    /*
+     * Camera-relative movement
+     */
 
-        const targetRotation =
-            Math.atan2(
-                movement.x,
-                movement.z
-            );
+    const cameraDirection =
+      new THREE.Vector3();
 
+    camera.getWorldDirection(
+      cameraDirection
+    );
 
-        player.group.rotation.y =
-            THREE.MathUtils.lerp(
-                player.group.rotation.y,
-                targetRotation,
-                0.15
-            );
+    cameraDirection.y = 0;
 
-    }
+    cameraDirection.normalize();
 
 
-    /* GRAVITY */
-
-    if (!player.grounded) {
-
-        player.velocityY -=
-            0.018 *
-            delta *
-            60;
-
-        player.position.y +=
-            player.velocityY *
-            delta *
-            60;
+    const forward =
+      cameraDirection.clone();
 
 
-        if (
-            player.position.y <= 0
-        ) {
-
-            player.position.y = 0;
-
-            player.velocityY = 0;
-
-            player.grounded = true;
-
-        }
-
-    }
+    const right =
+      new THREE.Vector3(
+        forward.z,
+        0,
+        -forward.x
+      );
 
 
-    player.group.position.copy(
-        player.position
+    const finalMove =
+      new THREE.Vector3();
+
+
+    finalMove.addScaledVector(
+      right,
+      move.x
+    );
+
+    finalMove.addScaledVector(
+      forward,
+      -move.z
     );
 
 
-    /* MAGIC REGEN */
-
-    player.magic +=
-        4 * delta;
+    finalMove.normalize();
 
 
-    player.magic =
-        Math.min(
-            100,
-            player.magic
-        );
+    player.position.addScaledVector(
+      finalMove,
+      speed * delta
+    );
+
+
+    /*
+     * Rotate character toward movement.
+     */
+
+    const targetRotation =
+      Math.atan2(
+        finalMove.x,
+        finalMove.z
+      );
+
+
+    player.rotation.y =
+      THREE.MathUtils.lerp(
+        player.rotation.y,
+        targetRotation,
+        0.15
+      );
+
+
+    /*
+     * Try to use walking animation
+     * if the GLB contains one.
+     */
+
+    const walk =
+      findAnimation([
+        "walk",
+        "run",
+        "locomotion"
+      ]);
+
+
+    if (
+      walk &&
+      currentAction &&
+      currentAction._clip &&
+      currentAction._clip.name !== walk
+    ) {
+
+      playAnimation(
+        walk
+      );
+
+    }
+
+  }
+
+
+  /* Gravity */
+
+  if (
+    !onGround
+  ) {
+
+    velocityY -=
+      18 * delta;
+
+    player.position.y +=
+      velocityY * delta;
+
+
+    if (
+      player.position.y <= 0
+    ) {
+
+      player.position.y =
+        0;
+
+      velocityY =
+        0;
+
+      onGround =
+        true;
+
+    }
+
+  }
 
 }
 
@@ -2262,66 +1902,34 @@ function updatePlayer(delta) {
 
 function jump() {
 
-    if (
-        player.grounded
-    ) {
-
-        player.grounded =
-            false;
-
-        player.velocityY =
-            0.32;
-
-    }
-
-}
+  if (
+    !player ||
+    !onGround
+  ) return;
 
 
-/* =========================================================
-   CAMERA
-   ========================================================= */
+  velocityY =
+    8;
 
-let cameraYaw = 0;
-
-let cameraPitch = 0.15;
+  onGround =
+    false;
 
 
-function updateCamera() {
-
-    const distance = 15;
-
-
-    const height = 7;
+  const jumpAnimation =
+    findAnimation([
+      "jump"
+    ]);
 
 
-    const offset =
-        new THREE.Vector3(
-            Math.sin(cameraYaw) * distance,
-            height,
-            Math.cos(cameraYaw) * distance
-        );
+  if (
+    jumpAnimation
+  ) {
 
-
-    camera.position.lerp(
-
-        new THREE.Vector3()
-            .copy(player.group.position)
-            .add(offset),
-
-        0.1
-
+    playAnimation(
+      jumpAnimation
     );
 
-
-    camera.lookAt(
-
-        player.group.position.x,
-
-        player.group.position.y + 4,
-
-        player.group.position.z
-
-    );
+  }
 
 }
 
@@ -2331,149 +1939,161 @@ function updateCamera() {
    ========================================================= */
 
 const joystickBase =
-    document.getElementById(
-        "joystickBase"
-    );
+  document.getElementById(
+    "joystickBase"
+  );
 
 const joystickStick =
-    document.getElementById(
-        "joystickStick"
+  document.getElementById(
+    "joystickStick"
+  );
+
+
+let joystickPointer = null;
+
+
+function updateJoystick(
+  event
+) {
+
+  if (
+    !joystickBase
+  ) return;
+
+
+  const rect =
+    joystickBase.getBoundingClientRect();
+
+
+  const centerX =
+    rect.left +
+    rect.width / 2;
+
+
+  const centerY =
+    rect.top +
+    rect.height / 2;
+
+
+  let dx =
+    event.clientX -
+    centerX;
+
+
+  let dy =
+    event.clientY -
+    centerY;
+
+
+  const maxDistance =
+    rect.width / 2 -
+    30;
+
+
+  const distance =
+    Math.sqrt(
+      dx * dx +
+      dy * dy
     );
 
 
-let joystickActive = false;
+  if (
+    distance > maxDistance
+  ) {
+
+    dx =
+      dx / distance *
+      maxDistance;
+
+    dy =
+      dy / distance *
+      maxDistance;
+
+  }
+
+
+  joystickX =
+    dx / maxDistance;
+
+
+  joystickY =
+    dy / maxDistance;
+
+
+  joystickStick.style.transform =
+    `translate(${dx}px, ${dy}px)`;
+
+}
 
 
 if (
-    joystickBase &&
-    joystickStick
+  joystickBase
 ) {
 
-    joystickBase.addEventListener(
-        "pointerdown",
-        e => {
+  joystickBase.addEventListener(
+    "pointerdown",
+    event => {
 
-            joystickActive = true;
+      joystickPointer =
+        event.pointerId;
 
-            joystickBase.setPointerCapture(
-                e.pointerId
-            );
+      joystickBase.setPointerCapture(
+        event.pointerId
+      );
 
-            updateJoystick(e);
-
-        }
-    );
-
-
-    joystickBase.addEventListener(
-        "pointermove",
-        e => {
-
-            if (
-                joystickActive
-            ) {
-
-                updateJoystick(e);
-
-            }
-
-        }
-    );
-
-
-    joystickBase.addEventListener(
-        "pointerup",
-        resetJoystick
-    );
-
-
-    joystickBase.addEventListener(
-        "pointercancel",
-        resetJoystick
-    );
-
-}
-
-
-function updateJoystick(e) {
-
-    const rect =
-        joystickBase.getBoundingClientRect();
-
-
-    const centerX =
-        rect.left +
-        rect.width / 2;
-
-
-    const centerY =
-        rect.top +
-        rect.height / 2;
-
-
-    let dx =
-        e.clientX -
-        centerX;
-
-
-    let dy =
-        e.clientY -
-        centerY;
-
-
-    const max =
-        rect.width * 0.32;
-
-
-    const length =
-        Math.sqrt(
-            dx * dx +
-            dy * dy
-        );
-
-
-    if (
-        length > max
-    ) {
-
-        dx =
-            dx /
-            length *
-            max;
-
-        dy =
-            dy /
-            length *
-            max;
+      updateJoystick(
+        event
+      );
 
     }
+  );
 
 
-    joystickStick.style.transform =
-        `translate(${dx}px, ${dy}px)`;
+  joystickBase.addEventListener(
+    "pointermove",
+    event => {
 
+      if (
+        event.pointerId ===
+        joystickPointer
+      ) {
+
+        updateJoystick(
+          event
+        );
+
+      }
+
+    }
+  );
+
+
+  function resetJoystick() {
+
+    joystickPointer =
+      null;
 
     joystickX =
-        dx / max;
-
+      0;
 
     joystickY =
-        dy / max;
-
-}
-
-
-function resetJoystick() {
-
-    joystickActive = false;
-
-    joystickX = 0;
-
-    joystickY = 0;
-
+      0;
 
     joystickStick.style.transform =
-        "translate(0px, 0px)";
+      "translate(0px, 0px)";
+
+  }
+
+
+  joystickBase.addEventListener(
+    "pointerup",
+    resetJoystick
+  );
+
+  joystickBase.addEventListener(
+    "pointercancel",
+    resetJoystick
+  );
 
 }
 
@@ -2483,187 +2103,256 @@ function resetJoystick() {
    ========================================================= */
 
 const jumpBtn =
-    document.getElementById(
-        "jumpBtn"
-    );
-
+  document.getElementById(
+    "jumpBtn"
+  );
 
 const spellBtn =
-    document.getElementById(
-        "spellBtn"
-    );
+  document.getElementById(
+    "spellBtn"
+  );
 
 
-if (jumpBtn) {
+if (
+  jumpBtn
+) {
 
-    jumpBtn.addEventListener(
-        "pointerdown",
-        e => {
+  jumpBtn.addEventListener(
+    "pointerdown",
+    event => {
 
-            e.preventDefault();
+      event.preventDefault();
 
-            jump();
+      jump();
 
-        }
-    );
+    }
+  );
 
 }
 
 
-if (spellBtn) {
+if (
+  spellBtn
+) {
 
-    spellBtn.addEventListener(
-        "pointerdown",
-        e => {
+  spellBtn.addEventListener(
+    "pointerdown",
+    event => {
 
-            e.preventDefault();
+      event.preventDefault();
 
-            castSpell();
+      castSpell();
 
-        }
-    );
+    }
+  );
 
 }
 
 
 /* =========================================================
-   CAMERA TOUCH
+   CAMERA
    ========================================================= */
 
-let cameraTouch = false;
+let cameraAngle =
+  0;
 
-let lastTouchX = 0;
+let cameraDistance =
+  9;
+
+let cameraHeight =
+  4.5;
+
+
+let cameraPointer = null;
+let previousCameraX = 0;
 
 
 renderer.domElement.addEventListener(
-    "pointerdown",
-    e => {
+  "pointerdown",
+  event => {
 
-        cameraTouch = true;
+    cameraPointer =
+      event.pointerId;
 
-        lastTouchX =
-            e.clientX;
+    previousCameraX =
+      event.clientX;
 
-    }
+  }
 );
 
 
 renderer.domElement.addEventListener(
-    "pointermove",
-    e => {
+  "pointermove",
+  event => {
 
-        if (!cameraTouch)
-            return;
-
-
-        const dx =
-            e.clientX -
-            lastTouchX;
+    if (
+      cameraPointer !==
+      event.pointerId
+    ) return;
 
 
-        cameraYaw -=
-            dx * 0.008;
+    const dx =
+      event.clientX -
+      previousCameraX;
 
 
-        lastTouchX =
-            e.clientX;
+    previousCameraX =
+      event.clientX;
 
-    }
+
+    cameraAngle -=
+      dx * 0.008;
+
+  }
 );
 
 
 renderer.domElement.addEventListener(
-    "pointerup",
-    () => {
+  "pointerup",
+  () => {
 
-        cameraTouch = false;
+    cameraPointer =
+      null;
 
-    }
+  }
 );
+
+
+function updateCamera() {
+
+  if (
+    !player
+  ) return;
+
+
+  const target =
+    player.position.clone();
+
+
+  target.y +=
+    2.0;
+
+
+  const cameraX =
+    player.position.x +
+    Math.sin(
+      cameraAngle
+    ) *
+    cameraDistance;
+
+
+  const cameraZ =
+    player.position.z +
+    Math.cos(
+      cameraAngle
+    ) *
+    cameraDistance;
+
+
+  const desired =
+    new THREE.Vector3(
+      cameraX,
+      player.position.y +
+      cameraHeight,
+      cameraZ
+    );
+
+
+  camera.position.lerp(
+    desired,
+    0.08
+  );
+
+
+  camera.lookAt(
+    target
+  );
+
+}
 
 
 /* =========================================================
    HUD
    ========================================================= */
 
-const hpBar =
-    document.getElementById(
-        "hpBar"
-    );
-
-
-const magicBar =
-    document.getElementById(
-        "magicBar"
-    );
-
-
-const hpText =
-    document.getElementById(
-        "hpText"
-    );
-
-
-const magicText =
-    document.getElementById(
-        "magicText"
-    );
-
-
-const xpText =
-    document.getElementById(
-        "xpText"
-    );
-
-
 function updateHUD() {
 
-    if (hpBar) {
+  const hpBar =
+    document.getElementById(
+      "hpBar"
+    );
 
-        hpBar.style.width =
-            `${Math.max(
-                0,
-                player.hp
-            )}%`;
+  const magicBar =
+    document.getElementById(
+      "magicBar"
+    );
 
-    }
+  const hpText =
+    document.getElementById(
+      "hpText"
+    );
 
+  const magicText =
+    document.getElementById(
+      "magicText"
+    );
 
-    if (magicBar) {
-
-        magicBar.style.width =
-            `${player.magic}%`;
-
-    }
-
-
-    if (hpText) {
-
-        hpText.textContent =
-            Math.max(
-                0,
-                Math.floor(player.hp)
-            );
-
-    }
+  const xpText =
+    document.getElementById(
+      "xpText"
+    );
 
 
-    if (magicText) {
+  if (hpBar) {
 
-        magicText.textContent =
-            Math.floor(
-                player.magic
-            );
+    hpBar.style.width =
+      Math.max(
+        hp,
+        0
+      ) +
+      "%";
 
-    }
+  }
 
 
-    if (xpText) {
+  if (magicBar) {
 
-        xpText.textContent =
-            player.xp;
+    magicBar.style.width =
+      Math.max(
+        magic,
+        0
+      ) +
+      "%";
 
-    }
+  }
+
+
+  if (hpText) {
+
+    hpText.textContent =
+      Math.round(
+        hp
+      );
+
+  }
+
+
+  if (magicText) {
+
+    magicText.textContent =
+      Math.round(
+        magic
+      );
+
+  }
+
+
+  if (xpText) {
+
+    xpText.textContent =
+      xp;
+
+  }
 
 }
 
@@ -2672,188 +2361,32 @@ function updateHUD() {
    MESSAGE
    ========================================================= */
 
-const message =
+let messageTimer =
+  0;
+
+
+function showMessage(
+  text
+) {
+
+  const message =
     document.getElementById(
-        "message"
+      "message"
     );
 
 
-let messageTimer = 0;
+  if (!message)
+    return;
 
 
-function showMessage(text) {
-
-    if (!message)
-        return;
+  message.textContent =
+    text;
 
 
-    message.textContent =
-        text;
-
-
-    message.style.opacity =
-        "1";
-
-
-    messageTimer = 2;
+  messageTimer =
+    2;
 
 }
-
-
-/* =========================================================
-   DEBUG START MESSAGE
-   ========================================================= */
-
-setTimeout(() => {
-
-    showMessage(
-        "🧙 Welcome! Your wizard is ready."
-    );
-
-}, 1500);
-
-
-/* =========================================================
-   ANIMATION
-   ========================================================= */
-
-function animate() {
-
-    requestAnimationFrame(
-        animate
-    );
-
-
-    const delta =
-        Math.min(
-            clock.getDelta(),
-            0.05
-        );
-
-
-    updatePlayer(delta);
-
-    updateEnemies(delta);
-
-    updateSpells(delta);
-
-    updateCamera();
-
-    updateHUD();
-
-
-    /* WATER ANIMATION */
-
-    if (water) {
-
-        const positions =
-            water.geometry.attributes.position;
-
-
-        for (
-            let i = 0;
-            i < positions.count;
-            i++
-        ) {
-
-            const x =
-                positions.getX(i);
-
-            const z =
-                positions.getZ(i);
-
-
-            positions.setY(
-
-                i,
-
-                Math.sin(
-                    x * 0.18 +
-                    clock.elapsedTime * 1.5
-                ) * 0.15 +
-
-                Math.cos(
-                    z * 0.2 +
-                    clock.elapsedTime
-                ) * 0.1
-
-            );
-
-        }
-
-
-        positions.needsUpdate = true;
-
-    }
-
-
-    /* HERO MAGIC AURA */
-
-    if (
-        player.group
-    ) {
-
-        const aura =
-            player.group.children.find(
-                obj =>
-                    obj.geometry &&
-                    obj.geometry.type ===
-                    "SphereGeometry" &&
-                    obj.material &&
-                    obj.material.transparent
-            );
-
-
-        if (aura) {
-
-            const pulse =
-                1 +
-                Math.sin(
-                    clock.elapsedTime * 3
-                ) * 0.06;
-
-
-            aura.scale.setScalar(
-                pulse
-            );
-
-        }
-
-    }
-
-
-    /* MESSAGE TIMER */
-
-    if (
-        messageTimer > 0
-    ) {
-
-        messageTimer -=
-            delta;
-
-
-        if (
-            messageTimer <= 0 &&
-            message
-        ) {
-
-            message.style.opacity =
-                "0";
-
-        }
-
-    }
-
-
-    renderer.render(
-        scene,
-        camera
-    );
-
-}
-
-
-animate();
 
 
 /* =========================================================
@@ -2861,125 +2394,189 @@ animate();
    ========================================================= */
 
 window.addEventListener(
-    "resize",
-    () => {
+  "resize",
+  () => {
 
-        camera.aspect =
-            window.innerWidth /
-            window.innerHeight;
+    camera.aspect =
+      window.innerWidth /
+      window.innerHeight;
 
-
-        camera.updateProjectionMatrix();
-
-
-        renderer.setSize(
-            window.innerWidth,
-            window.innerHeight
-        );
-
-    }
-);
+    camera.updateProjectionMatrix();
 
 
-/* =========================================================
-   KEYBOARD SUPPORT
-   ========================================================= */
-
-window.addEventListener(
-    "keydown",
-    e => {
-
-        if (e.key === "w")
-            keys.forward = true;
-
-        if (e.key === "s")
-            keys.backward = true;
-
-        if (e.key === "a")
-            keys.left = true;
-
-        if (e.key === "d")
-            keys.right = true;
-
-        if (e.key === " ")
-            jump();
-
-        if (e.key === "f")
-            castSpell();
-
-    }
-);
-
-
-window.addEventListener(
-    "keyup",
-    e => {
-
-        if (e.key === "w")
-            keys.forward = false;
-
-        if (e.key === "s")
-            keys.backward = false;
-
-        if (e.key === "a")
-            keys.left = false;
-
-        if (e.key === "d")
-            keys.right = false;
-
-    }
-);
-
-
-/* =========================================================
-   LOADING SCREEN
-   ========================================================= */
-
-const loading =
-    document.getElementById(
-        "loading"
+    renderer.setSize(
+      window.innerWidth,
+      window.innerHeight
     );
 
 
-setTimeout(() => {
+    renderer.setPixelRatio(
+      Math.min(
+        window.devicePixelRatio,
+        1.5
+      )
+    );
 
-    if (loading) {
-
-        loading.style.opacity =
-            "0";
-
-
-        setTimeout(() => {
-
-            loading.style.display =
-                "none";
-
-        }, 500);
-
-    }
-
-}, 1000);
+  }
+);
 
 
 /* =========================================================
-   FINAL
+   MAIN LOOP
    ========================================================= */
 
-console.log(
-    "WIZARDING WORLD 3D V6 LOADED"
-);
+function animate() {
 
-console.log(
-    "Wizard:",
-    player.group
-);
+  requestAnimationFrame(
+    animate
+  );
 
-console.log(
-    "Enemies:",
-    enemies.length
-);
 
-console.log(
-    "Water:",
-    water
+  const delta =
+    Math.min(
+      clock.getDelta(),
+      0.05
+    );
+
+
+  const elapsed =
+    clock.elapsedTime;
+
+
+  /* Water */
+
+  animateWater(
+    elapsed
+  );
+
+
+  /* Player animation */
+
+  if (
+    playerMixer
+  ) {
+
+    playerMixer.update(
+      delta
+    );
+
+  }
+
+
+  /* Player */
+
+  updatePlayer(
+    delta
+  );
+
+
+  /* Enemies */
+
+  updateEnemies(
+    delta
+  );
+
+
+  /* Spells */
+
+  updateSpells(
+    delta
+  );
+
+
+  /* Camera */
+
+  updateCamera();
+
+
+  /* Magic regeneration */
+
+  magic =
+    Math.min(
+      100,
+      magic +
+      delta * 3
+    );
+
+
+  /* Spell cooldown */
+
+  spellCooldown =
+    Math.max(
+      0,
+      spellCooldown -
+      delta
+    );
+
+
+  /* Message */
+
+  if (
+    messageTimer > 0
+  ) {
+
+    messageTimer -=
+      delta;
+
+    if (
+      messageTimer <= 0
+    ) {
+
+      const message =
+        document.getElementById(
+          "message"
+        );
+
+      if (message) {
+
+        message.textContent =
+          "";
+
+      }
+
+    }
+
+  }
+
+
+  /* HUD */
+
+  updateHUD();
+
+
+  renderer.render(
+    scene,
+    camera
+  );
+
+}
+
+animate();
+
+
+/* =========================================================
+   STARTUP MESSAGE
+   ========================================================= */
+
+setTimeout(
+  () => {
+
+    if (!player) {
+
+      const loadingText =
+        document.querySelector(
+          ".loading-text"
+        );
+
+      if (loadingText) {
+
+        loadingText.textContent =
+          "Loading 3D character...";
+
+      }
+
+    }
+
+  },
+  500
 );
