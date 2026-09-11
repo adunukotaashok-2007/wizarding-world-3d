@@ -1,1132 +1,718 @@
+/* =========================================================
+   AETHERIA ACADEMY
+   MOBILE LANDSCAPE CONTROL FIX
+========================================================= */
+
 * {
-  box-sizing: border-box;
-
-  margin: 0;
-  padding: 0;
-
-  -webkit-tap-highlight-color: transparent;
-
-  user-select: none;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
 }
-
 
 html,
 body {
-
-  width: 100%;
-  height: 100%;
-
-  overflow: hidden;
-
-  background: #05070b;
-
-  touch-action: none;
-
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #050b12;
+    font-family: Arial, sans-serif;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
 }
-
 
 body {
-
-  position: fixed;
-
-  inset: 0;
+    position: fixed;
+    inset: 0;
 }
 
-
 /* =========================================================
-   GAME
-   ========================================================= */
+   GAME CANVAS
+========================================================= */
 
 #game {
-
-  position: fixed;
-
-  inset: 0;
-
-  width: 100%;
-  height: 100%;
-
-  overflow: hidden;
-
-  touch-action: none;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    overflow: hidden;
 }
-
 
 #game canvas {
-
-  display: block;
-
-  width: 100%;
-  height: 100%;
-
-  touch-action: none;
-}
-
-
-/* =========================================================
-   LOADING
-   ========================================================= */
-
-#loading {
-
-  position: fixed;
-
-  inset: 0;
-
-  z-index: 1000;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  background:
-    radial-gradient(
-      circle at center,
-      #172033 0%,
-      #080b12 55%,
-      #030407 100%
-    );
-
-  color: white;
-}
-
-
-.loading-box {
-
-  width: min(80vw, 430px);
-
-  text-align: center;
-}
-
-
-.magic-symbol {
-
-  font-size: 52px;
-
-  margin-bottom: 5px;
-
-  animation:
-    magicPulse 1.5s infinite;
-}
-
-
-.loading-box h1 {
-
-  font-size: 32px;
-
-  letter-spacing: 8px;
-
-  margin-left: 8px;
-}
-
-
-.loading-box p {
-
-  margin-top: 5px;
-
-  color: #aeb8c9;
-
-  font-size: 13px;
-
-  letter-spacing: 2px;
-}
-
-
-.loading-bar {
-
-  width: 100%;
-  height: 5px;
-
-  margin-top: 28px;
-
-  overflow: hidden;
-
-  border-radius: 10px;
-
-  background:
-    rgba(255,255,255,0.12);
-}
-
-
-.loading-progress {
-
-  width: 0%;
-  height: 100%;
-
-  background: white;
-
-  animation:
-    loadingProgress 2.5s forwards;
-}
-
-
-.loading-box span {
-
-  display: block;
-
-  margin-top: 10px;
-
-  color: #788396;
-
-  font-size: 12px;
-}
-
-
-@keyframes loadingProgress {
-
-  from {
-    width: 0%;
-  }
-
-  to {
+    display: block;
     width: 100%;
-  }
-}
-
-
-@keyframes magicPulse {
-
-  0%,
-  100% {
-
-    opacity: 0.45;
-
-    transform:
-      scale(0.9);
-  }
-
-  50% {
-
-    opacity: 1;
-
-    transform:
-      scale(1.1);
-  }
+    height: 100%;
+    touch-action: none;
 }
 
 
 /* =========================================================
-   ROTATE SCREEN
-   ========================================================= */
+   LOADING SCREEN
+========================================================= */
 
-#rotateOverlay {
-
-  position: fixed;
-
-  inset: 0;
-
-  z-index: 2000;
-
-  display: none;
-
-  align-items: center;
-  justify-content: center;
-
-  text-align: center;
-
-  background:
-    radial-gradient(
-      circle at center,
-      #111b2c,
-      #05070c 70%
-    );
-
-  color: white;
-}
-
-
-.rotate-box {
-
-  position: relative;
-
-  width: 85vw;
-  max-width: 430px;
-
-  padding: 30px;
-
-  border-radius: 22px;
-
-  border:
-    1px solid
-    rgba(255,255,255,0.12);
-
-  background:
-    rgba(255,255,255,0.05);
-
-  backdrop-filter:
-    blur(10px);
-}
-
-
-.phone-icon {
-
-  font-size: 48px;
-
-  transform:
-    rotate(90deg);
-}
-
-
-.rotate-arrow {
-
-  position: absolute;
-
-  top: 45px;
-  left: 50%;
-
-  font-size: 42px;
-
-  transform:
-    translateX(-50%);
-}
-
-
-.rotate-box h2 {
-
-  margin-top: 22px;
-
-  font-size: 25px;
-}
-
-
-.rotate-box p {
-
-  margin-top: 12px;
-
-  line-height: 1.6;
-
-  color: #aab3c2;
-}
-
-
-@media (orientation: portrait) {
-
-  #rotateOverlay {
+#loading,
+#loadingScreen,
+#loadingOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
 
     display: flex;
-  }
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #111b2d 0%,
+            #050910 70%,
+            #02050a 100%
+        );
+
+    color: white;
+
+    transition:
+        opacity 0.5s ease;
 }
 
 
 /* =========================================================
    HUD
-   ========================================================= */
+========================================================= */
 
 #hud {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
 
-  position: fixed;
-
-  inset: 0;
-
-  pointer-events: none;
-
-  z-index: 100;
-}
-
-
-#academyTitle {
-
-  position: absolute;
-
-  top:
-    calc(
-      14px +
-      env(safe-area-inset-top)
-    );
-
-  left:
-    calc(
-      18px +
-      env(safe-area-inset-left)
-    );
-
-  text-shadow:
-    0 2px 8px
-    rgba(0,0,0,0.8);
-}
-
-
-.title-small {
-
-  font-size: 9px;
-
-  letter-spacing: 4px;
-
-  color: #c8ced8;
-}
-
-
-.title-large {
-
-  margin-top: 1px;
-
-  font-size: 19px;
-
-  letter-spacing: 3px;
-
-  font-weight: bold;
+    pointer-events: none;
 }
 
 
 /* =========================================================
-   QUEST
-   ========================================================= */
+   AETHERIA TITLE
+========================================================= */
 
-#questBox {
+#academyTitle {
+    position: absolute;
 
-  position: absolute;
+    top: 20px;
+    left: 30px;
 
-  top:
-    calc(
-      16px +
-      env(safe-area-inset-top)
-    );
+    color: white;
 
-  right:
-    calc(
-      18px +
-      env(safe-area-inset-right)
-    );
+    letter-spacing: 6px;
 
-  width: min(38vw, 310px);
-
-  padding: 11px 14px;
-
-  border-radius: 10px;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(8,12,20,0.86),
-      rgba(18,23,34,0.72)
-    );
-
-  border:
-    1px solid
-    rgba(255,255,255,0.13);
-
-  box-shadow:
-    0 5px 20px
-    rgba(0,0,0,0.3);
-
-  backdrop-filter:
-    blur(8px);
-
-  color: white;
+    text-shadow:
+        0 2px 8px black;
 }
 
 
-.quest-heading {
+/* =========================================================
+   QUEST PANEL
+========================================================= */
 
-  font-size: 8px;
+#questBox,
+.questBox {
+    position: absolute;
 
-  letter-spacing: 2px;
+    top: 28px;
+    right: 28px;
 
-  color: #8d9aae;
+    min-width: 280px;
+    max-width: 480px;
 
-  margin-bottom: 4px;
+    padding: 18px 24px;
+
+    border:
+        1px solid
+        rgba(255,255,255,0.18);
+
+    border-radius: 18px;
+
+    background:
+        rgba(8,13,23,0.82);
+
+    backdrop-filter:
+        blur(12px);
+
+    -webkit-backdrop-filter:
+        blur(12px);
+
+    color: white;
+
+    box-shadow:
+        0 10px 40px
+        rgba(0,0,0,0.3);
+
+    pointer-events: none;
 }
 
 
-#quest {
-
-  font-size: 12px;
-
-  line-height: 1.4;
+#questText {
+    color: white;
 }
 
 
 /* =========================================================
    XP
-   ========================================================= */
+========================================================= */
 
-#xpBox {
+#xp {
+    position: absolute;
 
-  position: absolute;
+    right: 28px;
+    top: 125px;
 
-  top:
-    calc(
-      85px +
-      env(safe-area-inset-top)
-    );
+    padding: 10px 18px;
 
-  right:
-    calc(
-      18px +
-      env(safe-area-inset-right)
-    );
+    border:
+        1px solid
+        rgba(255,215,80,0.35);
 
-  padding:
-    6px 11px;
+    border-radius: 22px;
 
-  border-radius: 15px;
+    color: #f5d778;
 
-  background:
-    rgba(5,8,14,0.72);
+    background:
+        rgba(10,10,15,0.65);
 
-  border:
-    1px solid
-    rgba(255,210,90,0.3);
-
-  color: #ffd86b;
-
-  font-size: 11px;
-}
-
-
-#xpLabel {
-
-  margin-right: 6px;
-
-  color: #9da7b6;
-}
-
-
-/* =========================================================
-   MESSAGE
-   ========================================================= */
-
-#message {
-
-  position: absolute;
-
-  left: 50%;
-
-  bottom: 19%;
-
-  transform:
-    translateX(-50%);
-
-  min-width: 200px;
-
-  padding:
-    10px 18px;
-
-  border-radius: 20px;
-
-  text-align: center;
-
-  font-size: 13px;
-
-  color: white;
-
-  background:
-    rgba(0,0,0,0.65);
-
-  opacity: 0;
-
-  transition:
-    opacity 0.25s;
-
-  white-space: nowrap;
-}
-
-
-/* =========================================================
-   NPC NAME
-   ========================================================= */
-
-#npcName {
-
-  position: absolute;
-
-  left: 50%;
-
-  top: 35%;
-
-  transform:
-    translateX(-50%);
-
-  padding:
-    6px 12px;
-
-  border-radius: 12px;
-
-  background:
-    rgba(5,8,14,0.78);
-
-  border:
-    1px solid
-    rgba(255,215,100,0.35);
-
-  color: #ffe29a;
-
-  font-size: 12px;
-
-  letter-spacing: 1px;
-
-  opacity: 0;
-
-  transition:
-    opacity 0.2s;
-}
-
-
-/* =========================================================
-   TALK BUTTON
-   ========================================================= */
-
-#talkBtn {
-
-  position: fixed;
-
-  right:
-    calc(
-      120px +
-      env(safe-area-inset-right)
-    );
-
-  bottom:
-    calc(
-      25px +
-      env(safe-area-inset-bottom)
-    );
-
-  width: 78px;
-  height: 78px;
-
-  z-index: 160;
-
-  display: none;
-
-  flex-direction: column;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: 3px;
-
-  border:
-    2px solid
-    rgba(255,220,120,0.55);
-
-  border-radius: 50%;
-
-  color: white;
-
-  background:
-    radial-gradient(
-      circle at 35% 25%,
-      rgba(255,220,120,0.25),
-      rgba(15,18,25,0.92)
-    );
-
-  box-shadow:
-    0 6px 20px
-    rgba(0,0,0,0.45),
-    0 0 18px
-    rgba(255,200,80,0.15);
-
-  pointer-events: auto;
-
-  touch-action: none;
-}
-
-
-#talkBtn span {
-
-  font-size: 25px;
-}
-
-
-#talkBtn small {
-
-  font-size: 8px;
-
-  letter-spacing: 1.5px;
-}
-
-
-#talkBtn:active {
-
-  transform:
-    scale(0.9);
-}
-
-
-/* =========================================================
-   DIALOGUE BOX
-   ========================================================= */
-
-#dialogueBox {
-
-  position: absolute;
-
-  left: 50%;
-
-  bottom: 8%;
-
-  transform:
-    translateX(-50%);
-
-  width: min(76vw, 650px);
-
-  padding:
-    15px 18px 13px;
-
-  border-radius: 15px;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(7,11,18,0.96),
-      rgba(21,27,38,0.94)
-    );
-
-  border:
-    1px solid
-    rgba(255,216,110,0.35);
-
-  box-shadow:
-    0 10px 35px
-    rgba(0,0,0,0.5);
-
-  color: white;
-
-  opacity: 0;
-
-  transform:
-    translate(-50%, 20px);
-
-  transition:
-    opacity 0.25s,
-    transform 0.25s;
-
-  pointer-events: none;
-}
-
-
-#dialogueBox.visible {
-
-  opacity: 1;
-
-  transform:
-    translate(-50%, 0);
-
-  pointer-events: auto;
-}
-
-
-#dialogueName {
-
-  color: #ffd76a;
-
-  font-size: 12px;
-
-  font-weight: bold;
-
-  letter-spacing: 1px;
-
-  margin-bottom: 7px;
-}
-
-
-#dialogueText {
-
-  font-size: 14px;
-
-  line-height: 1.5;
-
-  color: #e5e9ef;
-
-  padding-right: 85px;
-}
-
-
-#dialogueNext {
-
-  position: absolute;
-
-  right: 14px;
-  bottom: 12px;
-
-  padding:
-    8px 12px;
-
-  border: none;
-
-  border-radius: 8px;
-
-  background:
-    rgba(255,214,105,0.18);
-
-  border:
-    1px solid
-    rgba(255,214,105,0.35);
-
-  color: #ffd76a;
-
-  font-size: 9px;
-
-  letter-spacing: 1px;
-
-  pointer-events: auto;
+    pointer-events: none;
 }
 
 
 /* =========================================================
    JOYSTICK
-   ========================================================= */
+========================================================= */
 
-#joystickBase {
+#joystick {
+    position: fixed;
 
-  position: fixed;
+    left: 30px;
+    bottom: 30px;
 
-  left:
-    calc(
-      18px +
-      env(safe-area-inset-left)
-    );
+    width: 145px;
+    height: 145px;
 
-  bottom:
-    calc(
-      18px +
-      env(safe-area-inset-bottom)
-    );
+    z-index: 3000;
 
-  width: 118px;
-  height: 118px;
+    border:
+        2px solid
+        rgba(255,255,255,0.28);
 
-  z-index: 150;
+    border-radius: 50%;
 
-  border-radius: 50%;
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,255,255,0.12),
+            rgba(255,255,255,0.035)
+        );
 
-  background:
-    radial-gradient(
-      circle,
-      rgba(255,255,255,0.12),
-      rgba(255,255,255,0.04)
-    );
+    box-shadow:
+        inset 0 0 25px
+        rgba(255,255,255,0.05),
 
-  border:
-    2px solid
-    rgba(255,255,255,0.18);
+        0 5px 25px
+        rgba(0,0,0,0.25);
 
-  box-shadow:
-    inset 0 0 20px
-    rgba(0,0,0,0.25),
-    0 5px 20px
-    rgba(0,0,0,0.3);
+    touch-action: none;
 
-  touch-action: none;
+    pointer-events: auto;
+
+    user-select: none;
 }
 
 
-#joystickStick {
+/* =========================================================
+   JOYSTICK KNOB
+========================================================= */
 
-  position: absolute;
+#joystickKnob {
+    position: absolute;
 
-  left: 50%;
-  top: 50%;
+    left: 50%;
+    top: 50%;
 
-  width: 54px;
-  height: 54px;
+    width: 74px;
+    height: 74px;
 
-  transform:
-    translate(-50%, -50%);
+    margin-left: -37px;
+    margin-top: -37px;
 
-  border-radius: 50%;
+    border-radius: 50%;
 
-  background:
-    radial-gradient(
-      circle at 35% 30%,
-      #ffffff,
-      #aeb7c4 50%,
-      #697382
-    );
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #ffffff,
+            #d8dbe0 45%,
+            #aeb3ba 100%
+        );
 
-  border:
-    2px solid
-    rgba(255,255,255,0.45);
+    border:
+        2px solid
+        rgba(255,255,255,0.65);
 
-  box-shadow:
-    0 4px 12px
-    rgba(0,0,0,0.45);
+    box-shadow:
+        0 5px 20px
+        rgba(0,0,0,0.4);
 
-  pointer-events: none;
+    pointer-events: none;
+
+    transition:
+        transform 0.04s linear;
 }
 
 
 /* =========================================================
    ACTION BUTTONS
-   ========================================================= */
+========================================================= */
 
-#actionButtons {
+#jumpButton,
+#spellButton,
+#interactButton {
 
-  position: fixed;
+    position: fixed;
 
-  right:
-    calc(
-      18px +
-      env(safe-area-inset-right)
+    z-index: 3000;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    touch-action: none;
+
+    pointer-events: auto;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    cursor: pointer;
+
+    border:
+        2px solid
+        rgba(255,255,255,0.18);
+
+    color: white;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(70,75,90,0.85),
+            rgba(15,18,27,0.9)
+        );
+
+    box-shadow:
+        inset 0 0 20px
+        rgba(255,255,255,0.04),
+
+        0 8px 25px
+        rgba(0,0,0,0.35);
+
+    transition:
+        transform 0.08s ease,
+        background 0.08s ease;
+}
+
+
+#jumpButton:active,
+#spellButton:active,
+#interactButton:active {
+
+    transform:
+        scale(0.92);
+
+    background:
+        rgba(90,95,110,0.95);
+}
+
+
+/* =========================================================
+   JUMP
+========================================================= */
+
+#jumpButton {
+
+    right: 180px;
+    bottom: 32px;
+
+    width: 150px;
+    height: 150px;
+
+    border-radius: 50%;
+
+    font-size: 18px;
+
+    letter-spacing: 2px;
+}
+
+
+/* =========================================================
+   SPELL
+========================================================= */
+
+#spellButton {
+
+    right: 28px;
+    bottom: 32px;
+
+    width: 150px;
+    height: 150px;
+
+    border-radius: 50%;
+
+    font-size: 18px;
+
+    letter-spacing: 2px;
+}
+
+
+/* =========================================================
+   TALK BUTTON
+========================================================= */
+
+#interactButton {
+
+    right: 350px;
+    bottom: 55px;
+
+    min-width: 110px;
+    min-height: 55px;
+
+    padding: 12px 22px;
+
+    border-radius: 18px;
+
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   DIALOGUE
+========================================================= */
+
+#dialogueBox {
+
+    position: fixed;
+
+    left: 50%;
+    bottom: 30px;
+
+    transform:
+        translateX(-50%);
+
+    z-index: 3500;
+
+    width: min(
+        700px,
+        72vw
     );
 
-  bottom:
-    calc(
-      18px +
-      env(safe-area-inset-bottom)
-    );
+    padding: 18px 24px;
 
-  z-index: 150;
+    border:
+        1px solid
+        rgba(255,255,255,0.2);
 
-  display: flex;
+    border-radius: 18px;
 
-  align-items: flex-end;
+    background:
+        rgba(8,12,22,0.92);
 
-  gap: 14px;
+    color: white;
+
+    line-height: 1.5;
+
+    box-shadow:
+        0 12px 40px
+        rgba(0,0,0,0.45);
+
+    display: none;
+
+    pointer-events: none;
 }
 
 
-.actionBtn {
+/* =========================================================
+   PORTRAIT WARNING
+========================================================= */
 
-  width: 76px;
-  height: 76px;
+#portraitOverlay {
 
-  border:
-    2px solid
-    rgba(255,255,255,0.22);
+    display: none;
 
-  border-radius: 50%;
+    position: fixed;
+    inset: 0;
 
-  color: white;
+    z-index: 6000;
 
-  background:
-    radial-gradient(
-      circle at 35% 25%,
-      rgba(255,255,255,0.18),
-      rgba(20,25,35,0.85)
-    );
+    align-items: center;
+    justify-content: center;
 
-  box-shadow:
-    0 6px 18px
-    rgba(0,0,0,0.4);
+    text-align: center;
 
-  display: flex;
+    padding: 30px;
 
-  flex-direction: column;
+    color: white;
 
-  align-items: center;
-  justify-content: center;
-
-  gap: 2px;
-
-  touch-action: none;
-
-  cursor: pointer;
+    background:
+        #050910;
 }
 
 
-.actionBtn span {
-
-  font-size: 27px;
-
-  line-height: 1;
+#portraitOverlay .rotateMessage {
+    max-width: 350px;
 }
 
 
-.actionBtn small {
-
-  font-size: 8px;
-
-  letter-spacing: 1.5px;
-
-  opacity: 0.8;
+#portraitOverlay h2 {
+    margin-bottom: 12px;
 }
 
 
-.actionBtn.spell {
-
-  width: 88px;
-  height: 88px;
+#portraitOverlay p {
+    opacity: 0.7;
 }
 
 
-.actionBtn.spell span {
+/* =========================================================
+   MOBILE LANDSCAPE
+========================================================= */
 
-  font-size: 31px;
-}
+@media
+(max-width: 900px)
+and (orientation: landscape) {
+
+    #joystick {
+
+        left:
+            max(
+                18px,
+                env(safe-area-inset-left)
+            );
+
+        bottom:
+            max(
+                18px,
+                env(safe-area-inset-bottom)
+            );
+
+        width: 135px;
+        height: 135px;
+    }
 
 
-.actionBtn:active {
+    #joystickKnob {
 
-  transform:
-    scale(0.91);
+        width: 68px;
+        height: 68px;
 
-  background:
-    radial-gradient(
-      circle,
-      rgba(255,255,255,0.3),
-      rgba(20,25,35,0.9)
-    );
+        margin-left: -34px;
+        margin-top: -34px;
+    }
+
+
+    #jumpButton {
+
+        right:
+            max(
+                165px,
+                calc(
+                    150px +
+                    env(safe-area-inset-right)
+                )
+            );
+
+        bottom:
+            max(
+                18px,
+                env(safe-area-inset-bottom)
+            );
+
+        width: 125px;
+        height: 125px;
+    }
+
+
+    #spellButton {
+
+        right:
+            max(
+                18px,
+                env(safe-area-inset-right)
+            );
+
+        bottom:
+            max(
+                18px,
+                env(safe-area-inset-bottom)
+            );
+
+        width: 125px;
+        height: 125px;
+    }
+
+
+    #interactButton {
+
+        right: 305px;
+        bottom: 40px;
+    }
+
+
+    #questBox,
+    .questBox {
+
+        top: 18px;
+        right: 18px;
+
+        min-width: 240px;
+
+        padding:
+            13px 18px;
+
+        font-size: 14px;
+    }
+
+
+    #xp {
+
+        top: 105px;
+        right: 18px;
+
+        font-size: 13px;
+    }
 }
 
 
 /* =========================================================
    SMALL LANDSCAPE PHONES
-   ========================================================= */
+========================================================= */
 
 @media
-(orientation: landscape)
-and (max-height: 500px) {
+(max-height: 500px)
+and (orientation: landscape) {
 
-  #joystickBase {
+    #joystick {
 
-    width: 100px;
-    height: 100px;
-  }
+        width: 115px;
+        height: 115px;
 
-
-  #joystickStick {
-
-    width: 46px;
-    height: 46px;
-  }
+        bottom: 15px;
+    }
 
 
-  .actionBtn {
+    #joystickKnob {
 
-    width: 64px;
-    height: 64px;
-  }
+        width: 58px;
+        height: 58px;
 
-
-  .actionBtn.spell {
-
-    width: 74px;
-    height: 74px;
-  }
+        margin-left: -29px;
+        margin-top: -29px;
+    }
 
 
-  .actionBtn span {
+    #jumpButton,
+    #spellButton {
 
-    font-size: 22px;
-  }
+        width: 105px;
+        height: 105px;
 
+        bottom: 15px;
 
-  .actionBtn.spell span {
-
-    font-size: 26px;
-  }
-
-
-  #questBox {
-
-    width: 280px;
-  }
+        font-size: 14px;
+    }
 
 
-  #quest {
-
-    font-size: 11px;
-  }
-
-
-  #talkBtn {
-
-    width: 64px;
-    height: 64px;
-
-    right: 108px;
-  }
+    #jumpButton {
+        right: 135px;
+    }
 
 
-  #talkBtn span {
-
-    font-size: 20px;
-  }
-
-
-  #dialogueBox {
-
-    bottom: 10%;
-
-    width: 72vw;
-
-    padding: 11px 14px;
-  }
+    #spellButton {
+        right: 15px;
+    }
 
 
-  #dialogueText {
+    #interactButton {
 
-    font-size: 12px;
-  }
+        right: 250px;
+        bottom: 30px;
+
+        min-width: 90px;
+        min-height: 45px;
+
+        font-size: 13px;
+    }
+
+
+    #dialogueBox {
+
+        bottom: 12px;
+
+        width: 65vw;
+
+        padding: 12px 18px;
+
+        font-size: 13px;
+    }
 }
 
 
 /* =========================================================
-   TABLET LANDSCAPE
-   ========================================================= */
+   PORTRAIT MODE
+========================================================= */
 
 @media
-(orientation: landscape)
-and (min-width: 700px) {
+(orientation: portrait) {
 
-  #joystickBase {
+    #portraitOverlay {
+        display: flex;
+    }
 
-    width: 135px;
-    height: 135px;
-  }
+    #joystick,
+    #jumpButton,
+    #spellButton {
 
-
-  #joystickStick {
-
-    width: 62px;
-    height: 62px;
-  }
-
-
-  .actionBtn {
-
-    width: 84px;
-    height: 84px;
-  }
-
-
-  .actionBtn.spell {
-
-    width: 96px;
-    height: 96px;
-  }
-
-
-  #questBox {
-
-    width: 340px;
-  }
-
-
-  #talkBtn {
-
-    right: 145px;
-
-    width: 90px;
-    height: 90px;
-  }
+        opacity: 0.35;
+    }
 }
 
 
 /* =========================================================
-   PREVENT BROWSER UI
-   ========================================================= */
+   IMPORTANT TOUCH FIX
+========================================================= */
 
-button {
+button,
+#joystick,
+#joystickKnob,
+#jumpButton,
+#spellButton,
+#interactButton {
 
-  outline: none;
+    touch-action: none !important;
 
-  -webkit-user-select: none;
+    -webkit-touch-callout: none;
 
-  user-select: none;
-
-  -webkit-touch-callout: none;
+    -webkit-user-drag: none;
 }
 
 
-button:focus {
+/* Prevent the game UI from blocking controls */
 
-  outline: none;
+#hud {
+    pointer-events: none;
+}
+
+#hud button,
+#hud #joystick,
+#hud #jumpButton,
+#hud #spellButton,
+#hud #interactButton {
+    pointer-events: auto;
 }
