@@ -1,200 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width,
-             initial-scale=1,
-             maximum-scale=1,
-             user-scalable=no,
-             viewport-fit=cover"
-  >
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    >
 
-  <meta name="theme-color" content="#05070b">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Aetheria Academy</title>
 
-  <title>Aetheria Academy</title>
+    <link rel="stylesheet" href="./style.css">
 
-  <link rel="stylesheet" href="./style.css?v=6">
-
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    <!-- Three.js -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three":
+            "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+        }
     }
-  }
-  </script>
+    </script>
 </head>
 
 <body>
 
-  <!-- GAME -->
-  <div id="game"></div>
+    <!-- =====================================================
+         3D GAME
+    ====================================================== -->
+
+    <div id="game"></div>
 
 
-  <!-- LOADING -->
-  <div id="loading">
+    <!-- =====================================================
+         LOADING SCREEN
+    ====================================================== -->
 
-    <div class="loading-box">
+    <div id="loading">
 
-      <div class="magic-symbol">✦</div>
+        <div class="loadingLogo">
+            ✦
+        </div>
 
-      <h1>AETHERIA</h1>
+        <div class="loadingTitle">
+            AETHERIA
+        </div>
 
-      <p>Academy of Arcane Arts</p>
+        <div class="loadingSubtitle">
+            Academy of Arcane Arts
+        </div>
 
-      <div class="loading-bar">
-        <div class="loading-progress"></div>
-      </div>
+        <div class="loadingBar">
+            <div class="loadingBarFill"></div>
+        </div>
 
-      <span>Loading world...</span>
-
-    </div>
-
-  </div>
-
-
-  <!-- PORTRAIT WARNING -->
-  <div id="rotateOverlay">
-
-    <div class="rotate-box">
-
-      <div class="phone-icon">📱</div>
-
-      <div class="rotate-arrow">↻</div>
-
-      <h2>Rotate Your Phone</h2>
-
-      <p>
-        Aetheria Academy is designed<br>
-        for <b>landscape mode</b>.
-      </p>
-
-    </div>
-
-  </div>
-
-
-  <!-- HUD -->
-  <div id="hud">
-
-    <div id="academyTitle">
-
-      <div class="title-small">
-        AETHERIA
-      </div>
-
-      <div class="title-large">
-        ACADEMY
-      </div>
+        <div class="loadingText">
+            Loading world...
+        </div>
 
     </div>
 
 
-    <!-- QUEST -->
-    <div id="questBox">
+    <!-- =====================================================
+         PORTRAIT WARNING
+    ====================================================== -->
 
-      <div class="quest-heading">
-        CURRENT QUEST
-      </div>
+    <div id="portraitOverlay">
 
-      <div id="quest">
-        Quest: Meet the Academy Guide
-      </div>
+        <div class="portraitCard">
+
+            <div class="rotateIcon">
+                ↔
+            </div>
+
+            <h1>
+                AETHERIA
+            </h1>
+
+            <h2>
+                Rotate Your Device
+            </h2>
+
+            <p>
+                This magical world is designed for landscape mode.
+            </p>
+
+            <button id="landscapeButton">
+                ENTER LANDSCAPE
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         HUD
+    ====================================================== -->
+
+    <div id="hud">
+
+        <div id="academyTitle">
+
+            <div>
+                A E T H E R I A
+            </div>
+
+            <strong>
+                ACADEMY
+            </strong>
+
+        </div>
+
+
+        <div id="questBox">
+
+            <div class="questLabel">
+                CURRENT QUEST
+            </div>
+
+            <div id="questText">
+                Quest: Meet the Academy Guide
+            </div>
+
+        </div>
+
+
+        <div id="xp">
+            XP 0
+        </div>
+
+
+        <!-- =================================================
+             JOYSTICK
+        ================================================== -->
+
+        <div id="joystick">
+
+            <div id="joystickKnob"></div>
+
+        </div>
+
+
+        <!-- =================================================
+             JUMP
+        ================================================== -->
+
+        <button id="jumpButton">
+
+            <span class="buttonIcon">
+                ↑
+            </span>
+
+            <span>
+                JUMP
+            </span>
+
+        </button>
+
+
+        <!-- =================================================
+             SPELL
+        ================================================== -->
+
+        <button id="spellButton">
+
+            <span class="buttonIcon">
+                ✦
+            </span>
+
+            <span>
+                CAST
+            </span>
+
+        </button>
+
+
+        <!-- =================================================
+             TALK
+        ================================================== -->
+
+        <button id="interactButton">
+            TALK
+        </button>
+
+
+        <!-- =================================================
+             DIALOGUE
+        ================================================== -->
+
+        <div id="dialogueBox"></div>
 
     </div>
 
 
-    <!-- XP -->
-    <div id="xpBox">
+    <!-- =====================================================
+         GAME SCRIPT
+    ====================================================== -->
 
-      <span id="xpLabel">
-        XP
-      </span>
-
-      <span id="xpValue">
-        0
-      </span>
-
-    </div>
-
-
-    <!-- MESSAGE -->
-    <div id="message"></div>
-
-
-    <!-- NPC NAME -->
-    <div id="npcName">
-      Academy Guide
-    </div>
-
-
-    <!-- DIALOGUE -->
-    <div id="dialogueBox">
-
-      <div id="dialogueName">
-        Academy Guide
-      </div>
-
-      <div id="dialogueText">
-        Welcome to Aetheria Academy.
-      </div>
-
-      <button id="dialogueNext">
-        CONTINUE
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <!-- TALK BUTTON -->
-  <button id="talkBtn">
-    <span>💬</span>
-    <small>TALK</small>
-  </button>
-
-
-  <!-- JOYSTICK -->
-  <div id="joystickBase">
-
-    <div id="joystickStick"></div>
-
-  </div>
-
-
-  <!-- ACTION BUTTONS -->
-  <div id="actionButtons">
-
-    <button
-      id="jumpBtn"
-      class="actionBtn"
-    >
-      <span>↑</span>
-      <small>JUMP</small>
-    </button>
-
-
-    <button
-      id="spellBtn"
-      class="actionBtn spell"
-    >
-      <span>✦</span>
-      <small>CAST</small>
-    </button>
-
-  </div>
-
-
-  <script
-    type="module"
-    src="./game.js?v=6"
-  ></script>
+    <script
+        type="module"
+        src="./game.js?v=10">
+    </script>
 
 </body>
+
 </html>
