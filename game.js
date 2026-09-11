@@ -1,25 +1,24 @@
 /* =========================================================
    AETHERIA ACADEMY
-   STEP 3 — NPC + FIRST MAGICAL QUEST
+   STEP 3 — FIXED PLAYER LOADING + NPC + QUEST
 
-   Keeps:
-   - Academy
-   - Castle collision
-   - Tree collision
-   - Aren player
-   - Mobile landscape controls
-   - Joystick
-   - Jump
-   - Spell shooting
-   - Camera
-   - Procedural animation
-
-   Adds:
-   - NPC
-   - Dialogue
-   - First quest
-   - Quest marker
-   - Quest completion
+   Includes:
+   ✓ Draco GLB loading
+   ✓ Loading screen removal
+   ✓ Aren player
+   ✓ Academy
+   ✓ Castle collision
+   ✓ Tree collision
+   ✓ NPC
+   ✓ Dialogue
+   ✓ First quest
+   ✓ Quest marker
+   ✓ Joystick
+   ✓ Jump
+   ✓ Forward spell
+   ✓ Camera
+   ✓ Idle / walk / run / jump / casting
+   ✓ Mobile landscape
 ========================================================= */
 
 import * as THREE from
@@ -28,6 +27,9 @@ import * as THREE from
 import { GLTFLoader } from
 "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
 
+import { DRACOLoader } from
+"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/DRACOLoader.js";
+
 
 /* =========================================================
    SCENE
@@ -35,28 +37,32 @@ import { GLTFLoader } from
 
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color(0x07111c);
+scene.background =
+    new THREE.Color(0x07111c);
 
-scene.fog = new THREE.FogExp2(
-    0x07111c,
-    0.004
-);
+scene.fog =
+    new THREE.FogExp2(
+        0x07111c,
+        0.004
+    );
 
 
 /* =========================================================
    CAMERA
 ========================================================= */
 
-const camera = new THREE.PerspectiveCamera(
-    60,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-);
+const camera =
+    new THREE.PerspectiveCamera(
+        60,
+        window.innerWidth /
+        window.innerHeight,
+        0.1,
+        1000
+    );
 
 camera.position.set(
     0,
-    7,
+    6,
     82
 );
 
@@ -65,13 +71,18 @@ camera.position.set(
    RENDERER
 ========================================================= */
 
-const renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    powerPreference: "high-performance"
-});
+const renderer =
+    new THREE.WebGLRenderer({
+        antialias: true,
+        powerPreference:
+            "high-performance"
+    });
 
 renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio, 1.8)
+    Math.min(
+        window.devicePixelRatio,
+        1.8
+    )
 );
 
 renderer.setSize(
@@ -80,102 +91,140 @@ renderer.setSize(
 );
 
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.type =
+    THREE.PCFSoftShadowMap;
 
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.outputColorSpace =
+    THREE.SRGBColorSpace;
+
+renderer.toneMapping =
+    THREE.ACESFilmicToneMapping;
+
+renderer.toneMappingExposure =
+    1.15;
 
 document
     .getElementById("game")
-    .appendChild(renderer.domElement);
+    .appendChild(
+        renderer.domElement
+    );
 
 
 /* =========================================================
    LIGHTING
 ========================================================= */
 
-const ambientLight = new THREE.HemisphereLight(
-    0x9fc5ff,
-    0x172015,
-    1.5
+const hemisphere =
+    new THREE.HemisphereLight(
+        0x9fc5ff,
+        0x182015,
+        1.5
+    );
+
+scene.add(
+    hemisphere
 );
 
-scene.add(ambientLight);
 
+const sun =
+    new THREE.DirectionalLight(
+        0xd9e7ff,
+        1.7
+    );
 
-const moonLight = new THREE.DirectionalLight(
-    0xb8d2ff,
-    1.5
-);
-
-moonLight.position.set(
+sun.position.set(
     80,
     120,
-    60
+    70
 );
 
-moonLight.castShadow = true;
+sun.castShadow = true;
 
-moonLight.shadow.mapSize.width = 2048;
-moonLight.shadow.mapSize.height = 2048;
+sun.shadow.mapSize.width =
+    2048;
 
-moonLight.shadow.camera.left = -150;
-moonLight.shadow.camera.right = 150;
-moonLight.shadow.camera.top = 150;
-moonLight.shadow.camera.bottom = -150;
+sun.shadow.mapSize.height =
+    2048;
 
-scene.add(moonLight);
+sun.shadow.camera.left =
+    -150;
+
+sun.shadow.camera.right =
+    150;
+
+sun.shadow.camera.top =
+    150;
+
+sun.shadow.camera.bottom =
+    -150;
+
+scene.add(
+    sun
+);
 
 
 /* =========================================================
    MATERIALS
 ========================================================= */
 
-const groundMat = new THREE.MeshStandardMaterial({
-    color: 0x304b2f,
-    roughness: 1
-});
+const groundMat =
+    new THREE.MeshStandardMaterial({
+        color: 0x304b2f,
+        roughness: 1
+    });
 
-const stoneMat = new THREE.MeshStandardMaterial({
-    color: 0x626872,
-    roughness: 0.9
-});
 
-const darkStoneMat = new THREE.MeshStandardMaterial({
-    color: 0x343943,
-    roughness: 0.95
-});
+const stoneMat =
+    new THREE.MeshStandardMaterial({
+        color: 0x626872,
+        roughness: 0.9
+    });
 
-const roofMat = new THREE.MeshStandardMaterial({
-    color: 0x20232a,
-    roughness: 0.85
-});
 
-const woodMat = new THREE.MeshStandardMaterial({
-    color: 0x4a2a16,
-    roughness: 0.9
-});
+const darkStoneMat =
+    new THREE.MeshStandardMaterial({
+        color: 0x343943,
+        roughness: 0.95
+    });
 
-const goldMat = new THREE.MeshStandardMaterial({
-    color: 0xc9a84e,
-    metalness: 0.7,
-    roughness: 0.35
-});
 
-const waterMat = new THREE.MeshStandardMaterial({
-    color: 0x397fa2,
-    roughness: 0.25,
-    metalness: 0.15
-});
+const roofMat =
+    new THREE.MeshStandardMaterial({
+        color: 0x20232a,
+        roughness: 0.85
+    });
+
+
+const woodMat =
+    new THREE.MeshStandardMaterial({
+        color: 0x4a2a16,
+        roughness: 0.9
+    });
+
+
+const goldMat =
+    new THREE.MeshStandardMaterial({
+        color: 0xc9a84e,
+        metalness: 0.7,
+        roughness: 0.35
+    });
+
+
+const waterMat =
+    new THREE.MeshStandardMaterial({
+        color: 0x397fa2,
+        roughness: 0.25,
+        metalness: 0.15
+    });
 
 
 /* =========================================================
-   COLLISION SYSTEM
+   COLLISION
 ========================================================= */
 
 const collisionBoxes = [];
+
 const treeColliders = [];
 
 const playerRadius = 0.7;
@@ -191,14 +240,24 @@ function addCollisionBox(
 ) {
 
     collisionBoxes.push({
-        minX: x - width / 2,
-        maxX: x + width / 2,
 
-        minY: y - height / 2,
-        maxY: y + height / 2,
+        minX:
+            x - width / 2,
 
-        minZ: z - depth / 2,
-        maxZ: z + depth / 2
+        maxX:
+            x + width / 2,
+
+        minY:
+            y - height / 2,
+
+        maxY:
+            y + height / 2,
+
+        minZ:
+            z - depth / 2,
+
+        maxZ:
+            z + depth / 2
     });
 }
 
@@ -234,11 +293,15 @@ function box(
     );
 
     mesh.castShadow = true;
+
     mesh.receiveShadow = true;
 
-    scene.add(mesh);
+    scene.add(
+        mesh
+    );
 
     if (collision) {
+
         addCollisionBox(
             x,
             y,
@@ -257,19 +320,23 @@ function box(
    GROUND
 ========================================================= */
 
-const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(
-        500,
-        500
-    ),
-    groundMat
-);
+const ground =
+    new THREE.Mesh(
+        new THREE.PlaneGeometry(
+            500,
+            500
+        ),
+        groundMat
+    );
 
-ground.rotation.x = -Math.PI / 2;
+ground.rotation.x =
+    -Math.PI / 2;
 
 ground.receiveShadow = true;
 
-scene.add(ground);
+scene.add(
+    ground
+);
 
 
 /* =========================================================
@@ -277,8 +344,6 @@ scene.add(ground);
 ========================================================= */
 
 function createMainCastle() {
-
-    /* Main body */
 
     box(
         42,
@@ -292,8 +357,6 @@ function createMainCastle() {
     );
 
 
-    /* Second floor */
-
     box(
         30,
         10,
@@ -305,8 +368,6 @@ function createMainCastle() {
         true
     );
 
-
-    /* Central front */
 
     box(
         18,
@@ -320,8 +381,6 @@ function createMainCastle() {
     );
 
 
-    /* Left wing */
-
     box(
         15,
         18,
@@ -334,8 +393,6 @@ function createMainCastle() {
     );
 
 
-    /* Right wing */
-
     box(
         15,
         18,
@@ -347,8 +404,6 @@ function createMainCastle() {
         true
     );
 
-
-    /* Upper front */
 
     box(
         14,
@@ -362,7 +417,7 @@ function createMainCastle() {
     );
 
 
-    /* Main tower */
+    /* central tower */
 
     box(
         16,
@@ -375,8 +430,6 @@ function createMainCastle() {
         true
     );
 
-
-    /* Tower roof */
 
     const roof =
         new THREE.Mesh(
@@ -396,20 +449,37 @@ function createMainCastle() {
 
     roof.castShadow = true;
 
-    scene.add(roof);
+    scene.add(
+        roof
+    );
 
 
-    /* Side towers */
+    createTower(
+        -38,
+        -32
+    );
 
-    createTower(-38, -32);
-    createTower(38, -32);
+    createTower(
+        38,
+        -32
+    );
 
-    createTower(-38, -5);
-    createTower(38, -5);
+    createTower(
+        -38,
+        -5
+    );
+
+    createTower(
+        38,
+        -5
+    );
 }
 
 
-function createTower(x, z) {
+function createTower(
+    x,
+    z
+) {
 
     box(
         12,
@@ -441,7 +511,9 @@ function createTower(x, z) {
 
     roof.castShadow = true;
 
-    scene.add(roof);
+    scene.add(
+        roof
+    );
 }
 
 
@@ -449,12 +521,10 @@ createMainCastle();
 
 
 /* =========================================================
-   MAIN GATE
+   GATE
 ========================================================= */
 
 function createGate() {
-
-    /* pillars */
 
     box(
         6,
@@ -467,6 +537,7 @@ function createGate() {
         true
     );
 
+
     box(
         6,
         20,
@@ -478,8 +549,6 @@ function createGate() {
         true
     );
 
-
-    /* gate top */
 
     box(
         24,
@@ -493,7 +562,7 @@ function createGate() {
     );
 
 
-    /* wooden doors */
+    /* doors intentionally non-collidable */
 
     box(
         8,
@@ -505,6 +574,7 @@ function createGate() {
         woodMat,
         false
     );
+
 
     box(
         8,
@@ -518,8 +588,6 @@ function createGate() {
     );
 
 
-    /* gold decorations */
-
     const ring =
         new THREE.Mesh(
             new THREE.TorusGeometry(
@@ -531,7 +599,8 @@ function createGate() {
             goldMat
         );
 
-    ring.rotation.x = Math.PI / 2;
+    ring.rotation.x =
+        Math.PI / 2;
 
     ring.position.set(
         0,
@@ -539,7 +608,9 @@ function createGate() {
         -12.9
     );
 
-    scene.add(ring);
+    scene.add(
+        ring
+    );
 }
 
 
@@ -572,7 +643,9 @@ courtyard.position.set(
 
 courtyard.receiveShadow = true;
 
-scene.add(courtyard);
+scene.add(
+    courtyard
+);
 
 
 /* =========================================================
@@ -600,7 +673,9 @@ function createFountain() {
 
     base.castShadow = true;
 
-    scene.add(base);
+    scene.add(
+        base
+    );
 
 
     const water =
@@ -620,7 +695,9 @@ function createFountain() {
         18
     );
 
-    scene.add(water);
+    scene.add(
+        water
+    );
 
 
     const pillar =
@@ -642,7 +719,9 @@ function createFountain() {
 
     pillar.castShadow = true;
 
-    scene.add(pillar);
+    scene.add(
+        pillar
+    );
 
 
     const top =
@@ -661,7 +740,9 @@ function createFountain() {
         18
     );
 
-    scene.add(top);
+    scene.add(
+        top
+    );
 }
 
 
@@ -691,7 +772,10 @@ box(
    TREES
 ========================================================= */
 
-function createTree(x, z) {
+function createTree(
+    x,
+    z
+) {
 
     const trunk =
         new THREE.Mesh(
@@ -715,7 +799,9 @@ function createTree(x, z) {
 
     trunk.castShadow = true;
 
-    scene.add(trunk);
+    scene.add(
+        trunk
+    );
 
 
     const leaves =
@@ -739,18 +825,20 @@ function createTree(x, z) {
 
     leaves.castShadow = true;
 
-    scene.add(leaves);
+    scene.add(
+        leaves
+    );
 
 
     treeColliders.push({
-        x,
-        z,
+        x: x,
+        z: z,
         radius: 2.2
     });
 }
 
 
-const treePositions = [
+[
     [-45, 35],
     [-55, 55],
     [-42, 75],
@@ -761,19 +849,29 @@ const treePositions = [
     [70, 20],
     [-75, 70],
     [75, 70]
-];
+].forEach(
+    position => {
 
-
-treePositions.forEach(
-    p => createTree(p[0], p[1])
+        createTree(
+            position[0],
+            position[1]
+        );
+    }
 );
 
 
 /* =========================================================
-   TORCH
+   TORCHES
 ========================================================= */
 
-function createTorch(x, y, z) {
+const torches = [];
+
+
+function createTorch(
+    x,
+    y,
+    z
+) {
 
     const pole =
         new THREE.Mesh(
@@ -794,7 +892,9 @@ function createTorch(x, y, z) {
 
     pole.castShadow = true;
 
-    scene.add(pole);
+    scene.add(
+        pole
+    );
 
 
     const flame =
@@ -815,7 +915,9 @@ function createTorch(x, y, z) {
         z
     );
 
-    scene.add(flame);
+    scene.add(
+        flame
+    );
 
 
     const light =
@@ -831,7 +933,10 @@ function createTorch(x, y, z) {
         z
     );
 
-    scene.add(light);
+    scene.add(
+        light
+    );
+
 
     return {
         flame,
@@ -840,25 +945,276 @@ function createTorch(x, y, z) {
 }
 
 
-const torches = [];
-
 torches.push(
-    createTorch(-8, 0, -13)
+    createTorch(
+        -8,
+        0,
+        -13
+    )
 );
 
+
 torches.push(
-    createTorch(8, 0, -13)
+    createTorch(
+        8,
+        0,
+        -13
+    )
 );
+
+
+/* =========================================================
+   NPC
+========================================================= */
+
+let npc = null;
+
+let npcHead = null;
+
+let npcStaff = null;
+
+let npcCrystal = null;
+
+
+const npcPosition =
+    new THREE.Vector3(
+        14,
+        0,
+        15
+    );
+
+
+function createNPC() {
+
+    npc =
+        new THREE.Group();
+
+
+    /* robe */
+
+    const robe =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                1.25,
+                1.8,
+                4.5,
+                20
+            ),
+            new THREE.MeshStandardMaterial({
+                color: 0x30264d,
+                roughness: 0.8
+            })
+        );
+
+    robe.position.y =
+        2.4;
+
+    robe.castShadow = true;
+
+    npc.add(
+        robe
+    );
+
+
+    /* shoulders */
+
+    const shoulders =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                1.45,
+                20,
+                12
+            ),
+            new THREE.MeshStandardMaterial({
+                color: 0x493c68,
+                roughness: 0.8
+            })
+        );
+
+    shoulders.scale.y =
+        0.6;
+
+    shoulders.position.y =
+        4.1;
+
+    shoulders.castShadow = true;
+
+    npc.add(
+        shoulders
+    );
+
+
+    /* head */
+
+    npcHead =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                0.85,
+                24,
+                24
+            ),
+            new THREE.MeshStandardMaterial({
+                color: 0xc88e70,
+                roughness: 0.8
+            })
+        );
+
+    npcHead.position.y =
+        5.4;
+
+    npcHead.castShadow = true;
+
+    npc.add(
+        npcHead
+    );
+
+
+    /* wizard hat */
+
+    const hat =
+        new THREE.Mesh(
+            new THREE.ConeGeometry(
+                1.15,
+                2.2,
+                24
+            ),
+            new THREE.MeshStandardMaterial({
+                color: 0x171522,
+                roughness: 0.9
+            })
+        );
+
+    hat.position.y =
+        6.8;
+
+    hat.castShadow = true;
+
+    npc.add(
+        hat
+    );
+
+
+    const hatRim =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                1.3,
+                1.3,
+                0.25,
+                24
+            ),
+            new THREE.MeshStandardMaterial({
+                color: 0x171522,
+                roughness: 0.9
+            })
+        );
+
+    hatRim.position.y =
+        6;
+
+    npc.add(
+        hatRim
+    );
+
+
+    /* staff */
+
+    npcStaff =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                0.08,
+                0.12,
+                5,
+                10
+            ),
+            woodMat
+        );
+
+    npcStaff.position.set(
+        1.2,
+        2.5,
+        0
+    );
+
+    npcStaff.rotation.z =
+        -0.12;
+
+    npcStaff.castShadow = true;
+
+    npc.add(
+        npcStaff
+    );
+
+
+    /* crystal */
+
+    npcCrystal =
+        new THREE.Mesh(
+            new THREE.OctahedronGeometry(
+                0.28
+            ),
+            new THREE.MeshBasicMaterial({
+                color: 0x83d9ff
+            })
+        );
+
+    npcCrystal.position.set(
+        1.2,
+        5.15,
+        0
+    );
+
+    npc.add(
+        npcCrystal
+    );
+
+
+    const crystalLight =
+        new THREE.PointLight(
+            0x55caff,
+            1.4,
+            8
+        );
+
+    crystalLight.position.set(
+        1.2,
+        5.15,
+        0
+    );
+
+    npc.add(
+        crystalLight
+    );
+
+
+    npc.position.copy(
+        npcPosition
+    );
+
+
+    npc.rotation.y =
+        Math.PI * 0.65;
+
+
+    scene.add(
+        npc
+    );
+}
+
+
+createNPC();
 
 
 /* =========================================================
    QUEST MARKER
 ========================================================= */
 
-let questMarker = null;
+let questMarker =
+    null;
 
 
-function createQuestMarker(position) {
+function createQuestMarker(
+    position
+) {
 
     const group =
         new THREE.Group();
@@ -880,10 +1236,12 @@ function createQuestMarker(position) {
     ring.rotation.x =
         Math.PI / 2;
 
-    group.add(ring);
+    group.add(
+        ring
+    );
 
 
-    const star =
+    const crystal =
         new THREE.Mesh(
             new THREE.OctahedronGeometry(
                 0.65
@@ -893,267 +1251,49 @@ function createQuestMarker(position) {
             })
         );
 
-    star.position.y = 1.4;
+    crystal.position.y =
+        1.4;
 
-    group.add(star);
+    group.add(
+        crystal
+    );
 
 
     group.position.copy(
         position
     );
 
-    scene.add(group);
+    scene.add(
+        group
+    );
 
     return group;
 }
 
 
-/* =========================================================
-   NPC
-========================================================= */
-
-let npc = null;
-let npcHead = null;
-let npcStaff = null;
-
-const npcPosition =
-    new THREE.Vector3(
-        14,
-        0,
-        15
+questMarker =
+    createQuestMarker(
+        new THREE.Vector3(
+            npcPosition.x,
+            7.5,
+            npcPosition.z
+        )
     );
-
-
-function createNPC() {
-
-    npc =
-        new THREE.Group();
-
-
-    /* body */
-
-    const robe =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                1.25,
-                1.8,
-                4.5,
-                20
-            ),
-            new THREE.MeshStandardMaterial({
-                color: 0x30264d,
-                roughness: 0.8
-            })
-        );
-
-    robe.position.y = 2.4;
-
-    robe.castShadow = true;
-
-    npc.add(robe);
-
-
-    /* shoulders */
-
-    const shoulders =
-        new THREE.Mesh(
-            new THREE.SphereGeometry(
-                1.45,
-                20,
-                12
-            ),
-            new THREE.MeshStandardMaterial({
-                color: 0x493c68,
-                roughness: 0.8
-            })
-        );
-
-    shoulders.scale.y = 0.6;
-
-    shoulders.position.y = 4.1;
-
-    shoulders.castShadow = true;
-
-    npc.add(shoulders);
-
-
-    /* head */
-
-    npcHead =
-        new THREE.Mesh(
-            new THREE.SphereGeometry(
-                0.85,
-                24,
-                24
-            ),
-            new THREE.MeshStandardMaterial({
-                color: 0xc88e70,
-                roughness: 0.8
-            })
-        );
-
-    npcHead.position.y = 5.4;
-
-    npcHead.castShadow = true;
-
-    npc.add(npcHead);
-
-
-    /* hat */
-
-    const hat =
-        new THREE.Mesh(
-            new THREE.ConeGeometry(
-                1.15,
-                2.2,
-                24
-            ),
-            new THREE.MeshStandardMaterial({
-                color: 0x171522,
-                roughness: 0.9
-            })
-        );
-
-    hat.position.y = 6.8;
-
-    hat.castShadow = true;
-
-    npc.add(hat);
-
-
-    /* hat rim */
-
-    const rim =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                1.3,
-                1.3,
-                0.25,
-                24
-            ),
-            new THREE.MeshStandardMaterial({
-                color: 0x171522,
-                roughness: 0.9
-            })
-        );
-
-    rim.position.y = 6;
-
-    npc.add(rim);
-
-
-    /* staff */
-
-    const staffGeometry =
-        new THREE.CylinderGeometry(
-            0.08,
-            0.12,
-            5,
-            10
-        );
-
-    npcStaff =
-        new THREE.Mesh(
-            staffGeometry,
-            new THREE.MeshStandardMaterial({
-                color: 0x5b3820,
-                roughness: 0.8
-            })
-        );
-
-    npcStaff.position.set(
-        1.2,
-        2.5,
-        0
-    );
-
-    npcStaff.rotation.z =
-        -0.12;
-
-    npcStaff.castShadow = true;
-
-    npc.add(npcStaff);
-
-
-    /* magical crystal */
-
-    const crystal =
-        new THREE.Mesh(
-            new THREE.OctahedronGeometry(
-                0.28
-            ),
-            new THREE.MeshBasicMaterial({
-                color: 0x83d9ff
-            })
-        );
-
-    crystal.position.set(
-        1.2,
-        5.15,
-        0
-    );
-
-    npc.add(crystal);
-
-
-    const crystalLight =
-        new THREE.PointLight(
-            0x55caff,
-            1.2,
-            8
-        );
-
-    crystalLight.position.set(
-        1.2,
-        5.15,
-        0
-    );
-
-    npc.add(crystalLight);
-
-
-    npc.position.copy(
-        npcPosition
-    );
-
-
-    /* face toward path */
-
-    npc.rotation.y =
-        Math.PI * 0.65;
-
-
-    npc.castShadow = true;
-
-    scene.add(npc);
-
-
-    questMarker =
-        createQuestMarker(
-            new THREE.Vector3(
-                npcPosition.x,
-                8,
-                npcPosition.z
-            )
-        );
-}
-
-
-createNPC();
 
 
 /* =========================================================
-   NPC QUEST STATE
+   QUEST STATE
 ========================================================= */
 
 let questState =
     "TALK_TO_AELION";
 
-let dialogueOpen = false;
+let dialogueOpen =
+    false;
 
 
 /* =========================================================
-   HUD ELEMENTS
+   HUD
 ========================================================= */
 
 const questText =
@@ -1161,24 +1301,31 @@ const questText =
         "questText"
     );
 
+
 const dialogueBox =
     document.getElementById(
         "dialogueBox"
     );
 
 
-function setQuestText(text) {
+function setQuestText(
+    text
+) {
 
     if (questText) {
+
         questText.textContent =
             text;
     }
 }
 
 
-function showDialogue(text) {
+function showDialogue(
+    text
+) {
 
-    dialogueOpen = true;
+    dialogueOpen =
+        true;
 
     if (dialogueBox) {
 
@@ -1193,18 +1340,16 @@ function showDialogue(text) {
 
 function hideDialogue() {
 
-    dialogueOpen = false;
+    dialogueOpen =
+        false;
 
     if (dialogueBox) {
+
         dialogueBox.style.display =
             "none";
     }
 }
 
-
-/* =========================================================
-   FIRST QUEST
-========================================================= */
 
 setQuestText(
     "Quest: Talk to Professor Aelion"
@@ -1212,12 +1357,82 @@ setQuestText(
 
 
 /* =========================================================
-   INTERACTION
+   TALK BUTTON
+========================================================= */
+
+let interactButton =
+    document.getElementById(
+        "interactButton"
+    );
+
+
+if (!interactButton) {
+
+    interactButton =
+        document.createElement(
+            "button"
+        );
+
+    interactButton.id =
+        "interactButton";
+
+    interactButton.textContent =
+        "TALK";
+
+    document.body.appendChild(
+        interactButton
+    );
+}
+
+
+interactButton.style.position =
+    "fixed";
+
+interactButton.style.right =
+    "175px";
+
+interactButton.style.bottom =
+    "35px";
+
+interactButton.style.zIndex =
+    "100";
+
+interactButton.style.padding =
+    "15px 22px";
+
+interactButton.style.border =
+    "2px solid rgba(255,255,255,.4)";
+
+interactButton.style.borderRadius =
+    "18px";
+
+interactButton.style.background =
+    "rgba(25,20,45,.9)";
+
+interactButton.style.color =
+    "white";
+
+interactButton.style.fontWeight =
+    "bold";
+
+interactButton.style.display =
+    "none";
+
+
+interactButton.addEventListener(
+    "click",
+    interactWithNPC
+);
+
+
+/* =========================================================
+   NPC INTERACTION
 ========================================================= */
 
 function interactWithNPC() {
 
-    if (!player) return;
+    if (!player)
+        return;
 
 
     const distance =
@@ -1226,10 +1441,12 @@ function interactWithNPC() {
         );
 
 
-    if (distance > 6) {
+    if (
+        distance > 7
+    ) {
 
         showDialogue(
-            "Professor Aelion is nearby. Move closer to speak with him."
+            "Professor Aelion is nearby. Move closer."
         );
 
         setTimeout(
@@ -1255,16 +1472,17 @@ function interactWithNPC() {
             scene.remove(
                 questMarker
             );
-
-            questMarker =
-                createQuestMarker(
-                    new THREE.Vector3(
-                        0,
-                        5,
-                        -18
-                    )
-                );
         }
+
+
+        questMarker =
+            createQuestMarker(
+                new THREE.Vector3(
+                    0,
+                    5,
+                    -18
+                )
+            );
 
 
         setQuestText(
@@ -1273,7 +1491,7 @@ function interactWithNPC() {
 
 
         showDialogue(
-            "Aelion: Welcome to Aetheria Academy, young wizard. Your first task is to find the Ancient Academy Marker at the main gate."
+            "Aelion: Welcome to Aetheria Academy. Your first task is to find the Ancient Academy Marker at the main gate."
         );
 
 
@@ -1292,7 +1510,7 @@ function interactWithNPC() {
     ) {
 
         showDialogue(
-            "Aelion: The ancient marker waits at the academy gate. Follow the golden marker."
+            "Aelion: Follow the golden marker to the ancient gate."
         );
 
         setTimeout(
@@ -1304,95 +1522,145 @@ function interactWithNPC() {
 
 
 /* =========================================================
-   INTERACT BUTTON
-========================================================= */
-
-let interactButton =
-    document.getElementById(
-        "interactButton"
-    );
-
-
-if (!interactButton) {
-
-    interactButton =
-        document.createElement(
-            "button"
-        );
-
-    interactButton.id =
-        "interactButton";
-
-    interactButton.textContent =
-        "TALK";
-
-    interactButton.style.position =
-        "fixed";
-
-    interactButton.style.right =
-        "180px";
-
-    interactButton.style.bottom =
-        "35px";
-
-    interactButton.style.zIndex =
-        "100";
-
-    interactButton.style.padding =
-        "16px 22px";
-
-    interactButton.style.border =
-        "2px solid rgba(255,255,255,.4)";
-
-    interactButton.style.borderRadius =
-        "18px";
-
-    interactButton.style.background =
-        "rgba(30,25,55,.8)";
-
-    interactButton.style.color =
-        "white";
-
-    interactButton.style.fontWeight =
-        "bold";
-
-    interactButton.style.display =
-        "none";
-
-    document.body.appendChild(
-        interactButton
-    );
-}
-
-
-interactButton.addEventListener(
-    "click",
-    interactWithNPC
-);
-
-
-/* =========================================================
    PLAYER
 ========================================================= */
 
-let player = null;
+let player =
+    null;
 
-let playerMixer = null;
+let rightHand =
+    null;
 
-let playerBones = {};
+let wand =
+    null;
 
-let rightHand = null;
+const playerBones = {};
 
-let wand = null;
+
+/* =========================================================
+   GLTF + DRACO LOADER
+========================================================= */
 
 const loader =
     new GLTFLoader();
 
 
+const dracoLoader =
+    new DRACOLoader();
+
+
+dracoLoader.setDecoderPath(
+    "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/"
+);
+
+
+loader.setDRACOLoader(
+    dracoLoader
+);
+
+
+/* =========================================================
+   LOADING SCREEN HELPERS
+========================================================= */
+
+function hideLoadingScreen() {
+
+    const loading =
+        document.getElementById(
+            "loading"
+        );
+
+
+    if (loading) {
+
+        loading.style.opacity =
+            "0";
+
+        loading.style.pointerEvents =
+            "none";
+
+
+        setTimeout(
+            () => {
+
+                loading.style.display =
+                    "none";
+
+            },
+            500
+        );
+    }
+
+
+    const loadingScreen =
+        document.getElementById(
+            "loadingScreen"
+        );
+
+
+    if (loadingScreen) {
+
+        loadingScreen.style.opacity =
+            "0";
+
+        loadingScreen.style.pointerEvents =
+            "none";
+
+
+        setTimeout(
+            () => {
+
+                loadingScreen.style.display =
+                    "none";
+
+            },
+            500
+        );
+    }
+
+
+    const loadingOverlay =
+        document.getElementById(
+            "loadingOverlay"
+        );
+
+
+    if (loadingOverlay) {
+
+        loadingOverlay.style.opacity =
+            "0";
+
+        loadingOverlay.style.pointerEvents =
+            "none";
+
+
+        setTimeout(
+            () => {
+
+                loadingOverlay.style.display =
+                    "none";
+
+            },
+            500
+        );
+    }
+}
+
+
+/* =========================================================
+   LOAD AREN
+========================================================= */
+
 loader.load(
+
     "./assets/player/aren_valen.glb",
 
     gltf => {
+
+        console.log(
+            "Aren GLB loaded successfully."
+        );
+
 
         player =
             gltf.scene;
@@ -1433,7 +1701,8 @@ loader.load(
 
                     playerBones[
                         object.name
-                    ] = object;
+                    ] =
+                        object;
                 }
             }
         );
@@ -1451,15 +1720,54 @@ loader.load(
         scene.add(
             player
         );
+
+
+        applyStandingPose();
+
+
+        /* IMPORTANT:
+           Game is ready now */
+
+        hideLoadingScreen();
     },
 
-    undefined,
+
+    progress => {
+
+        if (
+            progress &&
+            progress.total > 0
+        ) {
+
+            const percent =
+                Math.round(
+                    progress.loaded /
+                    progress.total *
+                    100
+                );
+
+
+            console.log(
+                "Loading Aren:",
+                percent + "%"
+            );
+        }
+    },
+
 
     error => {
 
         console.error(
-            "Player loading error:",
+            "FAILED TO LOAD AREN:",
             error
+        );
+
+
+        hideLoadingScreen();
+
+
+        showDialogue(
+            "Unable to load the player model. Please refresh the game."
         );
     }
 );
@@ -1562,7 +1870,9 @@ function setBoneRotation(
     const b =
         bone(name);
 
-    if (!b) return;
+    if (!b)
+        return;
+
 
     b.rotation.x =
         x;
@@ -1588,6 +1898,7 @@ function applyStandingPose() {
         0
     );
 
+
     setBoneRotation(
         "RightArm",
         Math.PI / 2,
@@ -1603,6 +1914,7 @@ function applyStandingPose() {
         0
     );
 
+
     setBoneRotation(
         "RightForeArm",
         0.12,
@@ -1617,6 +1929,7 @@ function applyStandingPose() {
         0,
         0.05
     );
+
 
     setBoneRotation(
         "RightShoulder",
@@ -1752,7 +2065,7 @@ function applyWalkingAnimation(
 
 
 /* =========================================================
-   JUMP
+   JUMP ANIMATION
 ========================================================= */
 
 function applyJumpAnimation() {
@@ -1768,6 +2081,7 @@ function applyJumpAnimation() {
         0
     );
 
+
     setBoneRotation(
         "RightArm",
         Math.PI / 2 - 0.35,
@@ -1782,6 +2096,7 @@ function applyJumpAnimation() {
         0,
         0
     );
+
 
     setBoneRotation(
         "RightUpLeg",
@@ -1834,10 +2149,11 @@ function applyCastingAnimation(
 
 
 /* =========================================================
-   MOVEMENT
+   KEYBOARD
 ========================================================= */
 
 const keys = {};
+
 
 window.addEventListener(
     "keydown",
@@ -1861,11 +2177,15 @@ window.addEventListener(
 );
 
 
+/* =========================================================
+   MOVEMENT VARIABLES
+========================================================= */
+
 const moveInput =
     new THREE.Vector2();
 
 
-let lastMoveDirection =
+const lastMoveDirection =
     new THREE.Vector3(
         0,
         0,
@@ -1876,8 +2196,10 @@ let lastMoveDirection =
 let isJumping =
     false;
 
+
 let verticalVelocity =
     0;
+
 
 const gravity =
     -22;
@@ -1891,6 +2213,7 @@ const joystick =
     document.getElementById(
         "joystick"
     );
+
 
 const joystickKnob =
     document.getElementById(
@@ -1919,6 +2242,7 @@ function joystickMove(
         rect.left +
         rect.width / 2;
 
+
     const centerY =
         rect.top +
         rect.height / 2;
@@ -1928,13 +2252,15 @@ function joystickMove(
         clientX -
         centerX;
 
+
     let dy =
         clientY -
         centerY;
 
 
     const max =
-        rect.width * 0.32;
+        rect.width *
+        0.32;
 
 
     const length =
@@ -1944,7 +2270,9 @@ function joystickMove(
         );
 
 
-    if (length > max) {
+    if (
+        length > max
+    ) {
 
         dx =
             dx / length *
@@ -1958,6 +2286,7 @@ function joystickMove(
 
     moveInput.x =
         dx / max;
+
 
     moveInput.y =
         -dy / max;
@@ -2021,6 +2350,7 @@ if (joystick) {
                 0
             );
 
+
             if (joystickKnob) {
 
                 joystickKnob.style.transform =
@@ -2032,7 +2362,7 @@ if (joystick) {
 
 
 /* =========================================================
-   JUMP BUTTON
+   JUMP
 ========================================================= */
 
 const jumpButton =
@@ -2048,8 +2378,8 @@ if (jumpButton) {
         () => {
 
             if (
-                !isJumping &&
-                player
+                player &&
+                !isJumping
             ) {
 
                 isJumping =
@@ -2064,7 +2394,7 @@ if (jumpButton) {
 
 
 /* =========================================================
-   SPELL BUTTON
+   SPELL
 ========================================================= */
 
 const spellButton =
@@ -2076,6 +2406,7 @@ const spellButton =
 let casting =
     false;
 
+
 let castTimer =
     0;
 
@@ -2086,17 +2417,17 @@ if (spellButton) {
         "pointerdown",
         () => {
 
-            if (!player)
-                return;
+            if (player) {
 
-            castSpell();
+                castSpell();
+            }
         }
     );
 }
 
 
 /* =========================================================
-   SPELL
+   PROJECTILES
 ========================================================= */
 
 const projectiles = [];
@@ -2104,22 +2435,20 @@ const projectiles = [];
 
 function castSpell() {
 
-    if (!player)
-        return;
-
-
-    if (casting)
+    if (
+        !player ||
+        casting
+    )
         return;
 
 
     casting =
         true;
 
+
     castTimer =
         0.45;
 
-
-    /* use actual movement direction */
 
     const direction =
         lastMoveDirection
@@ -2140,10 +2469,9 @@ function castSpell() {
         direction.applyQuaternion(
             player.quaternion
         );
+
+        direction.normalize();
     }
-
-
-    direction.normalize();
 
 
     const projectile =
@@ -2160,8 +2488,7 @@ function castSpell() {
 
 
     let start =
-        player.position
-            .clone();
+        player.position.clone();
 
 
     if (rightHand) {
@@ -2188,9 +2515,11 @@ function castSpell() {
             projectile,
 
         velocity:
-            direction.multiplyScalar(
-                22
-            ),
+            direction
+                .normalize()
+                .multiplyScalar(
+                    22
+                ),
 
         life:
             2.5
@@ -2250,7 +2579,7 @@ function updateProjectiles(
 
 
 /* =========================================================
-   COLLISION
+   COLLISION CHECK
 ========================================================= */
 
 function blockedAt(
@@ -2264,6 +2593,7 @@ function blockedAt(
     ) {
 
         if (
+
             x + playerRadius >
                 box.minX &&
 
@@ -2275,6 +2605,7 @@ function blockedAt(
 
             z - playerRadius <
                 box.maxZ
+
         ) {
 
             return true;
@@ -2292,6 +2623,7 @@ function blockedAt(
 
         const dz =
             z - tree.z;
+
 
         const distance =
             Math.sqrt(
@@ -2316,20 +2648,24 @@ function blockedAt(
 
 
 /* =========================================================
-   CAMERA DRAG
+   CAMERA
 ========================================================= */
 
 let cameraYaw =
     0;
 
+
 let cameraPitch =
     0.38;
+
 
 let cameraDragging =
     false;
 
+
 let previousX =
     0;
+
 
 let previousY =
     0;
@@ -2365,6 +2701,7 @@ renderer.domElement.addEventListener(
             event.clientX -
             previousX;
 
+
         const dy =
             event.clientY -
             previousY;
@@ -2379,6 +2716,7 @@ renderer.domElement.addEventListener(
 
         cameraYaw -=
             dx * 0.006;
+
 
         cameraPitch +=
             dy * 0.004;
@@ -2404,8 +2742,18 @@ renderer.domElement.addEventListener(
 );
 
 
+renderer.domElement.addEventListener(
+    "pointercancel",
+    () => {
+
+        cameraDragging =
+            false;
+    }
+);
+
+
 /* =========================================================
-   MOVEMENT UPDATE
+   MOVEMENT
 ========================================================= */
 
 function updateMovement(
@@ -2419,6 +2767,7 @@ function updateMovement(
     let x =
         moveInput.x;
 
+
     let z =
         moveInput.y;
 
@@ -2426,33 +2775,29 @@ function updateMovement(
     if (
         keys["w"] ||
         keys["arrowup"]
-    ) {
+    )
         z += 1;
-    }
 
 
     if (
         keys["s"] ||
         keys["arrowdown"]
-    ) {
+    )
         z -= 1;
-    }
 
 
     if (
         keys["a"] ||
         keys["arrowleft"]
-    ) {
+    )
         x -= 1;
-    }
 
 
     if (
         keys["d"] ||
         keys["arrowright"]
-    ) {
+    )
         x += 1;
-    }
 
 
     const input =
@@ -2464,10 +2809,8 @@ function updateMovement(
 
     if (
         input.length() > 1
-    ) {
-
+    )
         input.normalize();
-    }
 
 
     if (
@@ -2550,8 +2893,7 @@ function updateMovement(
             direction
                 .clone()
                 .multiplyScalar(
-                    speed *
-                    delta
+                    speed * delta
                 );
 
 
@@ -2629,7 +2971,6 @@ function updateMovement(
             running
         );
 
-
     } else {
 
         applyIdleAnimation(
@@ -2641,7 +2982,7 @@ function updateMovement(
 
 
 /* =========================================================
-   JUMP UPDATE
+   JUMP
 ========================================================= */
 
 function updateJump(
@@ -2655,13 +2996,11 @@ function updateJump(
     if (isJumping) {
 
         verticalVelocity +=
-            gravity *
-            delta;
+            gravity * delta;
 
 
         player.position.y +=
-            verticalVelocity *
-            delta;
+            verticalVelocity * delta;
 
 
         if (
@@ -2697,8 +3036,6 @@ function updateQuest() {
         return;
 
 
-    /* show talk button */
-
     const distance =
         player.position.distanceTo(
             npcPosition
@@ -2721,14 +3058,12 @@ function updateQuest() {
     }
 
 
-    /* complete first quest */
-
     if (
         questState ===
         "FIND_ANCIENT_MARKER"
     ) {
 
-        const target =
+        const gate =
             new THREE.Vector3(
                 0,
                 0,
@@ -2738,22 +3073,19 @@ function updateQuest() {
 
         const distanceToGate =
             player.position.distanceTo(
-                target
+                gate
             );
 
 
         if (
-            distanceToGate <
-            7
+            distanceToGate < 7
         ) {
 
             questState =
                 "COMPLETED";
 
 
-            if (
-                questMarker
-            ) {
+            if (questMarker) {
 
                 scene.remove(
                     questMarker
@@ -2765,12 +3097,12 @@ function updateQuest() {
 
 
             setQuestText(
-                "✓ Quest Complete: Welcome to Aetheria Academy!"
+                "✓ Quest Complete — Welcome to Aetheria Academy!"
             );
 
 
             showDialogue(
-                "Aelion: Excellent work. Your journey at Aetheria Academy begins now."
+                "Aelion: Excellent work. Your magical journey begins now."
             );
 
 
@@ -2820,12 +3152,24 @@ function updateNPC(
     }
 
 
-    if (
-        questMarker
-    ) {
+    if (npcCrystal) {
+
+        npcCrystal.rotation.y +=
+            0.025;
+
+        npcCrystal.position.y =
+            5.15 +
+            Math.sin(
+                time * 2
+            ) * 0.12;
+    }
+
+
+    if (questMarker) {
 
         questMarker.rotation.y +=
             0.025;
+
 
         questMarker.position.y =
             7.5 +
@@ -2857,8 +3201,10 @@ function updateTorches(
             torch.flame.scale.set(
                 1 +
                     wave * 0.08,
+
                 1 +
                     wave * 0.18,
+
                 1 +
                     wave * 0.08
             );
@@ -2884,19 +3230,11 @@ function updateCamera(
         return;
 
 
-    const distance =
-        9;
-
-
-    const height =
-        4.5;
-
-
     const offset =
         new THREE.Vector3(
             0,
-            height,
-            distance
+            4.5,
+            9
         );
 
 
@@ -2910,14 +3248,14 @@ function updateCamera(
     );
 
 
-    const targetPosition =
+    const target =
         player.position
             .clone()
             .add(offset);
 
 
     camera.position.lerp(
-        targetPosition,
+        target,
         1 -
         Math.pow(
             0.001,
@@ -3005,9 +3343,7 @@ function animate() {
     );
 
 
-    if (
-        casting
-    ) {
+    if (casting) {
 
         applyCastingAnimation(
             time
