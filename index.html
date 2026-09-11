@@ -18,7 +18,7 @@
 
   <title>Aetheria Academy</title>
 
-  <link rel="stylesheet" href="./style.css?v=5">
+  <link rel="stylesheet" href="./style.css?v=6">
 
   <script type="importmap">
   {
@@ -35,11 +35,16 @@
   <!-- GAME -->
   <div id="game"></div>
 
+
   <!-- LOADING -->
   <div id="loading">
+
     <div class="loading-box">
+
       <div class="magic-symbol">✦</div>
+
       <h1>AETHERIA</h1>
+
       <p>Academy of Arcane Arts</p>
 
       <div class="loading-bar">
@@ -47,61 +52,149 @@
       </div>
 
       <span>Loading world...</span>
+
     </div>
+
   </div>
+
 
   <!-- PORTRAIT WARNING -->
   <div id="rotateOverlay">
+
     <div class="rotate-box">
+
       <div class="phone-icon">📱</div>
+
       <div class="rotate-arrow">↻</div>
 
       <h2>Rotate Your Phone</h2>
+
       <p>
         Aetheria Academy is designed<br>
         for <b>landscape mode</b>.
       </p>
+
     </div>
+
   </div>
+
 
   <!-- HUD -->
   <div id="hud">
 
     <div id="academyTitle">
-      <div class="title-small">AETHERIA</div>
-      <div class="title-large">ACADEMY</div>
+
+      <div class="title-small">
+        AETHERIA
+      </div>
+
+      <div class="title-large">
+        ACADEMY
+      </div>
+
     </div>
 
+
+    <!-- QUEST -->
     <div id="questBox">
-      <div class="quest-heading">CURRENT QUEST</div>
-      <div id="quest">Quest: Enter Aetheria Academy</div>
+
+      <div class="quest-heading">
+        CURRENT QUEST
+      </div>
+
+      <div id="quest">
+        Quest: Meet the Academy Guide
+      </div>
+
     </div>
 
+
+    <!-- XP -->
+    <div id="xpBox">
+
+      <span id="xpLabel">
+        XP
+      </span>
+
+      <span id="xpValue">
+        0
+      </span>
+
+    </div>
+
+
+    <!-- MESSAGE -->
     <div id="message"></div>
 
+
+    <!-- NPC NAME -->
+    <div id="npcName">
+      Academy Guide
+    </div>
+
+
+    <!-- DIALOGUE -->
+    <div id="dialogueBox">
+
+      <div id="dialogueName">
+        Academy Guide
+      </div>
+
+      <div id="dialogueText">
+        Welcome to Aetheria Academy.
+      </div>
+
+      <button id="dialogueNext">
+        CONTINUE
+      </button>
+
+    </div>
+
   </div>
+
+
+  <!-- TALK BUTTON -->
+  <button id="talkBtn">
+    <span>💬</span>
+    <small>TALK</small>
+  </button>
+
 
   <!-- JOYSTICK -->
   <div id="joystickBase">
+
     <div id="joystickStick"></div>
+
   </div>
+
 
   <!-- ACTION BUTTONS -->
   <div id="actionButtons">
 
-    <button id="jumpBtn" class="actionBtn">
+    <button
+      id="jumpBtn"
+      class="actionBtn"
+    >
       <span>↑</span>
       <small>JUMP</small>
     </button>
 
-    <button id="spellBtn" class="actionBtn spell">
+
+    <button
+      id="spellBtn"
+      class="actionBtn spell"
+    >
       <span>✦</span>
       <small>CAST</small>
     </button>
 
   </div>
 
-  <script type="module" src="./game.js?v=5"></script>
+
+  <script
+    type="module"
+    src="./game.js?v=6"
+  ></script>
 
 </body>
 </html>
