@@ -1,6 +1,6 @@
 /* =========================================================
    WIZARDING WORLD 3D
-   AREN VALEN - DRACO GLB LOADER
+   AREN VALEN - PLAYER MOVEMENT VERSION
    ========================================================= */
 
 import * as THREE from "three";
@@ -18,52 +18,44 @@ import {
    HTML ELEMENTS
    ========================================================= */
 
-const game =
-    document.getElementById("game");
+const game = document.getElementById("game");
+const loading = document.getElementById("loading");
+const loadingText = document.querySelector(".loading-text");
+const loadingStatus = document.querySelector(".loading-status");
+const message = document.getElementById("message");
 
-const loading =
-    document.getElementById("loading");
+const joystickBase = document.getElementById("joystickBase");
+const joystickStick = document.getElementById("joystickStick");
 
-const loadingText =
-    document.querySelector(".loading-text");
-
-const loadingStatus =
-    document.querySelector(".loading-status");
-
-const message =
-    document.getElementById("message");
+const jumpBtn = document.getElementById("jumpBtn");
+const spellBtn = document.getElementById("spellBtn");
 
 
 /* =========================================================
    SCENE
    ========================================================= */
 
-const scene =
-    new THREE.Scene();
+const scene = new THREE.Scene();
 
-scene.background =
-    new THREE.Color(0x718b9a);
+scene.background = new THREE.Color(0x718b9a);
 
-scene.fog =
-    new THREE.Fog(
-        0x718b9a,
-        35,
-        180
-    );
+scene.fog = new THREE.Fog(
+    0x718b9a,
+    35,
+    180
+);
 
 
 /* =========================================================
    CAMERA
    ========================================================= */
 
-const camera =
-    new THREE.PerspectiveCamera(
-        60,
-        window.innerWidth /
-        window.innerHeight,
-        0.1,
-        500
-    );
+const camera = new THREE.PerspectiveCamera(
+    60,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    500
+);
 
 camera.position.set(
     0,
@@ -76,11 +68,10 @@ camera.position.set(
    RENDERER
    ========================================================= */
 
-const renderer =
-    new THREE.WebGLRenderer({
-        antialias: false,
-        powerPreference: "high-performance"
-    });
+const renderer = new THREE.WebGLRenderer({
+    antialias: false,
+    powerPreference: "high-performance"
+});
 
 renderer.setSize(
     window.innerWidth,
@@ -88,10 +79,7 @@ renderer.setSize(
 );
 
 renderer.setPixelRatio(
-    Math.min(
-        window.devicePixelRatio,
-        1.5
-    )
+    Math.min(window.devicePixelRatio, 1.5)
 );
 
 renderer.outputColorSpace =
@@ -100,13 +88,7 @@ renderer.outputColorSpace =
 renderer.toneMapping =
     THREE.ACESFilmicToneMapping;
 
-renderer.toneMappingExposure =
-    1.1;
-
-
-/* =========================================================
-   ADD CANVAS
-   ========================================================= */
+renderer.toneMappingExposure = 1.1;
 
 game.innerHTML = "";
 
@@ -154,25 +136,20 @@ scene.add(
 
 const ground =
     new THREE.Mesh(
-
         new THREE.PlaneGeometry(
             200,
             200
         ),
-
         new THREE.MeshStandardMaterial({
             color: 0x536b4d,
             roughness: 1
         })
-
     );
-
 
 ground.rotation.x =
     -Math.PI / 2;
 
-ground.position.y =
-    0;
+ground.position.y = 0;
 
 scene.add(
     ground
@@ -185,20 +162,16 @@ scene.add(
 
 const castle =
     new THREE.Mesh(
-
         new THREE.BoxGeometry(
             30,
             20,
             20
         ),
-
         new THREE.MeshStandardMaterial({
             color: 0x707070,
             roughness: 0.9
         })
-
     );
-
 
 castle.position.set(
     0,
@@ -219,28 +192,23 @@ function createTower(x, z) {
 
     const tower =
         new THREE.Mesh(
-
             new THREE.CylinderGeometry(
                 4,
                 5,
                 25,
                 12
             ),
-
             new THREE.MeshStandardMaterial({
                 color: 0x626262,
                 roughness: 0.9
             })
-
         );
-
 
     tower.position.set(
         x,
         12.5,
         z
     );
-
 
     scene.add(
         tower
@@ -249,27 +217,22 @@ function createTower(x, z) {
 
     const roof =
         new THREE.Mesh(
-
             new THREE.ConeGeometry(
                 5,
                 7,
                 12
             ),
-
             new THREE.MeshStandardMaterial({
                 color: 0x343434,
                 roughness: 0.8
             })
-
         );
-
 
     roof.position.set(
         x,
         28,
         z
     );
-
 
     scene.add(
         roof
@@ -289,49 +252,40 @@ createTower(
 
 
 /* =========================================================
-   PLAYER VARIABLES
+   PLAYER
    ========================================================= */
 
-let player =
-    null;
+let player = null;
 
-let mixer =
-    null;
+let mixer = null;
+
+let idleAction = null;
+
+let walkAction = null;
+
+let runAction = null;
+
+let currentAction = null;
 
 
 /* =========================================================
-   GLTF LOADER
+   GLTF + DRACO LOADER
    ========================================================= */
 
 const loader =
     new GLTFLoader();
 
 
-/* =========================================================
-   DRACO LOADER
-   =========================================================
-
-   IMPORTANT:
-   Aren Valen GLB uses
-   KHR_draco_mesh_compression.
-
-   This decoder allows Three.js to
-   decompress the character model.
-   ========================================================= */
-
 const dracoLoader =
     new DRACOLoader();
-
 
 dracoLoader.setDecoderPath(
     "https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/"
 );
 
-
 dracoLoader.setDecoderConfig({
     type: "js"
 });
-
 
 loader.setDRACOLoader(
     dracoLoader
@@ -346,33 +300,8 @@ const PLAYER_PATH =
     "./assets/player/aren_valen.glb";
 
 
-console.log(
-    "================================"
-);
-
-console.log(
-    "WIZARDING WORLD 3D"
-);
-
-console.log(
-    "Loading player:"
-);
-
-console.log(
-    PLAYER_PATH
-);
-
-console.log(
-    "DRACO decoder enabled."
-);
-
-console.log(
-    "================================"
-);
-
-
 /* =========================================================
-   LOADING MESSAGE
+   LOADING TEXT
    ========================================================= */
 
 function setLoading(
@@ -384,55 +313,37 @@ function setLoading(
 
         loadingText.textContent =
             title;
-
     }
-
 
     if (loadingStatus) {
 
         loadingStatus.textContent =
             status;
-
     }
-
 }
 
 
 /* =========================================================
-   LOAD CHARACTER
+   LOAD PLAYER
    ========================================================= */
 
 loader.load(
 
     PLAYER_PATH,
 
-
-    /* =====================================================
-       SUCCESS
-       ===================================================== */
-
-    function(gltf) {
+    function (gltf) {
 
         console.log(
-            "================================"
+            "AREN VALEN GLB LOADED"
         );
-
-        console.log(
-            "AREN VALEN LOADED!"
-        );
-
-        console.log(
-            "================================"
-        );
-
 
         player =
             gltf.scene;
 
 
-        /* =================================================
-           FIND MODEL SIZE
-           ================================================= */
+        /* -------------------------------------------------
+           SCALE PLAYER
+           ------------------------------------------------- */
 
         const originalBox =
             new THREE.Box3()
@@ -440,46 +351,30 @@ loader.load(
                     player
                 );
 
-
         const originalSize =
             originalBox.getSize(
                 new THREE.Vector3()
             );
 
 
-        console.log(
-            "Original size:",
-            originalSize
-        );
-
-
-        /* =================================================
-           SCALE
-           ================================================= */
-
-        if (
-            originalSize.y > 0
-        ) {
+        if (originalSize.y > 0) {
 
             const desiredHeight =
                 3.2;
-
 
             const scale =
                 desiredHeight /
                 originalSize.y;
 
-
             player.scale.setScalar(
                 scale
             );
-
         }
 
 
-        /* =================================================
-           CORRECT POSITION
-           ================================================= */
+        /* -------------------------------------------------
+           PUT PLAYER ON GROUND
+           ------------------------------------------------- */
 
         const scaledBox =
             new THREE.Box3()
@@ -487,29 +382,22 @@ loader.load(
                     player
                 );
 
-
         player.position.y =
             -scaledBox.min.y;
 
+        player.position.x = 0;
 
-        player.position.x =
-            0;
-
-
-        player.position.z =
-            8;
+        player.position.z = 8;
 
 
-        /* =================================================
-           CHARACTER MATERIALS
-           ================================================= */
+        /* -------------------------------------------------
+           PLAYER MATERIALS
+           ------------------------------------------------- */
 
         player.traverse(
-            function(object) {
+            function (object) {
 
-                if (
-                    object.isMesh
-                ) {
+                if (object.isMesh) {
 
                     object.castShadow =
                         true;
@@ -517,35 +405,19 @@ loader.load(
                     object.receiveShadow =
                         true;
 
-
-                    if (
-                        object.material
-                    ) {
+                    if (object.material) {
 
                         object.material
-                            .needsUpdate =
-                            true;
-
+                            .needsUpdate = true;
                     }
-
                 }
-
             }
         );
 
 
-        /* =================================================
-           ADD CHARACTER
-           ================================================= */
-
-        scene.add(
-            player
-        );
-
-
-        /* =================================================
+        /* -------------------------------------------------
            ANIMATIONS
-           ================================================= */
+           ------------------------------------------------- */
 
         if (
             gltf.animations &&
@@ -554,73 +426,130 @@ loader.load(
 
             console.log(
                 "Animations:",
-                gltf.animations.length
+                gltf.animations
             );
-
 
             mixer =
                 new THREE.AnimationMixer(
                     player
                 );
 
+            /*
+             * Your current Aren model appears
+             * to have no animation clips, so
+             * movement will still work.
+             */
 
-            const action =
-                mixer.clipAction(
-                    gltf.animations[0]
-                );
+            const clips =
+                gltf.animations;
 
 
-            action.play();
+            for (
+                let i = 0;
+                i < clips.length;
+                i++
+            ) {
 
-        } else {
+                const name =
+                    clips[i].name
+                        .toLowerCase();
 
-            console.log(
-                "No animations in GLB."
-            );
+                if (
+                    name.includes("idle")
+                ) {
 
+                    idleAction =
+                        mixer.clipAction(
+                            clips[i]
+                        );
+                }
+
+                if (
+                    name.includes("walk")
+                ) {
+
+                    walkAction =
+                        mixer.clipAction(
+                            clips[i]
+                        );
+                }
+
+                if (
+                    name.includes("run")
+                ) {
+
+                    runAction =
+                        mixer.clipAction(
+                            clips[i]
+                        );
+                }
+            }
+
+
+            /*
+             * Fallback
+             */
+
+            if (
+                !idleAction &&
+                clips.length > 0
+            ) {
+
+                idleAction =
+                    mixer.clipAction(
+                        clips[0]
+                    );
+            }
+
+
+            if (idleAction) {
+
+                idleAction.play();
+
+                currentAction =
+                    idleAction;
+            }
         }
 
 
-        /* =================================================
-           HIDE LOADING
-           ================================================= */
+        /* -------------------------------------------------
+           ADD PLAYER
+           ------------------------------------------------- */
 
-        if (
-            loading
-        ) {
+        scene.add(
+            player
+        );
+
+
+        /* -------------------------------------------------
+           HIDE LOADING
+           ------------------------------------------------- */
+
+        if (loading) {
 
             loading.style.display =
                 "none";
-
         }
 
 
-        /* =================================================
-           MESSAGE
-           ================================================= */
-
-        if (
-            message
-        ) {
+        if (message) {
 
             message.textContent =
                 "Aren Valen has entered Aetheria.";
-
         }
 
 
         console.log(
-            "Character successfully added to scene."
+            "PLAYER READY"
         );
-
     },
 
 
-    /* =====================================================
-       PROGRESS
-       ===================================================== */
+    /* -----------------------------------------------------
+       LOADING PROGRESS
+       ----------------------------------------------------- */
 
-    function(progress) {
+    function (progress) {
 
         if (
             progress.total > 0
@@ -632,21 +561,11 @@ loader.load(
                     progress.total
                 ) * 100;
 
-
-            const text =
-                "Loading Aren Valen... " +
-                percent.toFixed(0) +
-                "%";
-
-
-            console.log(
-                text
-            );
-
-
             setLoading(
                 "Loading magical world...",
-                text
+                "Loading Aren Valen... " +
+                percent.toFixed(0) +
+                "%"
             );
 
         } else {
@@ -655,98 +574,705 @@ loader.load(
                 "Loading magical world...",
                 "Loading Aren Valen..."
             );
-
         }
-
     },
 
 
-    /* =====================================================
+    /* -----------------------------------------------------
        ERROR
-       ===================================================== */
+       ----------------------------------------------------- */
 
-    function(error) {
-
-        console.error(
-            "================================"
-        );
+    function (error) {
 
         console.error(
-            "AREN VALEN LOAD ERROR"
-        );
-
-        console.error(
+            "AREN VALEN LOAD ERROR",
             error
         );
-
-        console.error(
-            "================================"
-        );
-
 
         setLoading(
             "Character loading failed.",
             "Error loading Aren Valen GLB."
         );
 
-
-        if (
-            message
-        ) {
+        if (message) {
 
             message.textContent =
                 "Aren Valen could not be loaded.";
-
         }
-
     }
-
 );
 
 
 /* =========================================================
-   CAMERA FOLLOW
+   MOVEMENT VARIABLES
    ========================================================= */
 
-function updateCamera() {
+let joystickX = 0;
+
+let joystickY = 0;
+
+let joystickActive = false;
+
+
+/*
+ * Movement speed.
+ *
+ * Increase this if Aren is too slow.
+ */
+
+const MOVE_SPEED = 5.0;
+
+
+/* =========================================================
+   JOYSTICK
+   ========================================================= */
+
+function updateJoystick(
+    clientX,
+    clientY
+) {
 
     if (
-        !player
+        !joystickBase ||
+        !joystickStick
+    ) {
+        return;
+    }
+
+
+    const rect =
+        joystickBase.getBoundingClientRect();
+
+
+    const centerX =
+        rect.left +
+        rect.width / 2;
+
+    const centerY =
+        rect.top +
+        rect.height / 2;
+
+
+    let dx =
+        clientX -
+        centerX;
+
+    let dy =
+        clientY -
+        centerY;
+
+
+    const maxDistance =
+        45;
+
+
+    const distance =
+        Math.sqrt(
+            dx * dx +
+            dy * dy
+        );
+
+
+    if (
+        distance >
+        maxDistance
+    ) {
+
+        dx =
+            (dx / distance) *
+            maxDistance;
+
+        dy =
+            (dy / distance) *
+            maxDistance;
+    }
+
+
+    /* -------------------------------------------------
+       VISUAL JOYSTICK
+       ------------------------------------------------- */
+
+    joystickStick.style.transform =
+        `translate(
+            calc(-50% + ${dx}px),
+            calc(-50% + ${dy}px)
+        )`;
+
+
+    /* -------------------------------------------------
+       NORMALIZED MOVEMENT
+       ------------------------------------------------- */
+
+    joystickX =
+        dx / maxDistance;
+
+    joystickY =
+        dy / maxDistance;
+}
+
+
+/* =========================================================
+   POINTER DOWN
+   ========================================================= */
+
+if (
+    joystickBase
+) {
+
+    joystickBase.addEventListener(
+        "pointerdown",
+        function (event) {
+
+            joystickActive =
+                true;
+
+            joystickBase.setPointerCapture(
+                event.pointerId
+            );
+
+            updateJoystick(
+                event.clientX,
+                event.clientY
+            );
+        }
+    );
+
+
+    /* -----------------------------------------------------
+       POINTER MOVE
+       ----------------------------------------------------- */
+
+    joystickBase.addEventListener(
+        "pointermove",
+        function (event) {
+
+            if (!joystickActive) {
+
+                return;
+            }
+
+            updateJoystick(
+                event.clientX,
+                event.clientY
+            );
+        }
+    );
+
+
+    /* -----------------------------------------------------
+       POINTER UP
+       ----------------------------------------------------- */
+
+    joystickBase.addEventListener(
+        "pointerup",
+        function () {
+
+            joystickActive =
+                false;
+
+            joystickX = 0;
+
+            joystickY = 0;
+
+            joystickStick.style.transform =
+                "translate(-50%, -50%)";
+        }
+    );
+
+
+    joystickBase.addEventListener(
+        "pointercancel",
+        function () {
+
+            joystickActive =
+                false;
+
+            joystickX = 0;
+
+            joystickY = 0;
+
+            joystickStick.style.transform =
+                "translate(-50%, -50%)";
+        }
+    );
+}
+
+
+/* =========================================================
+   KEYBOARD CONTROLS
+   ========================================================= */
+
+const keys = {};
+
+
+window.addEventListener(
+    "keydown",
+    function (event) {
+
+        keys[event.key.toLowerCase()] =
+            true;
+    }
+);
+
+
+window.addEventListener(
+    "keyup",
+    function (event) {
+
+        keys[event.key.toLowerCase()] =
+            false;
+    }
+);
+
+
+/* =========================================================
+   UPDATE PLAYER MOVEMENT
+   ========================================================= */
+
+function updatePlayerMovement(
+    delta
+) {
+
+    if (!player) {
+
+        return;
+    }
+
+
+    let moveX =
+        joystickX;
+
+    let moveZ =
+        joystickY;
+
+
+    /* -------------------------------------------------
+       KEYBOARD SUPPORT
+       ------------------------------------------------- */
+
+    if (keys["w"] || keys["arrowup"]) {
+
+        moveZ = -1;
+    }
+
+    if (keys["s"] || keys["arrowdown"]) {
+
+        moveZ = 1;
+    }
+
+    if (keys["a"] || keys["arrowleft"]) {
+
+        moveX = -1;
+    }
+
+    if (keys["d"] || keys["arrowright"]) {
+
+        moveX = 1;
+    }
+
+
+    /* -------------------------------------------------
+       MOVEMENT MAGNITUDE
+       ------------------------------------------------- */
+
+    const magnitude =
+        Math.sqrt(
+            moveX * moveX +
+            moveZ * moveZ
+        );
+
+
+    if (
+        magnitude <
+        0.05
+    ) {
+
+        switchAnimation(
+            "idle"
+        );
+
+        return;
+    }
+
+
+    /* -------------------------------------------------
+       NORMALIZE
+       ------------------------------------------------- */
+
+    if (
+        magnitude > 1
+    ) {
+
+        moveX /=
+            magnitude;
+
+        moveZ /=
+            magnitude;
+    }
+
+
+    /* -------------------------------------------------
+       MOVE PLAYER
+       ------------------------------------------------- */
+
+    player.position.x +=
+        moveX *
+        MOVE_SPEED *
+        delta;
+
+    player.position.z +=
+        moveZ *
+        MOVE_SPEED *
+        delta;
+
+
+    /* -------------------------------------------------
+       CHARACTER ROTATION
+       ------------------------------------------------- */
+
+    const targetRotation =
+        Math.atan2(
+            moveX,
+            -moveZ
+        );
+
+
+    let rotationDifference =
+        targetRotation -
+        player.rotation.y;
+
+
+    while (
+        rotationDifference >
+        Math.PI
+    ) {
+
+        rotationDifference -=
+            Math.PI * 2;
+    }
+
+
+    while (
+        rotationDifference <
+        -Math.PI
+    ) {
+
+        rotationDifference +=
+            Math.PI * 2;
+    }
+
+
+    player.rotation.y +=
+        rotationDifference *
+        Math.min(
+            1,
+            delta * 10
+        );
+
+
+    /* -------------------------------------------------
+       WALK / RUN ANIMATION
+       ------------------------------------------------- */
+
+    if (
+        magnitude > 0.7
+    ) {
+
+        switchAnimation(
+            "run"
+        );
+
+    } else {
+
+        switchAnimation(
+            "walk"
+        );
+    }
+}
+
+
+/* =========================================================
+   ANIMATION SWITCHER
+   ========================================================= */
+
+function switchAnimation(
+    type
+) {
+
+    let nextAction = null;
+
+
+    if (
+        type === "idle"
+    ) {
+
+        nextAction =
+            idleAction;
+    }
+
+
+    if (
+        type === "walk"
+    ) {
+
+        nextAction =
+            walkAction ||
+            idleAction;
+    }
+
+
+    if (
+        type === "run"
+    ) {
+
+        nextAction =
+            runAction ||
+            walkAction ||
+            idleAction;
+    }
+
+
+    if (
+        !nextAction ||
+        nextAction === currentAction
     ) {
 
         return;
-
     }
+
+
+    nextAction.reset();
+
+    nextAction.fadeIn(
+        0.2
+    );
+
+    nextAction.play();
+
+
+    if (currentAction) {
+
+        currentAction.fadeOut(
+            0.2
+        );
+    }
+
+
+    currentAction =
+        nextAction;
+}
+
+
+/* =========================================================
+   JUMP
+   ========================================================= */
+
+let verticalVelocity = 0;
+
+let isGrounded = true;
+
+const GRAVITY = 18;
+
+const JUMP_POWER = 7;
+
+
+if (
+    jumpBtn
+) {
+
+    jumpBtn.addEventListener(
+        "click",
+        function () {
+
+            if (
+                !player ||
+                !isGrounded
+            ) {
+
+                return;
+            }
+
+
+            verticalVelocity =
+                JUMP_POWER;
+
+            isGrounded =
+                false;
+        }
+    );
+}
+
+
+/* =========================================================
+   PLAYER PHYSICS
+   ========================================================= */
+
+function updatePhysics(
+    delta
+) {
+
+    if (!player) {
+
+        return;
+    }
+
+
+    if (
+        !isGrounded
+    ) {
+
+        verticalVelocity -=
+            GRAVITY *
+            delta;
+
+        player.position.y +=
+            verticalVelocity *
+            delta;
+
+
+        if (
+            player.position.y <= 0
+        ) {
+
+            player.position.y =
+                0;
+
+            verticalVelocity =
+                0;
+
+            isGrounded =
+                true;
+        }
+    }
+}
+
+
+/* =========================================================
+   SPELL
+   ========================================================= */
+
+if (
+    spellBtn
+) {
+
+    spellBtn.addEventListener(
+        "click",
+        function () {
+
+            if (message) {
+
+                message.textContent =
+                    "✨ Aren casts a spell!";
+            }
+
+
+            if (!player) {
+
+                return;
+            }
+
+
+            const flash =
+                new THREE.PointLight(
+                    0x88bbff,
+                    8,
+                    15
+                );
+
+
+            flash.position.copy(
+                player.position
+            );
+
+            flash.position.y +=
+                1.5;
+
+
+            scene.add(
+                flash
+            );
+
+
+            setTimeout(
+                function () {
+
+                    scene.remove(
+                        flash
+                    );
+
+                },
+                250
+            );
+        }
+    );
+}
+
+
+/* =========================================================
+   CAMERA
+   ========================================================= */
+
+function updateCamera(
+    delta
+) {
+
+    if (!player) {
+
+        return;
+    }
+
+
+    /*
+     * Camera stays behind Aren.
+     */
+
+    const cameraDistance =
+        8;
+
+
+    const cameraHeight =
+        4.2;
+
+
+    const targetX =
+        player.position.x +
+        Math.sin(
+            player.rotation.y
+        ) *
+        cameraDistance;
+
+
+    const targetZ =
+        player.position.z +
+        Math.cos(
+            player.rotation.y
+        ) *
+        cameraDistance;
 
 
     const target =
         new THREE.Vector3(
-
-            player.position.x,
-
-            player.position.y + 4.2,
-
-            player.position.z + 8
-
+            targetX,
+            player.position.y +
+                cameraHeight,
+            targetZ
         );
 
 
     camera.position.lerp(
         target,
-        0.08
+        Math.min(
+            1,
+            delta * 5
+        )
     );
 
 
     camera.lookAt(
-
         player.position.x,
-
         player.position.y + 1.5,
-
         player.position.z
-
     );
-
 }
 
 
@@ -759,7 +1285,7 @@ const clock =
 
 
 /* =========================================================
-   MAIN LOOP
+   MAIN GAME LOOP
    ========================================================= */
 
 function animate() {
@@ -770,28 +1296,49 @@ function animate() {
 
 
     const delta =
-        clock.getDelta();
+        Math.min(
+            clock.getDelta(),
+            0.05
+        );
 
 
-    if (
-        mixer
-    ) {
+    /* PLAYER MOVEMENT */
+
+    updatePlayerMovement(
+        delta
+    );
+
+
+    /* PLAYER PHYSICS */
+
+    updatePhysics(
+        delta
+    );
+
+
+    /* ANIMATION */
+
+    if (mixer) {
 
         mixer.update(
             delta
         );
-
     }
 
 
-    updateCamera();
+    /* CAMERA */
 
+    updateCamera(
+        delta
+    );
+
+
+    /* RENDER */
 
     renderer.render(
         scene,
         camera
     );
-
 }
 
 
@@ -804,12 +1351,11 @@ animate();
 
 window.addEventListener(
     "resize",
-    function() {
+    function () {
 
         camera.aspect =
             window.innerWidth /
             window.innerHeight;
-
 
         camera.updateProjectionMatrix();
 
@@ -818,310 +1364,35 @@ window.addEventListener(
             window.innerWidth,
             window.innerHeight
         );
-
     }
 );
 
 
 /* =========================================================
-   JOYSTICK
-   ========================================================= */
-
-const joystickBase =
-    document.getElementById(
-        "joystickBase"
-    );
-
-
-const joystickStick =
-    document.getElementById(
-        "joystickStick"
-    );
-
-
-let joystickActive =
-    false;
-
-
-if (
-    joystickBase &&
-    joystickStick
-) {
-
-    joystickBase.addEventListener(
-        "pointerdown",
-        function(event) {
-
-            joystickActive =
-                true;
-
-
-            joystickBase.setPointerCapture(
-                event.pointerId
-            );
-
-        }
-    );
-
-
-    joystickBase.addEventListener(
-        "pointermove",
-        function(event) {
-
-            if (
-                !joystickActive
-            ) {
-
-                return;
-
-            }
-
-
-            const rect =
-                joystickBase
-                    .getBoundingClientRect();
-
-
-            const centerX =
-                rect.left +
-                rect.width / 2;
-
-
-            const centerY =
-                rect.top +
-                rect.height / 2;
-
-
-            let dx =
-                event.clientX -
-                centerX;
-
-
-            let dy =
-                event.clientY -
-                centerY;
-
-
-            const maxDistance =
-                32;
-
-
-            const distance =
-                Math.sqrt(
-                    dx * dx +
-                    dy * dy
-                );
-
-
-            if (
-                distance >
-                maxDistance
-            ) {
-
-                dx =
-                    dx /
-                    distance *
-                    maxDistance;
-
-
-                dy =
-                    dy /
-                    distance *
-                    maxDistance;
-
-            }
-
-
-            joystickStick.style.transform =
-                `translate(
-                    calc(-50% + ${dx}px),
-                    calc(-50% + ${dy}px)
-                )`;
-
-
-            if (
-                player
-            ) {
-
-                player.position.x +=
-                    dx * 0.0025;
-
-
-                player.position.z +=
-                    dy * 0.0025;
-
-            }
-
-        }
-    );
-
-
-    function resetJoystick() {
-
-        joystickActive =
-            false;
-
-
-        joystickStick.style.transform =
-            "translate(-50%, -50%)";
-
-    }
-
-
-    joystickBase.addEventListener(
-        "pointerup",
-        resetJoystick
-    );
-
-
-    joystickBase.addEventListener(
-        "pointercancel",
-        resetJoystick
-    );
-
-}
-
-
-/* =========================================================
-   JUMP
-   ========================================================= */
-
-const jumpBtn =
-    document.getElementById(
-        "jumpBtn"
-    );
-
-
-if (
-    jumpBtn
-) {
-
-    jumpBtn.addEventListener(
-        "click",
-        function() {
-
-            if (
-                player
-            ) {
-
-                const originalY =
-                    player.position.y;
-
-
-                player.position.y +=
-                    0.6;
-
-
-                setTimeout(
-                    function() {
-
-                        if (
-                            player
-                        ) {
-
-                            player.position.y =
-                                originalY;
-
-                        }
-
-                    },
-                    250
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   SPELL
-   ========================================================= */
-
-const spellBtn =
-    document.getElementById(
-        "spellBtn"
-    );
-
-
-if (
-    spellBtn
-) {
-
-    spellBtn.addEventListener(
-        "click",
-        function() {
-
-            if (
-                message
-            ) {
-
-                message.textContent =
-                    "✨ Spell cast!";
-
-            }
-
-
-            if (
-                player
-            ) {
-
-                const flash =
-                    new THREE.PointLight(
-                        0x88bbff,
-                        8,
-                        15
-                    );
-
-
-                flash.position.copy(
-                    player.position
-                );
-
-
-                flash.position.y +=
-                    1.5;
-
-
-                scene.add(
-                    flash
-                );
-
-
-                setTimeout(
-                    function() {
-
-                        scene.remove(
-                            flash
-                        );
-
-                    },
-                    250
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   FINAL DEBUG
+   DEBUG
    ========================================================= */
 
 console.log(
-    "Game initialized."
+    "================================="
 );
 
 console.log(
-    "Aren Valen path:",
-    PLAYER_PATH
+    "WIZARDING WORLD 3D"
+);
+
+console.log(
+    "Aren Valen movement system: ON"
 );
 
 console.log(
     "DRACO support: ENABLED"
+);
+
+console.log(
+    "Player:",
+    PLAYER_PATH
+);
+
+console.log(
+    "================================="
 );
