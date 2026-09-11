@@ -1,15 +1,21 @@
 * {
   box-sizing: border-box;
+
   margin: 0;
   padding: 0;
+
   -webkit-tap-highlight-color: transparent;
+
   user-select: none;
 }
 
+
 html,
 body {
+
   width: 100%;
   height: 100%;
+
   overflow: hidden;
 
   background: #05070b;
@@ -22,17 +28,23 @@ body {
     sans-serif;
 }
 
+
 body {
+
   position: fixed;
+
   inset: 0;
 }
+
 
 /* =========================================================
    GAME
    ========================================================= */
 
 #game {
+
   position: fixed;
+
   inset: 0;
 
   width: 100%;
@@ -43,7 +55,9 @@ body {
   touch-action: none;
 }
 
+
 #game canvas {
+
   display: block;
 
   width: 100%;
@@ -52,17 +66,21 @@ body {
   touch-action: none;
 }
 
+
 /* =========================================================
    LOADING
    ========================================================= */
 
 #loading {
+
   position: fixed;
+
   inset: 0;
 
   z-index: 1000;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
@@ -77,21 +95,28 @@ body {
   color: white;
 }
 
+
 .loading-box {
+
   width: min(80vw, 430px);
 
   text-align: center;
 }
 
+
 .magic-symbol {
+
   font-size: 52px;
 
   margin-bottom: 5px;
 
-  animation: magicPulse 1.5s infinite;
+  animation:
+    magicPulse 1.5s infinite;
 }
 
+
 .loading-box h1 {
+
   font-size: 32px;
 
   letter-spacing: 8px;
@@ -99,7 +124,9 @@ body {
   margin-left: 8px;
 }
 
+
 .loading-box p {
+
   margin-top: 5px;
 
   color: #aeb8c9;
@@ -109,7 +136,9 @@ body {
   letter-spacing: 2px;
 }
 
+
 .loading-bar {
+
   width: 100%;
   height: 5px;
 
@@ -119,19 +148,25 @@ body {
 
   border-radius: 10px;
 
-  background: rgba(255,255,255,0.12);
+  background:
+    rgba(255,255,255,0.12);
 }
 
+
 .loading-progress {
+
   width: 0%;
   height: 100%;
 
   background: white;
 
-  animation: loadingProgress 2.5s forwards;
+  animation:
+    loadingProgress 2.5s forwards;
 }
 
+
 .loading-box span {
+
   display: block;
 
   margin-top: 10px;
@@ -141,7 +176,9 @@ body {
   font-size: 12px;
 }
 
+
 @keyframes loadingProgress {
+
   from {
     width: 0%;
   }
@@ -151,25 +188,36 @@ body {
   }
 }
 
+
 @keyframes magicPulse {
+
   0%,
   100% {
+
     opacity: 0.45;
-    transform: scale(0.9);
+
+    transform:
+      scale(0.9);
   }
 
   50% {
+
     opacity: 1;
-    transform: scale(1.1);
+
+    transform:
+      scale(1.1);
   }
 }
+
 
 /* =========================================================
    ROTATE SCREEN
    ========================================================= */
 
 #rotateOverlay {
+
   position: fixed;
+
   inset: 0;
 
   z-index: 2000;
@@ -191,7 +239,9 @@ body {
   color: white;
 }
 
+
 .rotate-box {
+
   position: relative;
 
   width: 85vw;
@@ -201,20 +251,29 @@ body {
 
   border-radius: 22px;
 
-  border: 1px solid rgba(255,255,255,0.12);
+  border:
+    1px solid
+    rgba(255,255,255,0.12);
 
-  background: rgba(255,255,255,0.05);
+  background:
+    rgba(255,255,255,0.05);
 
-  backdrop-filter: blur(10px);
+  backdrop-filter:
+    blur(10px);
 }
+
 
 .phone-icon {
+
   font-size: 48px;
 
-  transform: rotate(90deg);
+  transform:
+    rotate(90deg);
 }
 
+
 .rotate-arrow {
+
   position: absolute;
 
   top: 45px;
@@ -222,16 +281,21 @@ body {
 
   font-size: 42px;
 
-  transform: translateX(-50%);
+  transform:
+    translateX(-50%);
 }
 
+
 .rotate-box h2 {
+
   margin-top: 22px;
 
   font-size: 25px;
 }
 
+
 .rotate-box p {
+
   margin-top: 12px;
 
   line-height: 1.6;
@@ -239,17 +303,22 @@ body {
   color: #aab3c2;
 }
 
+
 @media (orientation: portrait) {
+
   #rotateOverlay {
+
     display: flex;
   }
 }
+
 
 /* =========================================================
    HUD
    ========================================================= */
 
 #hud {
+
   position: fixed;
 
   inset: 0;
@@ -259,17 +328,31 @@ body {
   z-index: 100;
 }
 
+
 #academyTitle {
+
   position: absolute;
 
-  top: calc(14px + env(safe-area-inset-top));
-  left: calc(18px + env(safe-area-inset-left));
+  top:
+    calc(
+      14px +
+      env(safe-area-inset-top)
+    );
+
+  left:
+    calc(
+      18px +
+      env(safe-area-inset-left)
+    );
 
   text-shadow:
-    0 2px 8px rgba(0,0,0,0.8);
+    0 2px 8px
+    rgba(0,0,0,0.8);
 }
 
+
 .title-small {
+
   font-size: 9px;
 
   letter-spacing: 4px;
@@ -277,7 +360,9 @@ body {
   color: #c8ced8;
 }
 
+
 .title-large {
+
   margin-top: 1px;
 
   font-size: 19px;
@@ -287,11 +372,26 @@ body {
   font-weight: bold;
 }
 
+
+/* =========================================================
+   QUEST
+   ========================================================= */
+
 #questBox {
+
   position: absolute;
 
-  top: calc(16px + env(safe-area-inset-top));
-  right: calc(18px + env(safe-area-inset-right));
+  top:
+    calc(
+      16px +
+      env(safe-area-inset-top)
+    );
+
+  right:
+    calc(
+      18px +
+      env(safe-area-inset-right)
+    );
 
   width: min(38vw, 310px);
 
@@ -306,17 +406,23 @@ body {
       rgba(18,23,34,0.72)
     );
 
-  border: 1px solid rgba(255,255,255,0.13);
+  border:
+    1px solid
+    rgba(255,255,255,0.13);
 
   box-shadow:
-    0 5px 20px rgba(0,0,0,0.3);
+    0 5px 20px
+    rgba(0,0,0,0.3);
 
-  backdrop-filter: blur(8px);
+  backdrop-filter:
+    blur(8px);
 
   color: white;
 }
 
+
 .quest-heading {
+
   font-size: 8px;
 
   letter-spacing: 2px;
@@ -326,23 +432,80 @@ body {
   margin-bottom: 4px;
 }
 
+
 #quest {
+
   font-size: 12px;
 
   line-height: 1.4;
 }
 
+
+/* =========================================================
+   XP
+   ========================================================= */
+
+#xpBox {
+
+  position: absolute;
+
+  top:
+    calc(
+      85px +
+      env(safe-area-inset-top)
+    );
+
+  right:
+    calc(
+      18px +
+      env(safe-area-inset-right)
+    );
+
+  padding:
+    6px 11px;
+
+  border-radius: 15px;
+
+  background:
+    rgba(5,8,14,0.72);
+
+  border:
+    1px solid
+    rgba(255,210,90,0.3);
+
+  color: #ffd86b;
+
+  font-size: 11px;
+}
+
+
+#xpLabel {
+
+  margin-right: 6px;
+
+  color: #9da7b6;
+}
+
+
+/* =========================================================
+   MESSAGE
+   ========================================================= */
+
 #message {
+
   position: absolute;
 
   left: 50%;
+
   bottom: 19%;
 
-  transform: translateX(-50%);
+  transform:
+    translateX(-50%);
 
   min-width: 200px;
 
-  padding: 10px 18px;
+  padding:
+    10px 18px;
 
   border-radius: 20px;
 
@@ -352,24 +515,279 @@ body {
 
   color: white;
 
-  background: rgba(0,0,0,0.65);
+  background:
+    rgba(0,0,0,0.65);
 
   opacity: 0;
 
-  transition: opacity 0.25s;
+  transition:
+    opacity 0.25s;
 
   white-space: nowrap;
 }
+
+
+/* =========================================================
+   NPC NAME
+   ========================================================= */
+
+#npcName {
+
+  position: absolute;
+
+  left: 50%;
+
+  top: 35%;
+
+  transform:
+    translateX(-50%);
+
+  padding:
+    6px 12px;
+
+  border-radius: 12px;
+
+  background:
+    rgba(5,8,14,0.78);
+
+  border:
+    1px solid
+    rgba(255,215,100,0.35);
+
+  color: #ffe29a;
+
+  font-size: 12px;
+
+  letter-spacing: 1px;
+
+  opacity: 0;
+
+  transition:
+    opacity 0.2s;
+}
+
+
+/* =========================================================
+   TALK BUTTON
+   ========================================================= */
+
+#talkBtn {
+
+  position: fixed;
+
+  right:
+    calc(
+      120px +
+      env(safe-area-inset-right)
+    );
+
+  bottom:
+    calc(
+      25px +
+      env(safe-area-inset-bottom)
+    );
+
+  width: 78px;
+  height: 78px;
+
+  z-index: 160;
+
+  display: none;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 3px;
+
+  border:
+    2px solid
+    rgba(255,220,120,0.55);
+
+  border-radius: 50%;
+
+  color: white;
+
+  background:
+    radial-gradient(
+      circle at 35% 25%,
+      rgba(255,220,120,0.25),
+      rgba(15,18,25,0.92)
+    );
+
+  box-shadow:
+    0 6px 20px
+    rgba(0,0,0,0.45),
+    0 0 18px
+    rgba(255,200,80,0.15);
+
+  pointer-events: auto;
+
+  touch-action: none;
+}
+
+
+#talkBtn span {
+
+  font-size: 25px;
+}
+
+
+#talkBtn small {
+
+  font-size: 8px;
+
+  letter-spacing: 1.5px;
+}
+
+
+#talkBtn:active {
+
+  transform:
+    scale(0.9);
+}
+
+
+/* =========================================================
+   DIALOGUE BOX
+   ========================================================= */
+
+#dialogueBox {
+
+  position: absolute;
+
+  left: 50%;
+
+  bottom: 8%;
+
+  transform:
+    translateX(-50%);
+
+  width: min(76vw, 650px);
+
+  padding:
+    15px 18px 13px;
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(7,11,18,0.96),
+      rgba(21,27,38,0.94)
+    );
+
+  border:
+    1px solid
+    rgba(255,216,110,0.35);
+
+  box-shadow:
+    0 10px 35px
+    rgba(0,0,0,0.5);
+
+  color: white;
+
+  opacity: 0;
+
+  transform:
+    translate(-50%, 20px);
+
+  transition:
+    opacity 0.25s,
+    transform 0.25s;
+
+  pointer-events: none;
+}
+
+
+#dialogueBox.visible {
+
+  opacity: 1;
+
+  transform:
+    translate(-50%, 0);
+
+  pointer-events: auto;
+}
+
+
+#dialogueName {
+
+  color: #ffd76a;
+
+  font-size: 12px;
+
+  font-weight: bold;
+
+  letter-spacing: 1px;
+
+  margin-bottom: 7px;
+}
+
+
+#dialogueText {
+
+  font-size: 14px;
+
+  line-height: 1.5;
+
+  color: #e5e9ef;
+
+  padding-right: 85px;
+}
+
+
+#dialogueNext {
+
+  position: absolute;
+
+  right: 14px;
+  bottom: 12px;
+
+  padding:
+    8px 12px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background:
+    rgba(255,214,105,0.18);
+
+  border:
+    1px solid
+    rgba(255,214,105,0.35);
+
+  color: #ffd76a;
+
+  font-size: 9px;
+
+  letter-spacing: 1px;
+
+  pointer-events: auto;
+}
+
 
 /* =========================================================
    JOYSTICK
    ========================================================= */
 
 #joystickBase {
+
   position: fixed;
 
-  left: calc(18px + env(safe-area-inset-left));
-  bottom: calc(18px + env(safe-area-inset-bottom));
+  left:
+    calc(
+      18px +
+      env(safe-area-inset-left)
+    );
+
+  bottom:
+    calc(
+      18px +
+      env(safe-area-inset-bottom)
+    );
 
   width: 118px;
   height: 118px;
@@ -385,16 +803,22 @@ body {
       rgba(255,255,255,0.04)
     );
 
-  border: 2px solid rgba(255,255,255,0.18);
+  border:
+    2px solid
+    rgba(255,255,255,0.18);
 
   box-shadow:
-    inset 0 0 20px rgba(0,0,0,0.25),
-    0 5px 20px rgba(0,0,0,0.3);
+    inset 0 0 20px
+    rgba(0,0,0,0.25),
+    0 5px 20px
+    rgba(0,0,0,0.3);
 
   touch-action: none;
 }
 
+
 #joystickStick {
+
   position: absolute;
 
   left: 50%;
@@ -403,7 +827,8 @@ body {
   width: 54px;
   height: 54px;
 
-  transform: translate(-50%, -50%);
+  transform:
+    translate(-50%, -50%);
 
   border-radius: 50%;
 
@@ -415,23 +840,37 @@ body {
       #697382
     );
 
-  border: 2px solid rgba(255,255,255,0.45);
+  border:
+    2px solid
+    rgba(255,255,255,0.45);
 
   box-shadow:
-    0 4px 12px rgba(0,0,0,0.45);
+    0 4px 12px
+    rgba(0,0,0,0.45);
 
   pointer-events: none;
 }
+
 
 /* =========================================================
    ACTION BUTTONS
    ========================================================= */
 
 #actionButtons {
+
   position: fixed;
 
-  right: calc(18px + env(safe-area-inset-right));
-  bottom: calc(18px + env(safe-area-inset-bottom));
+  right:
+    calc(
+      18px +
+      env(safe-area-inset-right)
+    );
+
+  bottom:
+    calc(
+      18px +
+      env(safe-area-inset-bottom)
+    );
 
   z-index: 150;
 
@@ -442,11 +881,15 @@ body {
   gap: 14px;
 }
 
+
 .actionBtn {
+
   width: 76px;
   height: 76px;
 
-  border: 2px solid rgba(255,255,255,0.22);
+  border:
+    2px solid
+    rgba(255,255,255,0.22);
 
   border-radius: 50%;
 
@@ -460,7 +903,8 @@ body {
     );
 
   box-shadow:
-    0 6px 18px rgba(0,0,0,0.4);
+    0 6px 18px
+    rgba(0,0,0,0.4);
 
   display: flex;
 
@@ -476,13 +920,17 @@ body {
   cursor: pointer;
 }
 
+
 .actionBtn span {
+
   font-size: 27px;
 
   line-height: 1;
 }
 
+
 .actionBtn small {
+
   font-size: 8px;
 
   letter-spacing: 1.5px;
@@ -490,17 +938,25 @@ body {
   opacity: 0.8;
 }
 
+
 .actionBtn.spell {
+
   width: 88px;
   height: 88px;
 }
 
+
 .actionBtn.spell span {
+
   font-size: 31px;
 }
 
+
 .actionBtn:active {
-  transform: scale(0.91);
+
+  transform:
+    scale(0.91);
+
   background:
     radial-gradient(
       circle,
@@ -509,93 +965,168 @@ body {
     );
 }
 
+
 /* =========================================================
    SMALL LANDSCAPE PHONES
    ========================================================= */
 
-@media (orientation: landscape) and (max-height: 500px) {
+@media
+(orientation: landscape)
+and (max-height: 500px) {
 
   #joystickBase {
+
     width: 100px;
     height: 100px;
   }
 
+
   #joystickStick {
+
     width: 46px;
     height: 46px;
   }
 
+
   .actionBtn {
+
     width: 64px;
     height: 64px;
   }
 
+
   .actionBtn.spell {
+
     width: 74px;
     height: 74px;
   }
 
+
   .actionBtn span {
+
     font-size: 22px;
   }
 
+
   .actionBtn.spell span {
+
     font-size: 26px;
   }
 
+
   #questBox {
+
     width: 280px;
   }
 
+
   #quest {
+
     font-size: 11px;
   }
+
+
+  #talkBtn {
+
+    width: 64px;
+    height: 64px;
+
+    right: 108px;
+  }
+
+
+  #talkBtn span {
+
+    font-size: 20px;
+  }
+
+
+  #dialogueBox {
+
+    bottom: 10%;
+
+    width: 72vw;
+
+    padding: 11px 14px;
+  }
+
+
+  #dialogueText {
+
+    font-size: 12px;
+  }
 }
+
 
 /* =========================================================
    TABLET LANDSCAPE
    ========================================================= */
 
-@media (orientation: landscape) and (min-width: 700px) {
+@media
+(orientation: landscape)
+and (min-width: 700px) {
 
   #joystickBase {
+
     width: 135px;
     height: 135px;
   }
 
+
   #joystickStick {
+
     width: 62px;
     height: 62px;
   }
 
+
   .actionBtn {
+
     width: 84px;
     height: 84px;
   }
 
+
   .actionBtn.spell {
+
     width: 96px;
     height: 96px;
   }
 
+
   #questBox {
+
     width: 340px;
   }
+
+
+  #talkBtn {
+
+    right: 145px;
+
+    width: 90px;
+    height: 90px;
+  }
 }
+
 
 /* =========================================================
    PREVENT BROWSER UI
    ========================================================= */
 
 button {
+
   outline: none;
 
   -webkit-user-select: none;
+
   user-select: none;
 
   -webkit-touch-callout: none;
 }
 
+
 button:focus {
+
   outline: none;
 }
