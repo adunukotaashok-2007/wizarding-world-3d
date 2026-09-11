@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -8,248 +10,17 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     >
 
+    <meta
+        name="theme-color"
+        content="#071018"
+    >
+
     <title>Wizarding World 3D</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
 
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #071018;
-            font-family: Arial, sans-serif;
-        }
-
-        #game {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        #game canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* =========================
-           LOADING SCREEN
-           ========================= */
-
-        #loading {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            background:
-                radial-gradient(
-                    circle at center,
-                    #1b2d3d 0%,
-                    #101c27 45%,
-                    #071018 100%
-                );
-
-            color: white;
-        }
-
-        .loading-box {
-            width: 90%;
-            max-width: 500px;
-            text-align: center;
-            padding: 30px;
-        }
-
-        .loading-title {
-            margin: 0 0 18px;
-
-            font-size: clamp(28px, 8vw, 48px);
-            font-weight: 700;
-            letter-spacing: 3px;
-
-            text-shadow:
-                0 0 10px rgba(255,255,255,0.3),
-                0 0 30px rgba(100,180,255,0.25);
-        }
-
-        .loading-text {
-            margin: 0;
-
-            font-size: 18px;
-            color: #cbd7e2;
-        }
-
-        .loading-status {
-            margin-top: 15px;
-
-            font-size: 13px;
-            line-height: 1.5;
-
-            color: #8799a8;
-            word-break: break-word;
-        }
-
-        /* =========================
-           HUD
-           ========================= */
-
-        #topHud {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            right: 15px;
-
-            z-index: 100;
-
-            pointer-events: none;
-        }
-
-        #quest {
-            display: inline-block;
-
-            padding: 10px 14px;
-
-            border-radius: 10px;
-
-            background: rgba(0, 0, 0, 0.55);
-            color: white;
-
-            font-size: 14px;
-        }
-
-        #message {
-            position: fixed;
-
-            left: 50%;
-            bottom: 110px;
-
-            transform: translateX(-50%);
-
-            z-index: 100;
-
-            width: 90%;
-            max-width: 500px;
-
-            padding: 10px 15px;
-
-            text-align: center;
-
-            border-radius: 10px;
-
-            background: rgba(0, 0, 0, 0.55);
-
-            color: white;
-
-            font-size: 14px;
-
-            pointer-events: none;
-        }
-
-        /* =========================
-           JOYSTICK
-           ========================= */
-
-        #joystickBase {
-            position: fixed;
-
-            left: 25px;
-            bottom: 25px;
-
-            width: 120px;
-            height: 120px;
-
-            z-index: 200;
-
-            border-radius: 50%;
-
-            background: rgba(255,255,255,0.12);
-
-            border: 2px solid rgba(255,255,255,0.25);
-
-            touch-action: none;
-        }
-
-        #joystickStick {
-            position: absolute;
-
-            left: 50%;
-            top: 50%;
-
-            width: 55px;
-            height: 55px;
-
-            transform: translate(-50%, -50%);
-
-            border-radius: 50%;
-
-            background: rgba(255,255,255,0.35);
-
-            border: 2px solid rgba(255,255,255,0.5);
-
-            pointer-events: none;
-        }
-
-        /* =========================
-           BUTTONS
-           ========================= */
-
-        #jumpBtn,
-        #spellBtn {
-            position: fixed;
-
-            z-index: 200;
-
-            width: 75px;
-            height: 75px;
-
-            border-radius: 50%;
-
-            border: 2px solid rgba(255,255,255,0.35);
-
-            color: white;
-
-            font-weight: bold;
-
-            touch-action: manipulation;
-
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        #jumpBtn {
-            right: 25px;
-            bottom: 110px;
-
-            background: rgba(40,120,255,0.45);
-        }
-
-        #spellBtn {
-            right: 25px;
-            bottom: 25px;
-
-            background: rgba(130,50,220,0.45);
-        }
-
-        #jumpBtn:active,
-        #spellBtn:active {
-            transform: scale(0.92);
-        }
-    </style>
-
-    <!--
-        IMPORTANT:
-        Both Three.js and GLTFLoader use the SAME CDN.
-    -->
+    <!-- =====================================================
+         IMPORT MAP
+         ===================================================== -->
 
     <script type="importmap">
     {
@@ -259,25 +30,629 @@
         }
     }
     </script>
+
+
+    <!-- =====================================================
+         PAGE STYLE
+         ===================================================== -->
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        html,
+        body {
+
+            margin: 0;
+            padding: 0;
+
+            width: 100%;
+            height: 100%;
+
+            overflow: hidden;
+
+            background: #071018;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            touch-action: none;
+
+        }
+
+
+        body {
+
+            position: fixed;
+
+            inset: 0;
+
+        }
+
+
+        /* =================================================
+           GAME CONTAINER
+           ================================================= */
+
+        #game {
+
+            position: fixed;
+
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            overflow: hidden;
+
+            background: #071018;
+
+        }
+
+
+        #game canvas {
+
+            display: block;
+
+            width: 100%;
+            height: 100%;
+
+        }
+
+
+        /* =================================================
+           LOADING SCREEN
+           ================================================= */
+
+        #loading {
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 9999;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            width: 100%;
+            height: 100%;
+
+            background:
+
+                radial-gradient(
+                    circle at center,
+                    #243b4c 0%,
+                    #142532 35%,
+                    #0b151e 70%,
+                    #050a0f 100%
+                );
+
+            color: white;
+
+            text-align: center;
+
+        }
+
+
+        .loading-box {
+
+            width: 90%;
+
+            max-width: 520px;
+
+            padding: 30px;
+
+        }
+
+
+        .loading-title {
+
+            margin: 0 0 20px;
+
+            font-size:
+                clamp(
+                    28px,
+                    8vw,
+                    52px
+                );
+
+            font-weight: 700;
+
+            letter-spacing: 3px;
+
+            line-height: 1.1;
+
+            text-shadow:
+
+                0 0 10px
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.3
+                ),
+
+                0 0 30px
+                rgba(
+                    100,
+                    180,
+                    255,
+                    0.25
+                );
+
+        }
+
+
+        .loading-text {
+
+            margin: 0;
+
+            font-size: 18px;
+
+            color: #d9e5ee;
+
+        }
+
+
+        .loading-status {
+
+            margin-top: 14px;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+
+            color: #91a5b5;
+
+            word-break: break-word;
+
+        }
+
+
+        /* =================================================
+           TOP HUD
+           ================================================= */
+
+        #topHud {
+
+            position: fixed;
+
+            top: 15px;
+
+            left: 15px;
+
+            right: 15px;
+
+            z-index: 100;
+
+            pointer-events: none;
+
+        }
+
+
+        #quest {
+
+            display: inline-block;
+
+            padding: 10px 15px;
+
+            border-radius: 10px;
+
+            background:
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.58
+                );
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.15
+                );
+
+            color: white;
+
+            font-size: 14px;
+
+            line-height: 1.4;
+
+            box-shadow:
+                0 5px 20px
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.25
+                );
+
+        }
+
+
+        /* =================================================
+           MESSAGE
+           ================================================= */
+
+        #message {
+
+            position: fixed;
+
+            left: 50%;
+
+            bottom: 110px;
+
+            transform:
+                translateX(-50%);
+
+            z-index: 150;
+
+            width: 90%;
+
+            max-width: 520px;
+
+            padding: 11px 16px;
+
+            border-radius: 10px;
+
+            background:
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.58
+                );
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.12
+                );
+
+            color: white;
+
+            text-align: center;
+
+            font-size: 14px;
+
+            line-height: 1.4;
+
+            pointer-events: none;
+
+        }
+
+
+        /* =================================================
+           JOYSTICK BASE
+           ================================================= */
+
+        #joystickBase {
+
+            position: fixed;
+
+            left: 25px;
+
+            bottom: 25px;
+
+            z-index: 200;
+
+            width: 120px;
+
+            height: 120px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.10
+                );
+
+            border:
+                2px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.24
+                );
+
+            box-shadow:
+                inset 0 0 20px
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.04
+                ),
+
+                0 5px 25px
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.25
+                );
+
+            touch-action: none;
+
+            user-select: none;
+
+            -webkit-user-select: none;
+
+        }
+
+
+        /* =================================================
+           JOYSTICK STICK
+           ================================================= */
+
+        #joystickStick {
+
+            position: absolute;
+
+            left: 50%;
+
+            top: 50%;
+
+            width: 55px;
+
+            height: 55px;
+
+            transform:
+                translate(
+                    -50%,
+                    -50%
+                );
+
+            border-radius: 50%;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.30
+                );
+
+            border:
+                2px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.45
+                );
+
+            box-shadow:
+                0 3px 15px
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.30
+                );
+
+            pointer-events: none;
+
+        }
+
+
+        /* =================================================
+           ACTION BUTTONS
+           ================================================= */
+
+        #jumpBtn,
+        #spellBtn {
+
+            position: fixed;
+
+            z-index: 200;
+
+            width: 75px;
+
+            height: 75px;
+
+            border-radius: 50%;
+
+            border:
+                2px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.32
+                );
+
+            color: white;
+
+            font-size: 12px;
+
+            font-weight: bold;
+
+            letter-spacing: 0.5px;
+
+            box-shadow:
+                0 5px 20px
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.25
+                );
+
+            touch-action: manipulation;
+
+            user-select: none;
+
+            -webkit-user-select: none;
+
+            -webkit-tap-highlight-color:
+                transparent;
+
+        }
+
+
+        #jumpBtn {
+
+            right: 25px;
+
+            bottom: 110px;
+
+            background:
+                rgba(
+                    40,
+                    120,
+                    255,
+                    0.48
+                );
+
+        }
+
+
+        #spellBtn {
+
+            right: 25px;
+
+            bottom: 25px;
+
+            background:
+                rgba(
+                    130,
+                    50,
+                    220,
+                    0.48
+                );
+
+        }
+
+
+        #jumpBtn:active,
+        #spellBtn:active {
+
+            transform:
+                scale(0.92);
+
+        }
+
+
+        /* =================================================
+           SMALL SCREENS
+           ================================================= */
+
+        @media (
+            max-width: 420px
+        ) {
+
+            #joystickBase {
+
+                left: 18px;
+
+                bottom: 18px;
+
+                width: 105px;
+
+                height: 105px;
+
+            }
+
+
+            #joystickStick {
+
+                width: 48px;
+
+                height: 48px;
+
+            }
+
+
+            #jumpBtn,
+            #spellBtn {
+
+                width: 68px;
+
+                height: 68px;
+
+            }
+
+
+            #jumpBtn {
+
+                right: 18px;
+
+                bottom: 100px;
+
+            }
+
+
+            #spellBtn {
+
+                right: 18px;
+
+                bottom: 18px;
+
+            }
+
+
+            #message {
+
+                bottom: 95px;
+
+                font-size: 13px;
+
+            }
+
+
+            #quest {
+
+                font-size: 12px;
+
+            }
+
+        }
+
+    </style>
+
 </head>
+
 
 <body>
 
-    <!-- =========================
-         LOADING
-         ========================= -->
+
+    <!-- =====================================================
+         LOADING SCREEN
+         ===================================================== -->
 
     <div id="loading">
 
         <div class="loading-box">
 
-            <h1 class="loading-title">
+            <div class="loading-title">
                 WIZARDING WORLD 3D
-            </h1>
+            </div>
+
 
             <p class="loading-text">
                 Loading magical world...
             </p>
+
 
             <p class="loading-status">
                 Preparing Aren Valen...
@@ -288,56 +663,84 @@
     </div>
 
 
-    <!-- =========================
+
+    <!-- =====================================================
          GAME
-         ========================= -->
+         ===================================================== -->
 
     <div id="game"></div>
 
 
-    <!-- =========================
+
+    <!-- =====================================================
          HUD
-         ========================= -->
+         ===================================================== -->
 
     <div id="topHud">
 
         <div id="quest">
-            Quest: Enter Aetheria Academy
+
+            Quest:
+            Enter Aetheria Academy
+
         </div>
 
     </div>
 
 
+
+    <!-- =====================================================
+         MESSAGE
+         ===================================================== -->
+
     <div id="message">
-        Preparing the magical world...
+
+        Preparing magical world...
+
     </div>
 
 
-    <!-- =========================
-         CONTROLS
-         ========================= -->
+
+    <!-- =====================================================
+         MOBILE CONTROLS
+         ===================================================== -->
 
     <div id="joystickBase">
+
         <div id="joystickStick"></div>
+
     </div>
 
-    <button id="jumpBtn">
+
+
+    <button
+        id="jumpBtn"
+        type="button"
+    >
         JUMP
     </button>
 
-    <button id="spellBtn">
+
+
+    <button
+        id="spellBtn"
+        type="button"
+    >
         SPELL
     </button>
 
 
-    <!-- =========================
-         GAME SCRIPT
-         ========================= -->
+
+    <!-- =====================================================
+         GAME JAVASCRIPT
+         ===================================================== -->
 
     <script
         type="module"
-        src="./game.js?v=3"
+        src="./game.js?v=4"
     ></script>
 
+
 </body>
+
 </html>
