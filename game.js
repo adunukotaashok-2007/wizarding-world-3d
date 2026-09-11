@@ -1,7 +1,6 @@
 /* =========================================================
    WIZARDING WORLD 3D
-   CHARACTER LOADING TEST
-   Player: Aren Valen
+   AREN VALEN - DRACO GLB LOADER
    ========================================================= */
 
 import * as THREE from "three";
@@ -10,14 +9,20 @@ import {
     GLTFLoader
 } from "three/addons/loaders/GLTFLoader.js";
 
+import {
+    DRACOLoader
+} from "three/addons/loaders/DRACOLoader.js";
+
 
 /* =========================================================
-   BASIC SETUP
+   HTML ELEMENTS
    ========================================================= */
 
-const game = document.getElementById("game");
+const game =
+    document.getElementById("game");
 
-const loading = document.getElementById("loading");
+const loading =
+    document.getElementById("loading");
 
 const loadingText =
     document.querySelector(".loading-text");
@@ -33,7 +38,8 @@ const message =
    SCENE
    ========================================================= */
 
-const scene = new THREE.Scene();
+const scene =
+    new THREE.Scene();
 
 scene.background =
     new THREE.Color(0x718b9a);
@@ -53,12 +59,9 @@ scene.fog =
 const camera =
     new THREE.PerspectiveCamera(
         60,
-
         window.innerWidth /
         window.innerHeight,
-
         0.1,
-
         500
     );
 
@@ -101,7 +104,9 @@ renderer.toneMappingExposure =
     1.1;
 
 
-/* Add canvas */
+/* =========================================================
+   ADD CANVAS
+   ========================================================= */
 
 game.innerHTML = "";
 
@@ -147,31 +152,27 @@ scene.add(
    GROUND
    ========================================================= */
 
-const groundGeometry =
-    new THREE.PlaneGeometry(
-        200,
-        200
-    );
-
-
-const groundMaterial =
-    new THREE.MeshStandardMaterial({
-        color: 0x536b4d,
-        roughness: 1
-    });
-
-
 const ground =
     new THREE.Mesh(
-        groundGeometry,
-        groundMaterial
+
+        new THREE.PlaneGeometry(
+            200,
+            200
+        ),
+
+        new THREE.MeshStandardMaterial({
+            color: 0x536b4d,
+            roughness: 1
+        })
+
     );
 
 
 ground.rotation.x =
     -Math.PI / 2;
 
-ground.position.y = 0;
+ground.position.y =
+    0;
 
 scene.add(
     ground
@@ -179,28 +180,23 @@ scene.add(
 
 
 /* =========================================================
-   CASTLE TEST BUILDING
+   CASTLE
    ========================================================= */
-
-const castleGeometry =
-    new THREE.BoxGeometry(
-        30,
-        20,
-        20
-    );
-
-
-const castleMaterial =
-    new THREE.MeshStandardMaterial({
-        color: 0x707070,
-        roughness: 0.9
-    });
-
 
 const castle =
     new THREE.Mesh(
-        castleGeometry,
-        castleMaterial
+
+        new THREE.BoxGeometry(
+            30,
+            20,
+            20
+        ),
+
+        new THREE.MeshStandardMaterial({
+            color: 0x707070,
+            roughness: 0.9
+        })
+
     );
 
 
@@ -219,10 +215,7 @@ scene.add(
    CASTLE TOWERS
    ========================================================= */
 
-function createTower(
-    x,
-    z
-) {
+function createTower(x, z) {
 
     const tower =
         new THREE.Mesh(
@@ -241,11 +234,13 @@ function createTower(
 
         );
 
+
     tower.position.set(
         x,
         12.5,
         z
     );
+
 
     scene.add(
         tower
@@ -268,11 +263,13 @@ function createTower(
 
         );
 
+
     roof.position.set(
         x,
         28,
         z
     );
+
 
     scene.add(
         roof
@@ -292,14 +289,14 @@ createTower(
 
 
 /* =========================================================
-   PLAYER
+   PLAYER VARIABLES
    ========================================================= */
 
-let player = null;
+let player =
+    null;
 
-let mixer = null;
-
-let playerReady = false;
+let mixer =
+    null;
 
 
 /* =========================================================
@@ -311,7 +308,38 @@ const loader =
 
 
 /* =========================================================
-   CHARACTER PATH
+   DRACO LOADER
+   =========================================================
+
+   IMPORTANT:
+   Aren Valen GLB uses
+   KHR_draco_mesh_compression.
+
+   This decoder allows Three.js to
+   decompress the character model.
+   ========================================================= */
+
+const dracoLoader =
+    new DRACOLoader();
+
+
+dracoLoader.setDecoderPath(
+    "https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/"
+);
+
+
+dracoLoader.setDecoderConfig({
+    type: "js"
+});
+
+
+loader.setDRACOLoader(
+    dracoLoader
+);
+
+
+/* =========================================================
+   PLAYER FILE
    ========================================================= */
 
 const PLAYER_PATH =
@@ -319,19 +347,35 @@ const PLAYER_PATH =
 
 
 console.log(
-    "Trying to load character:"
+    "================================"
+);
+
+console.log(
+    "WIZARDING WORLD 3D"
+);
+
+console.log(
+    "Loading player:"
 );
 
 console.log(
     PLAYER_PATH
 );
 
+console.log(
+    "DRACO decoder enabled."
+);
+
+console.log(
+    "================================"
+);
+
 
 /* =========================================================
-   UPDATE LOADING MESSAGE
+   LOADING MESSAGE
    ========================================================= */
 
-function setLoadingText(
+function setLoading(
     title,
     status
 ) {
@@ -342,6 +386,7 @@ function setLoadingText(
             title;
 
     }
+
 
     if (loadingStatus) {
 
@@ -354,7 +399,7 @@ function setLoadingText(
 
 
 /* =========================================================
-   LOAD AREN VALEN
+   LOAD CHARACTER
    ========================================================= */
 
 loader.load(
@@ -373,7 +418,7 @@ loader.load(
         );
 
         console.log(
-            "AREN VALEN LOADED SUCCESSFULLY"
+            "AREN VALEN LOADED!"
         );
 
         console.log(
@@ -385,9 +430,9 @@ loader.load(
             gltf.scene;
 
 
-        /* ================================================
-           CHECK MODEL SIZE
-           ================================================ */
+        /* =================================================
+           FIND MODEL SIZE
+           ================================================= */
 
         const originalBox =
             new THREE.Box3()
@@ -403,14 +448,14 @@ loader.load(
 
 
         console.log(
-            "Original character size:",
+            "Original size:",
             originalSize
         );
 
 
-        /* ================================================
-           SCALE CHARACTER
-           ================================================ */
+        /* =================================================
+           SCALE
+           ================================================= */
 
         if (
             originalSize.y > 0
@@ -419,9 +464,11 @@ loader.load(
             const desiredHeight =
                 3.2;
 
+
             const scale =
                 desiredHeight /
                 originalSize.y;
+
 
             player.scale.setScalar(
                 scale
@@ -430,9 +477,9 @@ loader.load(
         }
 
 
-        /* ================================================
-           POSITION CHARACTER
-           ================================================ */
+        /* =================================================
+           CORRECT POSITION
+           ================================================= */
 
         const scaledBox =
             new THREE.Box3()
@@ -453,9 +500,9 @@ loader.load(
             8;
 
 
-        /* ================================================
-           CHARACTER MATERIALS / SHADOWS
-           ================================================ */
+        /* =================================================
+           CHARACTER MATERIALS
+           ================================================= */
 
         player.traverse(
             function(object) {
@@ -487,18 +534,18 @@ loader.load(
         );
 
 
-        /* ================================================
-           ADD PLAYER
-           ================================================ */
+        /* =================================================
+           ADD CHARACTER
+           ================================================= */
 
         scene.add(
             player
         );
 
 
-        /* ================================================
-           ANIMATION
-           ================================================ */
+        /* =================================================
+           ANIMATIONS
+           ================================================= */
 
         if (
             gltf.animations &&
@@ -506,7 +553,7 @@ loader.load(
         ) {
 
             console.log(
-                "Animations found:",
+                "Animations:",
                 gltf.animations.length
             );
 
@@ -525,29 +572,22 @@ loader.load(
 
             action.play();
 
-
         } else {
 
             console.log(
-                "No animations found."
+                "No animations in GLB."
             );
 
         }
 
 
-        /* ================================================
-           PLAYER READY
-           ================================================ */
+        /* =================================================
+           HIDE LOADING
+           ================================================= */
 
-        playerReady =
-            true;
-
-
-        /* ================================================
-           HIDE LOADING SCREEN
-           ================================================ */
-
-        if (loading) {
+        if (
+            loading
+        ) {
 
             loading.style.display =
                 "none";
@@ -555,11 +595,13 @@ loader.load(
         }
 
 
-        /* ================================================
+        /* =================================================
            MESSAGE
-           ================================================ */
+           ================================================= */
 
-        if (message) {
+        if (
+            message
+        ) {
 
             message.textContent =
                 "Aren Valen has entered Aetheria.";
@@ -568,7 +610,7 @@ loader.load(
 
 
         console.log(
-            "Player is now visible."
+            "Character successfully added to scene."
         );
 
     },
@@ -591,22 +633,25 @@ loader.load(
                 ) * 100;
 
 
+            const text =
+                "Loading Aren Valen... " +
+                percent.toFixed(0) +
+                "%";
+
+
             console.log(
-                "Character loading:",
-                percent.toFixed(1) + "%"
+                text
             );
 
 
-            setLoadingText(
+            setLoading(
                 "Loading magical world...",
-                "Loading Aren Valen... " +
-                percent.toFixed(0) +
-                "%"
+                text
             );
 
         } else {
 
-            setLoadingText(
+            setLoading(
                 "Loading magical world...",
                 "Loading Aren Valen..."
             );
@@ -627,7 +672,7 @@ loader.load(
         );
 
         console.error(
-            "CHARACTER LOAD ERROR"
+            "AREN VALEN LOAD ERROR"
         );
 
         console.error(
@@ -635,29 +680,22 @@ loader.load(
         );
 
         console.error(
-            "Character path:",
-            PLAYER_PATH
-        );
-
-        console.error(
             "================================"
         );
 
 
-        playerReady =
-            false;
-
-
-        setLoadingText(
+        setLoading(
             "Character loading failed.",
-            "The game could not load Aren Valen."
+            "Error loading Aren Valen GLB."
         );
 
 
-        if (message) {
+        if (
+            message
+        ) {
 
             message.textContent =
-                "Character file could not be loaded.";
+                "Aren Valen could not be loaded.";
 
         }
 
@@ -672,12 +710,16 @@ loader.load(
 
 function updateCamera() {
 
-    if (!player) {
+    if (
+        !player
+    ) {
+
         return;
+
     }
 
 
-    const targetCameraPosition =
+    const target =
         new THREE.Vector3(
 
             player.position.x,
@@ -690,7 +732,7 @@ function updateCamera() {
 
 
     camera.position.lerp(
-        targetCameraPosition,
+        target,
         0.08
     );
 
@@ -717,7 +759,7 @@ const clock =
 
 
 /* =========================================================
-   ANIMATION LOOP
+   MAIN LOOP
    ========================================================= */
 
 function animate() {
@@ -731,8 +773,6 @@ function animate() {
         clock.getDelta();
 
 
-    /* Player animation */
-
     if (
         mixer
     ) {
@@ -744,12 +784,8 @@ function animate() {
     }
 
 
-    /* Camera */
-
     updateCamera();
 
-
-    /* Render */
 
     renderer.render(
         scene,
@@ -788,7 +824,7 @@ window.addEventListener(
 
 
 /* =========================================================
-   BASIC JOYSTICK TEST
+   JOYSTICK
    ========================================================= */
 
 const joystickBase =
@@ -819,6 +855,7 @@ if (
             joystickActive =
                 true;
 
+
             joystickBase.setPointerCapture(
                 event.pointerId
             );
@@ -834,12 +871,15 @@ if (
             if (
                 !joystickActive
             ) {
+
                 return;
+
             }
 
 
             const rect =
-                joystickBase.getBoundingClientRect();
+                joystickBase
+                    .getBoundingClientRect();
 
 
             const centerX =
@@ -893,10 +933,11 @@ if (
 
 
             joystickStick.style.transform =
-                `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+                `translate(
+                    calc(-50% + ${dx}px),
+                    calc(-50% + ${dy}px)
+                )`;
 
-
-            /* Move player */
 
             if (
                 player
@@ -942,7 +983,7 @@ if (
 
 
 /* =========================================================
-   JUMP BUTTON
+   JUMP
    ========================================================= */
 
 const jumpBtn =
@@ -963,8 +1004,12 @@ if (
                 player
             ) {
 
+                const originalY =
+                    player.position.y;
+
+
                 player.position.y +=
-                    0.5;
+                    0.6;
 
 
                 setTimeout(
@@ -975,7 +1020,7 @@ if (
                         ) {
 
                             player.position.y =
-                                0;
+                                originalY;
 
                         }
 
@@ -992,7 +1037,7 @@ if (
 
 
 /* =========================================================
-   SPELL BUTTON
+   SPELL
    ========================================================= */
 
 const spellBtn =
@@ -1019,26 +1064,26 @@ if (
             }
 
 
-            /* Temporary magical flash */
-
-            const flash =
-                new THREE.PointLight(
-                    0x88bbff,
-                    8,
-                    15
-                );
-
-
             if (
                 player
             ) {
+
+                const flash =
+                    new THREE.PointLight(
+                        0x88bbff,
+                        8,
+                        15
+                    );
+
 
                 flash.position.copy(
                     player.position
                 );
 
+
                 flash.position.y +=
                     1.5;
+
 
                 scene.add(
                     flash
@@ -1065,18 +1110,18 @@ if (
 
 
 /* =========================================================
-   DEBUG INFORMATION
+   FINAL DEBUG
    ========================================================= */
 
 console.log(
-    "Wizarding World 3D started."
+    "Game initialized."
 );
 
 console.log(
-    "Player file:",
+    "Aren Valen path:",
     PLAYER_PATH
 );
 
 console.log(
-    "Waiting for Aren Valen..."
+    "DRACO support: ENABLED"
 );
