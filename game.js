@@ -369,9 +369,7 @@ function createMainCastle() {
 
   /*
    * Front section.
-   *
-   * The entrance opening is kept free.
-   * Collision is handled by the side walls.
+   * Entrance opening remains usable.
    */
 
   box(
@@ -451,11 +449,6 @@ function createCentralTower() {
     -34,
     stoneMat
   );
-
-  /*
-   * Central tower collision.
-   * Approximate cylinder with a square.
-   */
 
   addCollisionBox(
     0,
@@ -557,11 +550,6 @@ function createFrontWalls() {
 
 function createMainGate() {
 
-  /*
-   * Gate pillars are collidable.
-   * The middle opening remains free.
-   */
-
   box(
     3,
     14,
@@ -596,9 +584,8 @@ function createMainGate() {
   );
 
   /*
-   * Wooden doors are decorative only.
-   * This means Aren can enter through
-   * the gate opening.
+   * Decorative doors.
+   * They do not block the player.
    */
 
   box(
@@ -896,11 +883,6 @@ function createTree(
 
   scene.add(leaves);
 
-
-  /*
-   * Tree collision radius
-   */
-
   treeColliders.push({
     x,
     z,
@@ -1007,7 +989,6 @@ marker.position.y = 0.2;
 
 questMarker.add(marker);
 
-
 const markerLight =
   new THREE.PointLight(
     0xffc857,
@@ -1059,8 +1040,7 @@ loader.load(
 
   (gltf) => {
 
-    player =
-      gltf.scene;
+    player = gltf.scene;
 
     player.position.set(
       0,
@@ -1068,10 +1048,7 @@ loader.load(
       70
     );
 
-    player.scale.setScalar(
-      1
-    );
-
+    player.scale.setScalar(1);
 
     player.traverse(
       (object) => {
@@ -1104,7 +1081,6 @@ loader.load(
         }
       }
     );
-
 
     scene.add(player);
 
@@ -1188,7 +1164,7 @@ function createWand() {
 
 
 /* =========================================================
-   POSE
+   ANIMATION HELPERS
    ========================================================= */
 
 function setBoneOffset(
@@ -1238,7 +1214,7 @@ function resetAnimatedBones() {
 
 
 /* =========================================================
-   STANDING
+   STANDING / IDLE BASE POSE
    ========================================================= */
 
 function applyStandingPose() {
@@ -1293,7 +1269,72 @@ function applyStandingPose() {
 
 
 /* =========================================================
-   WALKING
+   IMPROVED IDLE
+   ========================================================= */
+
+function applyIdleAnimation(
+  time
+) {
+
+  applyStandingPose();
+
+  /*
+   * Breathing
+   */
+
+  const breathing =
+    Math.sin(time * 1.7) *
+    0.025;
+
+  setBoneOffset(
+    "Spine",
+    breathing,
+    0,
+    Math.sin(time * 1.3) *
+      0.018
+  );
+
+
+  /*
+   * Small head movement
+   */
+
+  setBoneOffset(
+    "Head",
+    Math.sin(time * 1.1) *
+      0.018,
+    Math.sin(time * 0.8) *
+      0.035,
+    0
+  );
+
+
+  /*
+   * Small shoulder movement
+   */
+
+  setBoneOffset(
+    "LeftShoulder",
+    0,
+    0,
+    0.05 +
+      Math.sin(time * 1.7) *
+      0.015
+  );
+
+  setBoneOffset(
+    "RightShoulder",
+    0,
+    0,
+    -0.05 -
+      Math.sin(time * 1.7) *
+      0.015
+  );
+}
+
+
+/* =========================================================
+   IMPROVED WALK / RUN
    ========================================================= */
 
 function applyWalkingAnimation(
@@ -1303,69 +1344,108 @@ function applyWalkingAnimation(
 
   applyStandingPose();
 
-  const swing =
-    Math.sin(time * 9) *
-    0.45 *
-    amount;
+  const running =
+    amount > 0.75;
+
+  const animationSpeed =
+    running ? 13 : 9;
+
+  const legAmount =
+    running ? 0.65 : 0.42;
+
+  const armAmount =
+    running ? 0.38 : 0.25;
+
+  const intensity =
+    Math.min(amount, 1);
+
+
+  const legSwing =
+    Math.sin(
+      time * animationSpeed
+    ) *
+    legAmount *
+    intensity;
+
 
   const armSwing =
-    Math.sin(time * 9) *
-    0.25 *
-    amount;
+    Math.sin(
+      time * animationSpeed
+    ) *
+    armAmount *
+    intensity;
+
+
+  /*
+   * Legs
+   */
 
   setBoneOffset(
     "LeftUpLeg",
-    swing
+    legSwing
   );
 
   setBoneOffset(
     "RightUpLeg",
-    -swing
+    -legSwing
   );
 
   setBoneOffset(
     "LeftLeg",
-    -swing * 0.55
+    -legSwing * 0.55
   );
 
   setBoneOffset(
     "RightLeg",
-    swing * 0.55
+    legSwing * 0.55
   );
+
+
+  /*
+   * Arms
+   */
 
   setBoneOffset(
     "LeftArm",
-    Math.PI / 2 + armSwing
+    Math.PI / 2 +
+      armSwing
   );
 
   setBoneOffset(
     "RightArm",
-    Math.PI / 2 - armSwing
+    Math.PI / 2 -
+      armSwing
   );
-}
 
 
-/* =========================================================
-   IDLE
-   ========================================================= */
-
-function applyIdleAnimation(
-  time
-) {
-
-  applyStandingPose();
+  /*
+   * Body bounce
+   */
 
   setBoneOffset(
     "Spine",
     0,
     0,
-    Math.sin(time * 1.5) * 0.02
+    Math.sin(
+      time *
+      animationSpeed *
+      2
+    ) *
+    (running ? 0.035 : 0.02)
   );
+
+
+  /*
+   * Head movement
+   */
 
   setBoneOffset(
     "Head",
+    Math.sin(
+      time *
+      animationSpeed
+    ) * 0.018,
     0,
-    Math.sin(time * 1.2) * 0.025,
     0
   );
 }
@@ -1379,15 +1459,34 @@ function applyJumpAnimation() {
 
   applyStandingPose();
 
+  /*
+   * Slightly bend legs
+   */
+
   setBoneOffset(
     "LeftUpLeg",
-    -0.25
+    -0.28
   );
 
   setBoneOffset(
     "RightUpLeg",
-    -0.25
+    -0.28
   );
+
+  setBoneOffset(
+    "LeftLeg",
+    0.25
+  );
+
+  setBoneOffset(
+    "RightLeg",
+    0.25
+  );
+
+
+  /*
+   * Arms lift naturally
+   */
 
   setBoneOffset(
     "LeftArm",
@@ -1398,25 +1497,90 @@ function applyJumpAnimation() {
     "RightArm",
     Math.PI / 2 + 0.25
   );
+
+
+  /*
+   * Slight body lean
+   */
+
+  setBoneOffset(
+    "Spine",
+    -0.08,
+    0,
+    0
+  );
 }
 
 
 /* =========================================================
-   CASTING ANIMATION
+   SPELL CASTING ANIMATION
    ========================================================= */
 
-function applyCastingAnimation() {
+function applyCastingAnimation(
+  time
+) {
 
   applyStandingPose();
 
+  /*
+   * Right arm raises wand
+   */
+
   setBoneOffset(
     "RightArm",
-    Math.PI / 2 - 0.9
+    Math.PI / 2 - 0.95
   );
 
   setBoneOffset(
     "RightForeArm",
-    -0.4
+    -0.45
+  );
+
+
+  /*
+   * Left arm balances body
+   */
+
+  setBoneOffset(
+    "LeftArm",
+    Math.PI / 2 + 0.12
+  );
+
+
+  /*
+   * Small casting movement
+   */
+
+  setBoneOffset(
+    "RightArm",
+    Math.PI / 2 -
+      0.95 +
+      Math.sin(time * 18) *
+      0.06
+  );
+
+
+  /*
+   * Body leans forward
+   */
+
+  setBoneOffset(
+    "Spine",
+    -0.08,
+    0,
+    0
+  );
+
+
+  /*
+   * Head follows wand
+   */
+
+  setBoneOffset(
+    "Head",
+    -0.08,
+    0,
+    0
   );
 }
 
@@ -1430,6 +1594,7 @@ const keys = {};
 window.addEventListener(
   "keydown",
   (event) => {
+
     keys[
       event.key.toLowerCase()
     ] = true;
@@ -1439,6 +1604,7 @@ window.addEventListener(
 window.addEventListener(
   "keyup",
   (event) => {
+
     keys[
       event.key.toLowerCase()
     ] = false;
@@ -1453,7 +1619,14 @@ let velocityY = 0;
 
 let grounded = true;
 
-const moveSpeed = 5.5;
+
+/*
+ * Step 2:
+ * walking + running
+ */
+
+const walkSpeed = 5.5;
+const runSpeed = 9.0;
 
 const gravity = -20;
 
@@ -1540,13 +1713,16 @@ renderer.domElement.addEventListener(
 renderer.domElement.addEventListener(
   "pointerup",
   () => {
+
     cameraDragging = false;
   }
 );
 
+
 renderer.domElement.addEventListener(
   "pointercancel",
   () => {
+
     cameraDragging = false;
   }
 );
@@ -1731,7 +1907,7 @@ document.getElementById(
 
 
 /* =========================================================
-   SPELL
+   SPELL SYSTEM
    ========================================================= */
 
 let casting = false;
@@ -1743,6 +1919,19 @@ const castDuration = 0.65;
 let spellCooldown = 0;
 
 const projectiles = [];
+
+
+/*
+ * Last movement direction.
+ * This is used for spell direction.
+ */
+
+const lastMoveDirection =
+  new THREE.Vector3(
+    0,
+    0,
+    1
+  );
 
 
 document.getElementById(
@@ -1759,7 +1948,7 @@ document.getElementById(
 
 
 /* =========================================================
-   CORRECT FORWARD SPELL
+   CAST SPELL
    ========================================================= */
 
 function castSpell() {
@@ -1782,35 +1971,36 @@ function castSpell() {
 
 
   /*
-   * IMPORTANT:
+   * Use the player's last
+   * actual movement direction.
    *
-   * Aren's GLB faces +Z.
-   *
-   * Therefore the projectile uses
-   * local +Z as forward.
+   * This avoids guessing the
+   * GLB forward axis.
    */
 
   const forward =
-    new THREE.Vector3(
+    lastMoveDirection.clone();
+
+  forward.y = 0;
+
+  if (
+    forward.lengthSq() <
+    0.001
+  ) {
+
+    forward.set(
+      Math.sin(player.rotation.y),
       0,
-      0,
-      1
+      Math.cos(player.rotation.y)
     );
-
-
-  /*
-   * Convert Aren's local forward
-   * direction into world direction.
-   */
-
-  forward.applyQuaternion(
-    player.quaternion
-  );
+  }
 
   forward.normalize();
 
 
-  /* Projectile */
+  /* =====================================================
+     PROJECTILE
+     ===================================================== */
 
   const projectile =
     new THREE.Mesh(
@@ -1828,24 +2018,40 @@ function castSpell() {
 
 
   /*
-   * Start in front of Aren.
+   * Spawn from wand hand.
    */
 
-  projectile.position.copy(
-    player.position
-  );
+  const origin =
+    new THREE.Vector3();
 
-  projectile.position.y +=
-    2.1;
+  if (rightHand) {
+
+    rightHand.getWorldPosition(
+      origin
+    );
+
+  } else {
+
+    origin.copy(
+      player.position
+    );
+
+    origin.y += 2.1;
+  }
+
+
+  projectile.position.copy(
+    origin
+  );
 
   projectile.position.add(
     forward.clone()
-      .multiplyScalar(1.5)
+      .multiplyScalar(0.8)
   );
 
 
   /*
-   * Shoot forward.
+   * Projectile velocity
    */
 
   projectile.userData.velocity =
@@ -1925,7 +2131,7 @@ function canMoveTo(
 ) {
 
   /*
-   * Castle rectangle collision
+   * Castle collision
    */
 
   for (
@@ -2005,7 +2211,7 @@ function canMoveTo(
 
 
 /* =========================================================
-   PLAYER MOVEMENT UPDATE
+   PLAYER MOVEMENT
    ========================================================= */
 
 function updatePlayer(
@@ -2023,6 +2229,10 @@ function updatePlayer(
   let inputY =
     -joystickY;
 
+
+  /*
+   * Keyboard
+   */
 
   if (
     keys["a"] ||
@@ -2063,11 +2273,16 @@ function updatePlayer(
   if (
     input.lengthSq() > 1
   ) {
+
     input.normalize();
   }
 
 
-  const forward =
+  /*
+   * Camera-relative forward
+   */
+
+  const cameraForward =
     new THREE.Vector3(
       -Math.sin(cameraYaw),
       0,
@@ -2075,7 +2290,7 @@ function updatePlayer(
     );
 
 
-  const right =
+  const cameraRight =
     new THREE.Vector3(
       Math.cos(cameraYaw),
       0,
@@ -2089,11 +2304,11 @@ function updatePlayer(
 
   direction
     .addScaledVector(
-      forward,
+      cameraForward,
       input.y
     )
     .addScaledVector(
-      right,
+      cameraRight,
       input.x
     );
 
@@ -2108,20 +2323,38 @@ function updatePlayer(
     direction.normalize();
 
 
-    const movement =
-      direction.clone()
-        .multiplyScalar(
-          moveSpeed * delta
-        );
+    /*
+     * Save actual movement
+     * direction for spells.
+     */
+
+    lastMoveDirection.copy(
+      direction
+    );
 
 
     /*
-     * AXIS-SEPARATED COLLISION
-     *
-     * This allows Aren to slide
-     * along walls instead of getting
-     * completely stuck.
+     * Walk / Run
      */
+
+    const inputAmount =
+      Math.min(
+        input.length(),
+        1
+      );
+
+    const currentSpeed =
+      inputAmount > 0.75
+        ? runSpeed
+        : walkSpeed;
+
+
+    const movement =
+      direction.clone()
+        .multiplyScalar(
+          currentSpeed * delta
+        );
+
 
     const newX =
       player.position.x +
@@ -2131,6 +2364,10 @@ function updatePlayer(
       player.position.z +
       movement.z;
 
+
+    /*
+     * X collision
+     */
 
     if (
       canMoveTo(
@@ -2143,6 +2380,10 @@ function updatePlayer(
         newX;
     }
 
+
+    /*
+     * Z collision
+     */
 
     if (
       canMoveTo(
@@ -2157,7 +2398,7 @@ function updatePlayer(
 
 
     /*
-     * Turn Aren toward movement.
+     * Rotate Aren
      */
 
     const targetRotation =
@@ -2193,7 +2434,7 @@ function updatePlayer(
 
 
   /*
-   * World boundaries
+   * World limits
    */
 
   player.position.x =
@@ -2211,9 +2452,9 @@ function updatePlayer(
     );
 
 
-  /*
-   * Gravity
-   */
+  /* =====================================================
+     GRAVITY
+     ===================================================== */
 
   velocityY +=
     gravity * delta;
@@ -2234,9 +2475,9 @@ function updatePlayer(
   }
 
 
-  /*
-   * Animation
-   */
+  /* =====================================================
+     ANIMATION STATE
+     ===================================================== */
 
   if (!grounded) {
 
@@ -2244,7 +2485,9 @@ function updatePlayer(
 
   } else if (casting) {
 
-    applyCastingAnimation();
+    applyCastingAnimation(
+      elapsed
+    );
 
   } else if (moving) {
 
@@ -2261,9 +2504,9 @@ function updatePlayer(
   }
 
 
-  /*
-   * Casting timer
-   */
+  /* =====================================================
+     CASTING TIMER
+     ===================================================== */
 
   if (casting) {
 
@@ -2278,6 +2521,10 @@ function updatePlayer(
     }
   }
 
+
+  /*
+   * Spell cooldown
+   */
 
   if (
     spellCooldown > 0
@@ -2405,10 +2652,6 @@ function updateQuest() {
   }
 
 
-  /*
-   * Gate target.
-   */
-
   const dx =
     player.position.x;
 
@@ -2449,7 +2692,7 @@ function updateQuest() {
 
 
 /* =========================================================
-   QUEST MARKER
+   QUEST MARKER UPDATE
    ========================================================= */
 
 function updateQuestMarker(
@@ -2514,6 +2757,7 @@ window.addEventListener(
   resize
 );
 
+
 window.addEventListener(
   "orientationchange",
   () => {
@@ -2527,7 +2771,7 @@ window.addEventListener(
 
 
 /* =========================================================
-   MAIN LOOP
+   MAIN GAME LOOP
    ========================================================= */
 
 const clock =
