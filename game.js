@@ -1,20 +1,23 @@
 /* =========================================================
-   AETHERIA ACADEMY - 3D WIZARDING WORLD
-   AREN VALEN PLAYER SYSTEM
+   AETHERIA ACADEMY
+   STEP 1 - FULL ACADEMY WORLD
 
-   Features:
-   - Aren Valen GLB
-   - Natural standing pose
-   - Procedural walking
-   - Running-style movement
-   - Jump
-   - Wand
-   - Spell casting
-   - Third-person camera
-   - Touch camera rotation
-   - Mobile joystick
-   - Keyboard controls
-   - DRACO GLB support
+   PLAYER
+   + STANDING POSE
+   + WALKING
+   + JUMP
+   + WAND
+   + SPELL
+   + CAMERA
+   + JOYSTICK
+   + ACADEMY CASTLE
+   + COURTYARD
+   + PATH
+   + TOWERS
+   + GATE
+   + TORCHES
+   + TREES
+   + QUEST MARKER
    ========================================================= */
 
 import * as THREE from "three";
@@ -23,11 +26,14 @@ import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 
 
 /* =========================================================
-   GAME ELEMENTS
+   HTML ELEMENTS
    ========================================================= */
 
-const game = document.getElementById("game");
-const loading = document.getElementById("loading");
+const game =
+    document.getElementById("game");
+
+const loading =
+    document.getElementById("loading");
 
 const joystickBase =
     document.getElementById("joystickBase");
@@ -43,7 +49,7 @@ const spellBtn =
 
 
 /* =========================================================
-   MOBILE SETTINGS
+   MOBILE
    ========================================================= */
 
 document.body.style.margin = "0";
@@ -59,16 +65,17 @@ if (game) {
    SCENE
    ========================================================= */
 
-const scene = new THREE.Scene();
+const scene =
+    new THREE.Scene();
 
 scene.background =
-    new THREE.Color(0x87a8bd);
+    new THREE.Color(0x718b98);
 
 scene.fog =
     new THREE.Fog(
-        0x87a8bd,
-        40,
-        220
+        0x718b98,
+        35,
+        240
     );
 
 
@@ -82,13 +89,13 @@ const camera =
         window.innerWidth /
         window.innerHeight,
         0.1,
-        500
+        600
     );
 
 camera.position.set(
     0,
-    3.5,
-    8
+    4,
+    10
 );
 
 
@@ -98,8 +105,7 @@ camera.position.set(
 
 const renderer =
     new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: false
+        antialias: true
     });
 
 renderer.setSize(
@@ -133,37 +139,47 @@ if (game) {
    LIGHTING
    ========================================================= */
 
-const hemiLight =
+const hemisphere =
     new THREE.HemisphereLight(
-        0xffffff,
-        0x405060,
-        2.2
+        0xdcecff,
+        0x344332,
+        2
     );
 
-scene.add(hemiLight);
+scene.add(hemisphere);
 
 
 const sun =
     new THREE.DirectionalLight(
-        0xffffff,
+        0xfff4dc,
         3
     );
 
 sun.position.set(
-    30,
-    60,
-    20
+    -60,
+    90,
+    40
 );
 
 sun.castShadow = true;
 
-sun.shadow.mapSize.width = 2048;
-sun.shadow.mapSize.height = 2048;
+sun.shadow.mapSize.width =
+    2048;
 
-sun.shadow.camera.left = -100;
-sun.shadow.camera.right = 100;
-sun.shadow.camera.top = 100;
-sun.shadow.camera.bottom = -100;
+sun.shadow.mapSize.height =
+    2048;
+
+sun.shadow.camera.left =
+    -150;
+
+sun.shadow.camera.right =
+    150;
+
+sun.shadow.camera.top =
+    150;
+
+sun.shadow.camera.bottom =
+    -150;
 
 scene.add(sun);
 
@@ -172,22 +188,16 @@ scene.add(sun);
    GROUND
    ========================================================= */
 
-const groundGeometry =
-    new THREE.PlaneGeometry(
-        400,
-        400
-    );
-
-const groundMaterial =
-    new THREE.MeshStandardMaterial({
-        color: 0x536b4d,
-        roughness: 1
-    });
-
 const ground =
     new THREE.Mesh(
-        groundGeometry,
-        groundMaterial
+        new THREE.PlaneGeometry(
+            500,
+            500
+        ),
+        new THREE.MeshStandardMaterial({
+            color: 0x536b4d,
+            roughness: 1
+        })
     );
 
 ground.rotation.x =
@@ -199,7 +209,859 @@ scene.add(ground);
 
 
 /* =========================================================
-   SIMPLE TREES
+   MATERIALS
+   ========================================================= */
+
+const stoneMaterial =
+    new THREE.MeshStandardMaterial({
+        color: 0x777b7a,
+        roughness: 0.92
+    });
+
+
+const darkStoneMaterial =
+    new THREE.MeshStandardMaterial({
+        color: 0x4e5252,
+        roughness: 0.95
+    });
+
+
+const roofMaterial =
+    new THREE.MeshStandardMaterial({
+        color: 0x30333a,
+        roughness: 0.8
+    });
+
+
+const woodMaterial =
+    new THREE.MeshStandardMaterial({
+        color: 0x39261a,
+        roughness: 0.8
+    });
+
+
+const pathMaterial =
+    new THREE.MeshStandardMaterial({
+        color: 0x77736a,
+        roughness: 1
+    });
+
+
+const grassMaterial =
+    new THREE.MeshStandardMaterial({
+        color: 0x536f49,
+        roughness: 1
+    });
+
+
+/* =========================================================
+   ACADEMY GROUP
+   ========================================================= */
+
+const academy =
+    new THREE.Group();
+
+scene.add(academy);
+
+
+/* =========================================================
+   BOX HELPER
+   ========================================================= */
+
+function box(
+    width,
+    height,
+    depth,
+    material,
+    x,
+    y,
+    z
+) {
+
+    const mesh =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                width,
+                height,
+                depth
+            ),
+            material
+        );
+
+    mesh.position.set(
+        x,
+        y,
+        z
+    );
+
+    mesh.castShadow = true;
+
+    mesh.receiveShadow = true;
+
+    academy.add(mesh);
+
+    return mesh;
+}
+
+
+/* =========================================================
+   CYLINDER HELPER
+   ========================================================= */
+
+function cylinder(
+    radiusTop,
+    radiusBottom,
+    height,
+    material,
+    x,
+    y,
+    z,
+    segments = 24
+) {
+
+    const mesh =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                radiusTop,
+                radiusBottom,
+                height,
+                segments
+            ),
+            material
+        );
+
+    mesh.position.set(
+        x,
+        y,
+        z
+    );
+
+    mesh.castShadow = true;
+
+    mesh.receiveShadow = true;
+
+    academy.add(mesh);
+
+    return mesh;
+}
+
+
+/* =========================================================
+   CONE ROOF
+   ========================================================= */
+
+function towerRoof(
+    x,
+    y,
+    z,
+    radius,
+    height
+) {
+
+    const roof =
+        new THREE.Mesh(
+            new THREE.ConeGeometry(
+                radius,
+                height,
+                32
+            ),
+            roofMaterial
+        );
+
+    roof.position.set(
+        x,
+        y,
+        z
+    );
+
+    roof.castShadow = true;
+
+    academy.add(roof);
+
+    return roof;
+}
+
+
+/* =========================================================
+   MAIN CASTLE BODY
+   ========================================================= */
+
+function createMainCastle() {
+
+    /* -----------------------------------------
+       CENTRAL BUILDING
+       ----------------------------------------- */
+
+    box(
+        42,
+        24,
+        28,
+        stoneMaterial,
+        0,
+        12,
+        -30
+    );
+
+
+    /* -----------------------------------------
+       SECOND FLOOR
+       ----------------------------------------- */
+
+    box(
+        30,
+        10,
+        22,
+        darkStoneMaterial,
+        0,
+        29,
+        -30
+    );
+
+
+    /* -----------------------------------------
+       CENTRAL FRONT SECTION
+       ----------------------------------------- */
+
+    box(
+        18,
+        30,
+        10,
+        stoneMaterial,
+        0,
+        15,
+        -14
+    );
+
+
+    /* -----------------------------------------
+       CENTRAL HIGH TOWER
+       ----------------------------------------- */
+
+    cylinder(
+        6,
+        7,
+        40,
+        stoneMaterial,
+        0,
+        20,
+        -34,
+        32
+    );
+
+
+    towerRoof(
+        0,
+        43,
+        -34,
+        8,
+        13
+    );
+
+
+    /* -----------------------------------------
+       LEFT FRONT WING
+       ----------------------------------------- */
+
+    box(
+        15,
+        18,
+        24,
+        stoneMaterial,
+        -25,
+        9,
+        -29
+    );
+
+
+    /* -----------------------------------------
+       RIGHT FRONT WING
+       ----------------------------------------- */
+
+    box(
+        15,
+        18,
+        24,
+        stoneMaterial,
+        25,
+        9,
+        -29
+    );
+
+}
+
+
+/* =========================================================
+   TOWERS
+   ========================================================= */
+
+function createTower(
+    x,
+    z,
+    height = 30
+) {
+
+    cylinder(
+        6,
+        7,
+        height,
+        stoneMaterial,
+        x,
+        height / 2,
+        z,
+        32
+    );
+
+
+    /* Tower top */
+
+    cylinder(
+        6.7,
+        6.7,
+        1.5,
+        darkStoneMaterial,
+        x,
+        height + 0.75,
+        z,
+        32
+    );
+
+
+    /* Roof */
+
+    towerRoof(
+        x,
+        height + 7,
+        z,
+        8,
+        13
+    );
+
+
+    /* Small roof tip */
+
+    cylinder(
+        0.18,
+        0.18,
+        3,
+        darkStoneMaterial,
+        x,
+        height + 14,
+        z,
+        8
+    );
+
+}
+
+
+/* Four academy towers */
+
+createTower(
+    -35,
+    -22,
+    30
+);
+
+createTower(
+    35,
+    -22,
+    30
+);
+
+createTower(
+    -35,
+    -55,
+    34
+);
+
+createTower(
+    35,
+    -55,
+    34
+);
+
+
+/* =========================================================
+   CASTLE FRONT WALLS
+   ========================================================= */
+
+function createFrontWalls() {
+
+    /* Left wall */
+
+    box(
+        25,
+        15,
+        5,
+        stoneMaterial,
+        -28,
+        7.5,
+        -13
+    );
+
+
+    /* Right wall */
+
+    box(
+        25,
+        15,
+        5,
+        stoneMaterial,
+        28,
+        7.5,
+        -13
+    );
+
+
+    /* Above gate */
+
+    box(
+        12,
+        13,
+        5,
+        stoneMaterial,
+        0,
+        21,
+        -13
+    );
+
+}
+
+
+/* =========================================================
+   MAIN GATE
+   ========================================================= */
+
+function createMainGate() {
+
+    /* Gate arch sides */
+
+    box(
+        5,
+        14,
+        4,
+        darkStoneMaterial,
+        -6,
+        7,
+        -16
+    );
+
+
+    box(
+        5,
+        14,
+        4,
+        darkStoneMaterial,
+        6,
+        7,
+        -16
+    );
+
+
+    /* Gate top */
+
+    box(
+        17,
+        5,
+        4,
+        darkStoneMaterial,
+        0,
+        14,
+        -16
+    );
+
+
+    /* Wooden doors */
+
+    const leftDoor =
+        box(
+            4.5,
+            11,
+            0.8,
+            woodMaterial,
+            -2.35,
+            5.5,
+            -18
+        );
+
+
+    const rightDoor =
+        box(
+            4.5,
+            11,
+            0.8,
+            woodMaterial,
+            2.35,
+            5.5,
+            -18
+        );
+
+
+    /* Door handles */
+
+    cylinder(
+        0.12,
+        0.12,
+        0.5,
+        new THREE.MeshStandardMaterial({
+            color: 0xb58a3c,
+            metalness: 0.7,
+            roughness: 0.3
+        }),
+        -0.5,
+        5.5,
+        -18.5,
+        12
+    ).rotation.x =
+        Math.PI / 2;
+
+
+    cylinder(
+        0.12,
+        0.12,
+        0.5,
+        new THREE.MeshStandardMaterial({
+            color: 0xb58a3c,
+            metalness: 0.7,
+            roughness: 0.3
+        }),
+        0.5,
+        5.5,
+        -18.5,
+        12
+    ).rotation.x =
+        Math.PI / 2;
+
+}
+
+
+/* =========================================================
+   COURTYARD
+   ========================================================= */
+
+function createCourtyard() {
+
+    const courtyard =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                65,
+                0.3,
+                55
+            ),
+            new THREE.MeshStandardMaterial({
+                color: 0x77756c,
+                roughness: 1
+            })
+        );
+
+
+    courtyard.position.set(
+        0,
+        0.12,
+        18
+    );
+
+
+    courtyard.receiveShadow = true;
+
+    academy.add(courtyard);
+
+
+    /* Central circular plaza */
+
+    const circle =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                10,
+                10,
+                0.4,
+                48
+            ),
+            darkStoneMaterial
+        );
+
+
+    circle.position.set(
+        0,
+        0.35,
+        8
+    );
+
+
+    circle.receiveShadow = true;
+
+    academy.add(circle);
+
+
+    /* Fountain */
+
+    const fountainBase =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                4,
+                4.5,
+                1,
+                32
+            ),
+            stoneMaterial
+        );
+
+
+    fountainBase.position.set(
+        0,
+        0.9,
+        8
+    );
+
+    fountainBase.castShadow = true;
+
+    academy.add(fountainBase);
+
+
+    const water =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                3.6,
+                3.6,
+                0.15,
+                32
+            ),
+            new THREE.MeshStandardMaterial({
+                color: 0x4f9db3,
+                metalness: 0.2,
+                roughness: 0.1
+            })
+        );
+
+
+    water.position.set(
+        0,
+        1.45,
+        8
+    );
+
+    academy.add(water);
+
+
+    /* Fountain pillar */
+
+    cylinder(
+        0.8,
+        1.1,
+        4,
+        stoneMaterial,
+        0,
+        2.8,
+        8,
+        24
+    );
+
+
+    /* Fountain top */
+
+    cylinder(
+        1.5,
+        1.2,
+        0.5,
+        stoneMaterial,
+        0,
+        5,
+        8,
+        24
+    );
+
+}
+
+
+/* =========================================================
+   PATH TO ACADEMY
+   ========================================================= */
+
+function createPath() {
+
+    const path =
+        new THREE.Mesh(
+            new THREE.PlaneGeometry(
+                12,
+                75
+            ),
+            pathMaterial
+        );
+
+
+    path.rotation.x =
+        -Math.PI / 2;
+
+
+    path.position.set(
+        0,
+        0.03,
+        43
+    );
+
+
+    path.receiveShadow = true;
+
+    scene.add(path);
+
+
+    /* Path stones */
+
+    for (
+        let z = 5;
+        z < 75;
+        z += 5
+    ) {
+
+        const stone =
+            new THREE.Mesh(
+                new THREE.BoxGeometry(
+                    10,
+                    0.15,
+                    3.5
+                ),
+                pathMaterial
+            );
+
+
+        stone.position.set(
+            0,
+            0.12,
+            z
+        );
+
+
+        stone.receiveShadow = true;
+
+        scene.add(stone);
+
+    }
+
+}
+
+
+/* =========================================================
+   TORCH
+   ========================================================= */
+
+function createTorch(
+    x,
+    y,
+    z
+) {
+
+    const group =
+        new THREE.Group();
+
+
+    const pole =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                0.12,
+                0.18,
+                2.5,
+                10
+            ),
+            woodMaterial
+        );
+
+
+    pole.position.y =
+        1.25;
+
+    pole.castShadow = true;
+
+    group.add(pole);
+
+
+    const flame =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                0.3,
+                12,
+                12
+            ),
+            new THREE.MeshBasicMaterial({
+                color: 0xffa42b
+            })
+        );
+
+
+    flame.position.y =
+        2.65;
+
+    group.add(flame);
+
+
+    const light =
+        new THREE.PointLight(
+            0xff9a3c,
+            2,
+            12
+        );
+
+
+    light.position.y =
+        2.7;
+
+    group.add(light);
+
+
+    group.position.set(
+        x,
+        y,
+        z
+    );
+
+
+    scene.add(group);
+
+}
+
+
+/* Gate torches */
+
+createTorch(
+    -9,
+    0,
+    -17
+);
+
+createTorch(
+    9,
+    0,
+    -17
+);
+
+
+/* Courtyard torches */
+
+createTorch(
+    -28,
+    0,
+    5
+);
+
+createTorch(
+    28,
+    0,
+    5
+);
+
+createTorch(
+    -28,
+    0,
+    28
+);
+
+createTorch(
+    28,
+    0,
+    28
+);
+
+
+/* =========================================================
+   TREES
    ========================================================= */
 
 function createTree(
@@ -208,7 +1070,7 @@ function createTree(
     scale = 1
 ) {
 
-    const tree =
+    const group =
         new THREE.Group();
 
 
@@ -220,69 +1082,172 @@ function createTree(
                 4 * scale,
                 12
             ),
-            new THREE.MeshStandardMaterial({
-                color: 0x5a3925,
-                roughness: 1
-            })
+            woodMaterial
         );
+
 
     trunk.position.y =
         2 * scale;
 
     trunk.castShadow = true;
 
-    tree.add(trunk);
+    group.add(trunk);
 
 
     const leaves =
         new THREE.Mesh(
             new THREE.SphereGeometry(
-                2.2 * scale,
+                2.3 * scale,
                 16,
                 12
             ),
             new THREE.MeshStandardMaterial({
-                color: 0x315d32,
+                color: 0x315c35,
                 roughness: 1
             })
         );
+
 
     leaves.position.y =
         5 * scale;
 
     leaves.castShadow = true;
 
-    tree.add(leaves);
+    group.add(leaves);
 
 
-    tree.position.set(
+    group.position.set(
         x,
         0,
         z
     );
 
-    scene.add(tree);
+
+    scene.add(group);
+
 }
 
 
-for (let i = 0; i < 35; i++) {
+/* Forest around academy */
 
-    const angle =
-        Math.random() *
-        Math.PI *
-        2;
+const treePositions = [
 
-    const distance =
-        25 +
-        Math.random() * 80;
+    [-55, 15],
+    [-65, 35],
+    [-55, 55],
+    [-72, 70],
 
-    createTree(
-        Math.cos(angle) * distance,
-        Math.sin(angle) * distance,
-        0.7 +
-        Math.random() * 0.8
+    [55, 15],
+    [65, 35],
+    [55, 55],
+    [72, 70],
+
+    [-80, 5],
+    [-90, 25],
+    [-82, 50],
+
+    [80, 5],
+    [90, 25],
+    [82, 50],
+
+    [-45, 90],
+    [-20, 105],
+    [20, 105],
+    [45, 90]
+
+];
+
+
+treePositions.forEach(
+    function (position) {
+
+        createTree(
+            position[0],
+            position[1],
+            0.8 +
+            Math.random() * 0.7
+        );
+
+    }
+);
+
+
+/* =========================================================
+   BUILD ACADEMY
+   ========================================================= */
+
+createMainCastle();
+
+createFrontWalls();
+
+createMainGate();
+
+createCourtyard();
+
+createPath();
+
+
+/* =========================================================
+   QUEST MARKER
+   ========================================================= */
+
+const questGroup =
+    new THREE.Group();
+
+
+const marker =
+    new THREE.Mesh(
+        new THREE.TorusGeometry(
+            1.2,
+            0.12,
+            12,
+            32
+        ),
+        new THREE.MeshBasicMaterial({
+            color: 0xffd75a
+        })
     );
-}
+
+
+marker.rotation.x =
+    Math.PI / 2;
+
+marker.position.y =
+    0.4;
+
+questGroup.add(marker);
+
+
+const markerBeam =
+    new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            0.08,
+            0.08,
+            4,
+            10
+        ),
+        new THREE.MeshBasicMaterial({
+            color: 0xffd75a,
+            transparent: true,
+            opacity: 0.5
+        })
+    );
+
+
+markerBeam.position.y =
+    2;
+
+questGroup.add(markerBeam);
+
+
+questGroup.position.set(
+    0,
+    0,
+    -18
+);
+
+
+scene.add(questGroup);
 
 
 /* =========================================================
@@ -302,7 +1267,7 @@ let wand = null;
 
 
 /* =========================================================
-   DRACO LOADER
+   DRACO
    ========================================================= */
 
 const dracoLoader =
@@ -314,7 +1279,7 @@ dracoLoader.setDecoderPath(
 
 
 /* =========================================================
-   GLTF LOADER
+   GLTF
    ========================================================= */
 
 const loader =
@@ -326,7 +1291,7 @@ loader.setDRACOLoader(
 
 
 /* =========================================================
-   LOAD PLAYER
+   LOAD AREN
    ========================================================= */
 
 loader.load(
@@ -339,10 +1304,12 @@ loader.load(
             gltf.scene;
 
 
+        /* Spawn outside academy */
+
         player.position.set(
             0,
             0,
-            0
+            70
         );
 
 
@@ -352,10 +1319,6 @@ loader.load(
             1
         );
 
-
-        /* -----------------------------------------
-           FIND ALL BONES
-           ----------------------------------------- */
 
         player.traverse(
             function (object) {
@@ -391,29 +1354,18 @@ loader.load(
         );
 
 
-        /* -----------------------------------------
-           FIND RIGHT HAND
-           ----------------------------------------- */
-
         rightHand =
-            playerBones["RightHand"] ||
+            playerBones[
+                "RightHand"
+            ] ||
             null;
 
 
         scene.add(player);
 
 
-        /* -----------------------------------------
-           CREATE WAND
-           ----------------------------------------- */
-
         createWand();
 
-
-        /* -----------------------------------------
-           IMPORTANT:
-           START IN NORMAL STANDING POSE
-           ----------------------------------------- */
 
         resetAnimatedBones();
 
@@ -421,25 +1373,15 @@ loader.load(
 
 
         if (loading) {
-            loading.style.display = "none";
+
+            loading.style.display =
+                "none";
+
         }
 
 
         console.log(
-            "================================="
-        );
-
-        console.log(
-            "AREN VALEN LOADED"
-        );
-
-        console.log(
-            "Bones:",
-            Object.keys(playerBones)
-        );
-
-        console.log(
-            "================================="
+            "AREN VALEN READY"
         );
 
     },
@@ -458,8 +1400,9 @@ loader.load(
                 100;
 
             console.log(
-                "Player loading:",
-                percent.toFixed(0) + "%"
+                "Loading Aren:",
+                percent.toFixed(0) +
+                "%"
             );
 
         }
@@ -470,7 +1413,7 @@ loader.load(
     function (error) {
 
         console.error(
-            "PLAYER ERROR:",
+            "AREN LOAD ERROR:",
             error
         );
 
@@ -488,7 +1431,7 @@ loader.load(
 
 
 /* =========================================================
-   BONE FUNCTIONS
+   BONE HELPERS
    ========================================================= */
 
 function getBone(name) {
@@ -498,10 +1441,6 @@ function getBone(name) {
 
 }
 
-
-/* =========================================================
-   SET BONE OFFSET
-   ========================================================= */
 
 function setBoneOffset(
     name,
@@ -565,27 +1504,12 @@ function resetAnimatedBones() {
 
 
 /* =========================================================
-   NATURAL STANDING POSE
-   =========================================================
-
-   IMPORTANT:
-
-   Your GLB is originally a T-pose.
-
-   The arm direction of this particular
-   skeleton requires X-axis rotation.
-
-   LeftArm  = +90 degrees X
-   RightArm = +90 degrees X
-
-   This is the main correction.
+   STANDING POSE
    ========================================================= */
 
 function applyStandingPose() {
 
-    /* -----------------------------------------
-       SHOULDERS
-       ----------------------------------------- */
+    /* Shoulders */
 
     setBoneOffset(
         "LeftShoulder",
@@ -603,9 +1527,7 @@ function applyStandingPose() {
     );
 
 
-    /* -----------------------------------------
-       LEFT ARM
-       ----------------------------------------- */
+    /* Arms */
 
     setBoneOffset(
         "LeftArm",
@@ -615,10 +1537,6 @@ function applyStandingPose() {
     );
 
 
-    /* -----------------------------------------
-       RIGHT ARM
-       ----------------------------------------- */
-
     setBoneOffset(
         "RightArm",
         Math.PI / 2,
@@ -627,9 +1545,7 @@ function applyStandingPose() {
     );
 
 
-    /* -----------------------------------------
-       FOREARMS
-       ----------------------------------------- */
+    /* Forearms */
 
     setBoneOffset(
         "LeftForeArm",
@@ -647,9 +1563,7 @@ function applyStandingPose() {
     );
 
 
-    /* -----------------------------------------
-       EXTRA FOREARM BONES
-       ----------------------------------------- */
+    /* Extra bones */
 
     setBoneOffset(
         "LeftForeArm1",
@@ -675,24 +1589,13 @@ function applyStandingPose() {
 
 function createWand() {
 
-    if (!rightHand) {
-
-        console.warn(
-            "Right hand not found."
-        );
-
+    if (!rightHand)
         return;
-
-    }
 
 
     wand =
         new THREE.Group();
 
-
-    /* -----------------------------------------
-       WAND HANDLE
-       ----------------------------------------- */
 
     const handle =
         new THREE.Mesh(
@@ -702,10 +1605,7 @@ function createWand() {
                 0.75,
                 10
             ),
-            new THREE.MeshStandardMaterial({
-                color: 0x21150c,
-                roughness: 0.7
-            })
+            woodMaterial
         );
 
 
@@ -716,10 +1616,6 @@ function createWand() {
     wand.add(handle);
 
 
-    /* -----------------------------------------
-       WAND TIP
-       ----------------------------------------- */
-
     const tip =
         new THREE.Mesh(
             new THREE.CylinderGeometry(
@@ -728,15 +1624,13 @@ function createWand() {
                 0.5,
                 10
             ),
-            new THREE.MeshStandardMaterial({
-                color: 0x3b2415,
-                roughness: 0.7
-            })
+            woodMaterial
         );
 
 
     tip.position.x =
         0.6;
+
 
     tip.rotation.z =
         Math.PI / 2;
@@ -744,10 +1638,6 @@ function createWand() {
 
     wand.add(tip);
 
-
-    /* -----------------------------------------
-       ATTACH WAND TO HAND
-       ----------------------------------------- */
 
     rightHand.add(wand);
 
@@ -776,6 +1666,7 @@ const keys = {
 
 
 let joystickX = 0;
+
 let joystickY = 0;
 
 
@@ -866,13 +1757,10 @@ function updateJoystick(
 }
 
 
-/* =========================================================
-   RESET JOYSTICK
-   ========================================================= */
-
 function resetJoystick() {
 
     joystickX = 0;
+
     joystickY = 0;
 
     joystickActive = false;
@@ -887,10 +1775,6 @@ function resetJoystick() {
 
 }
 
-
-/* =========================================================
-   JOYSTICK TOUCH START
-   ========================================================= */
 
 if (joystickBase) {
 
@@ -962,7 +1846,7 @@ if (joystickBase) {
 
 
 /* =========================================================
-   KEYBOARD CONTROLS
+   KEYBOARD
    ========================================================= */
 
 window.addEventListener(
@@ -1092,11 +1976,8 @@ renderer.domElement.addEventListener(
 
         if (
             event.touches.length !== 1
-        ) {
-
+        )
             return;
-
-        }
 
 
         const touch =
@@ -1130,11 +2011,8 @@ renderer.domElement.addEventListener(
 
         if (
             event.touches.length !== 1
-        ) {
-
+        )
             return;
-
-        }
 
 
         const touch =
@@ -1192,84 +2070,6 @@ renderer.domElement.addEventListener(
 
 
 /* =========================================================
-   MOUSE CAMERA
-   ========================================================= */
-
-let mouseDown = false;
-
-
-window.addEventListener(
-    "mousedown",
-    function (event) {
-
-        mouseDown = true;
-
-        lastTouchX =
-            event.clientX;
-
-        lastTouchY =
-            event.clientY;
-
-    }
-);
-
-
-window.addEventListener(
-    "mousemove",
-    function (event) {
-
-        if (!mouseDown)
-            return;
-
-
-        const dx =
-            event.clientX -
-            lastTouchX;
-
-
-        const dy =
-            event.clientY -
-            lastTouchY;
-
-
-        lastTouchX =
-            event.clientX;
-
-
-        lastTouchY =
-            event.clientY;
-
-
-        cameraYaw -=
-            dx * 0.005;
-
-
-        cameraPitch -=
-            dy * 0.003;
-
-
-        cameraPitch =
-            THREE.MathUtils.clamp(
-                cameraPitch,
-                -0.15,
-                0.85
-            );
-
-    }
-);
-
-
-window.addEventListener(
-    "mouseup",
-    function () {
-
-        mouseDown = false;
-
-    }
-);
-
-
-/* =========================================================
    JUMP
    ========================================================= */
 
@@ -1282,10 +2082,6 @@ const gravity = -20;
 
 const jumpPower = 8;
 
-
-/* =========================================================
-   JUMP FUNCTION
-   ========================================================= */
 
 function jump() {
 
@@ -1306,10 +2102,6 @@ function jump() {
 }
 
 
-/* =========================================================
-   JUMP BUTTON
-   ========================================================= */
-
 if (jumpBtn) {
 
     jumpBtn.addEventListener(
@@ -1329,11 +2121,7 @@ if (jumpBtn) {
 
     jumpBtn.addEventListener(
         "click",
-        function () {
-
-            jump();
-
-        }
+        jump
     );
 
 }
@@ -1349,43 +2137,6 @@ let castTimer = 0;
 
 const castDuration = 0.65;
 
-
-/* =========================================================
-   SPELL BUTTON
-   ========================================================= */
-
-if (spellBtn) {
-
-    spellBtn.addEventListener(
-        "touchstart",
-        function (event) {
-
-            castSpell();
-
-            event.preventDefault();
-
-        },
-        {
-            passive: false
-        }
-    );
-
-
-    spellBtn.addEventListener(
-        "click",
-        function () {
-
-            castSpell();
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   CAST SPELL
-   ========================================================= */
 
 function castSpell() {
 
@@ -1407,6 +2158,31 @@ function castSpell() {
 }
 
 
+if (spellBtn) {
+
+    spellBtn.addEventListener(
+        "touchstart",
+        function (event) {
+
+            castSpell();
+
+            event.preventDefault();
+
+        },
+        {
+            passive: false
+        }
+    );
+
+
+    spellBtn.addEventListener(
+        "click",
+        castSpell
+    );
+
+}
+
+
 /* =========================================================
    SPELL PROJECTILE
    ========================================================= */
@@ -1417,24 +2193,16 @@ function createSpellProjectile() {
         return;
 
 
-    const geometry =
-        new THREE.SphereGeometry(
-            0.12,
-            12,
-            12
-        );
-
-
-    const material =
-        new THREE.MeshBasicMaterial({
-            color: 0x8fd8ff
-        });
-
-
     const projectile =
         new THREE.Mesh(
-            geometry,
-            material
+            new THREE.SphereGeometry(
+                0.14,
+                16,
+                16
+            ),
+            new THREE.MeshBasicMaterial({
+                color: 0x8fd8ff
+            })
         );
 
 
@@ -1468,17 +2236,17 @@ function createSpellProjectile() {
     );
 
 
-    scene.add(
-        projectile
-    );
+    scene.add(projectile);
 
 
     let life = 0;
 
 
-    function updateProjectile() {
+    function projectileLoop() {
 
-        const delta = 1 / 60;
+        const delta =
+            1 / 60;
+
 
         life += delta;
 
@@ -1492,13 +2260,15 @@ function createSpellProjectile() {
         );
 
 
-        if (life > 2) {
+        if (life >= 2) {
 
             scene.remove(
                 projectile
             );
 
+
             projectile.geometry.dispose();
+
             projectile.material.dispose();
 
             return;
@@ -1507,19 +2277,19 @@ function createSpellProjectile() {
 
 
         requestAnimationFrame(
-            updateProjectile
+            projectileLoop
         );
 
     }
 
 
-    updateProjectile();
+    projectileLoop();
 
 }
 
 
 /* =========================================================
-   WALK ANIMATION
+   WALKING
    ========================================================= */
 
 let walkTime = 0;
@@ -1556,9 +2326,7 @@ function applyWalkingAnimation(
         );
 
 
-    /* -----------------------------------------
-       LEGS
-       ----------------------------------------- */
+    /* Legs */
 
     setBoneOffset(
         "LeftUpLeg",
@@ -1579,10 +2347,6 @@ function applyWalkingAnimation(
         0
     );
 
-
-    /* -----------------------------------------
-       LOWER LEGS
-       ----------------------------------------- */
 
     setBoneOffset(
         "LeftLeg",
@@ -1610,39 +2374,7 @@ function applyWalkingAnimation(
     );
 
 
-    /* -----------------------------------------
-       FEET
-       ----------------------------------------- */
-
-    setBoneOffset(
-        "LeftFoot",
-        Math.max(
-            0,
-            swing
-        ) *
-        0.18 *
-        strength,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "RightFoot",
-        Math.max(
-            0,
-            opposite
-        ) *
-        0.18 *
-        strength,
-        0,
-        0
-    );
-
-
-    /* -----------------------------------------
-       LEFT ARM
-       ----------------------------------------- */
+    /* Arms */
 
     setBoneOffset(
         "LeftArm",
@@ -1655,10 +2387,6 @@ function applyWalkingAnimation(
     );
 
 
-    /* -----------------------------------------
-       RIGHT ARM
-       ----------------------------------------- */
-
     setBoneOffset(
         "RightArm",
         Math.PI / 2 +
@@ -1670,35 +2398,7 @@ function applyWalkingAnimation(
     );
 
 
-    /* -----------------------------------------
-       FOREARMS
-       ----------------------------------------- */
-
-    setBoneOffset(
-        "LeftForeArm",
-        0.12 +
-        opposite *
-        0.08 *
-        strength,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "RightForeArm",
-        0.12 +
-        swing *
-        0.04 *
-        strength,
-        0,
-        0
-    );
-
-
-    /* -----------------------------------------
-       BODY BOB
-       ----------------------------------------- */
+    /* Body */
 
     setBoneOffset(
         "Spine",
@@ -1713,14 +2413,13 @@ function applyWalkingAnimation(
 
 
 /* =========================================================
-   IDLE ANIMATION
+   IDLE
    ========================================================= */
 
 function applyIdleAnimation(
     elapsed
 ) {
 
-    /* Start from normal standing */
     applyStandingPose();
 
 
@@ -1736,8 +2435,6 @@ function applyIdleAnimation(
         );
 
 
-    /* Small breathing motion */
-
     setBoneOffset(
         "Spine",
         breathing *
@@ -1747,8 +2444,6 @@ function applyIdleAnimation(
         0.008
     );
 
-
-    /* Small natural head movement */
 
     setBoneOffset(
         "Head",
@@ -1762,15 +2457,13 @@ function applyIdleAnimation(
 
 
 /* =========================================================
-   JUMP ANIMATION
+   JUMP POSE
    ========================================================= */
 
 function applyJumpAnimation() {
 
     applyStandingPose();
 
-
-    /* Legs bend */
 
     setBoneOffset(
         "LeftUpLeg",
@@ -1803,41 +2496,17 @@ function applyJumpAnimation() {
         0
     );
 
-
-    /* Arms slightly raised */
-
-    setBoneOffset(
-        "LeftArm",
-        Math.PI / 2 -
-        0.15,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "RightArm",
-        Math.PI / 2 -
-        0.15,
-        0,
-        0
-    );
-
 }
 
 
 /* =========================================================
-   CASTING ANIMATION
+   CASTING POSE
    ========================================================= */
 
 function applyCastingAnimation() {
 
     applyStandingPose();
 
-
-    /* -----------------------------------------
-       WAND ARM RAISES
-       ----------------------------------------- */
 
     setBoneOffset(
         "RightArm",
@@ -1850,8 +2519,7 @@ function applyCastingAnimation() {
 
     setBoneOffset(
         "RightForeArm",
-        0.12 -
-        0.45,
+        -0.30,
         0,
         0
     );
@@ -1859,14 +2527,11 @@ function applyCastingAnimation() {
 
     setBoneOffset(
         "RightForeArm1",
-        0.04 -
-        0.15,
+        -0.10,
         0,
         0
     );
 
-
-    /* Body leans slightly */
 
     setBoneOffset(
         "Spine",
@@ -1890,10 +2555,6 @@ function updatePlayer(
     if (!player)
         return;
 
-
-    /* =====================================================
-       INPUT
-       ===================================================== */
 
     let inputX =
         joystickX;
@@ -1937,9 +2598,9 @@ function updatePlayer(
     }
 
 
-    /* =====================================================
+    /* -----------------------------------------
        CAMERA RELATIVE MOVEMENT
-       ===================================================== */
+       ----------------------------------------- */
 
     const forward =
         new THREE.Vector3(
@@ -1984,9 +2645,9 @@ function updatePlayer(
         0.001;
 
 
-    /* =====================================================
-       MOVE PLAYER
-       ===================================================== */
+    /* -----------------------------------------
+       MOVE
+       ----------------------------------------- */
 
     if (moving) {
 
@@ -2003,9 +2664,7 @@ function updatePlayer(
         );
 
 
-        /* -----------------------------------------
-           TURN PLAYER
-           ----------------------------------------- */
+        /* Turn player */
 
         const targetAngle =
             Math.atan2(
@@ -2036,9 +2695,9 @@ function updatePlayer(
     }
 
 
-    /* =====================================================
-       JUMP PHYSICS
-       ===================================================== */
+    /* -----------------------------------------
+       JUMP
+       ----------------------------------------- */
 
     if (isJumping) {
 
@@ -2067,9 +2726,9 @@ function updatePlayer(
     }
 
 
-    /* =====================================================
+    /* -----------------------------------------
        ANIMATION
-       ===================================================== */
+       ----------------------------------------- */
 
     resetAnimatedBones();
 
@@ -2104,9 +2763,9 @@ function updatePlayer(
     }
 
 
-    /* =====================================================
+    /* -----------------------------------------
        SPELL TIMER
-       ===================================================== */
+       ----------------------------------------- */
 
     if (isCasting) {
 
@@ -2140,16 +2799,16 @@ function updateCamera(
         return;
 
 
-    const distance = 7;
+    const distance = 8;
 
-    const height = 3.2;
+    const height = 3.5;
 
 
     const target =
         player.position.clone();
 
 
-    target.y += 1.4;
+    target.y += 1.5;
 
 
     const offset =
@@ -2166,7 +2825,7 @@ function updateCamera(
         );
 
 
-    const desiredPosition =
+    const desired =
         target.clone()
             .add(offset);
 
@@ -2180,7 +2839,7 @@ function updateCamera(
 
 
     camera.position.lerp(
-        desiredPosition,
+        desired,
         smoothing
     );
 
@@ -2188,6 +2847,34 @@ function updateCamera(
     camera.lookAt(
         target
     );
+
+}
+
+
+/* =========================================================
+   ANIMATE QUEST MARKER
+   ========================================================= */
+
+function updateQuestMarker(
+    elapsed
+) {
+
+    marker.rotation.z =
+        elapsed * 1.5;
+
+
+    marker.position.y =
+        0.4 +
+        Math.sin(
+            elapsed * 2
+        ) * 0.15;
+
+
+    markerBeam.material.opacity =
+        0.35 +
+        Math.sin(
+            elapsed * 3
+        ) * 0.15;
 
 }
 
@@ -2218,7 +2905,7 @@ window.addEventListener(
 
 
 /* =========================================================
-   CLOCK
+   GAME CLOCK
    ========================================================= */
 
 const clock =
@@ -2226,7 +2913,7 @@ const clock =
 
 
 /* =========================================================
-   GAME LOOP
+   MAIN LOOP
    ========================================================= */
 
 function animate() {
@@ -2258,6 +2945,11 @@ function animate() {
     );
 
 
+    updateQuestMarker(
+        elapsed
+    );
+
+
     renderer.render(
         scene,
         camera
@@ -2270,11 +2962,19 @@ animate();
 
 
 /* =========================================================
-   DEBUG
+   CONSOLE
    ========================================================= */
 
 console.log(
-    "Aetheria Academy 3D started"
+    "===================================="
+);
+
+console.log(
+    "AETHERIA ACADEMY"
+);
+
+console.log(
+    "STEP 1 - ACADEMY WORLD LOADED"
 );
 
 console.log(
@@ -2282,7 +2982,8 @@ console.log(
 );
 
 console.log(
-    "Drag screen = Camera"
+    "Screen drag = Camera"
+
 );
 
 console.log(
@@ -2291,4 +2992,8 @@ console.log(
 
 console.log(
     "Spell = Cast"
+);
+
+console.log(
+    "===================================="
 );
