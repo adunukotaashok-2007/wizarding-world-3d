@@ -1,50 +1,93 @@
 /* =========================================================
-   WIZARDING WORLD 3D
-   PLAYER + CAMERA + MOVEMENT + IDLE + WALK + JUMP + SPELL
-   Mobile / GitHub Pages
+   AETHERIA ACADEMY - 3D WIZARDING WORLD
+   AREN VALEN PLAYER SYSTEM
+
+   Features:
+   - Aren Valen GLB
+   - Natural standing pose
+   - Procedural walking
+   - Running-style movement
+   - Jump
+   - Wand
+   - Spell casting
+   - Third-person camera
+   - Touch camera rotation
+   - Mobile joystick
+   - Keyboard controls
+   - DRACO GLB support
    ========================================================= */
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 
+
 /* =========================================================
-   BASIC SETUP
+   GAME ELEMENTS
    ========================================================= */
 
 const game = document.getElementById("game");
 const loading = document.getElementById("loading");
 
+const joystickBase =
+    document.getElementById("joystickBase");
+
+const joystickStick =
+    document.getElementById("joystickStick");
+
+const jumpBtn =
+    document.getElementById("jumpBtn");
+
+const spellBtn =
+    document.getElementById("spellBtn");
+
+
+/* =========================================================
+   MOBILE SETTINGS
+   ========================================================= */
+
 document.body.style.margin = "0";
 document.body.style.overflow = "hidden";
 document.body.style.touchAction = "none";
-game.style.touchAction = "none";
+
+if (game) {
+    game.style.touchAction = "none";
+}
+
+
+/* =========================================================
+   SCENE
+   ========================================================= */
 
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color(0x87a8bd);
+scene.background =
+    new THREE.Color(0x87a8bd);
 
-scene.fog = new THREE.Fog(
-    0x87a8bd,
-    40,
-    220
-);
+scene.fog =
+    new THREE.Fog(
+        0x87a8bd,
+        40,
+        220
+    );
 
 
 /* =========================================================
    CAMERA
    ========================================================= */
 
-const camera = new THREE.PerspectiveCamera(
-    60,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    500
-);
+const camera =
+    new THREE.PerspectiveCamera(
+        60,
+        window.innerWidth /
+        window.innerHeight,
+        0.1,
+        500
+    );
 
 camera.position.set(
     0,
-    4,
+    3.5,
     8
 );
 
@@ -53,10 +96,11 @@ camera.position.set(
    RENDERER
    ========================================================= */
 
-const renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    alpha: false
-});
+const renderer =
+    new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: false
+    });
 
 renderer.setSize(
     window.innerWidth,
@@ -64,34 +108,46 @@ renderer.setSize(
 );
 
 renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio, 2)
+    Math.min(
+        window.devicePixelRatio,
+        2
+    )
 );
 
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.type =
+    THREE.PCFSoftShadowMap;
 
-game.appendChild(renderer.domElement);
+renderer.outputColorSpace =
+    THREE.SRGBColorSpace;
+
+if (game) {
+    game.appendChild(
+        renderer.domElement
+    );
+}
 
 
 /* =========================================================
    LIGHTING
    ========================================================= */
 
-const hemiLight = new THREE.HemisphereLight(
-    0xffffff,
-    0x405060,
-    2.2
-);
+const hemiLight =
+    new THREE.HemisphereLight(
+        0xffffff,
+        0x405060,
+        2.2
+    );
 
 scene.add(hemiLight);
 
 
-const sun = new THREE.DirectionalLight(
-    0xffffff,
-    3
-);
+const sun =
+    new THREE.DirectionalLight(
+        0xffffff,
+        3
+    );
 
 sun.position.set(
     30,
@@ -134,7 +190,8 @@ const ground =
         groundMaterial
     );
 
-ground.rotation.x = -Math.PI / 2;
+ground.rotation.x =
+    -Math.PI / 2;
 
 ground.receiveShadow = true;
 
@@ -142,12 +199,18 @@ scene.add(ground);
 
 
 /* =========================================================
-   SIMPLE WORLD
+   SIMPLE TREES
    ========================================================= */
 
-function createTree(x, z, scale = 1) {
+function createTree(
+    x,
+    z,
+    scale = 1
+) {
 
-    const group = new THREE.Group();
+    const tree =
+        new THREE.Group();
+
 
     const trunk =
         new THREE.Mesh(
@@ -163,10 +226,12 @@ function createTree(x, z, scale = 1) {
             })
         );
 
-    trunk.position.y = 2 * scale;
+    trunk.position.y =
+        2 * scale;
+
     trunk.castShadow = true;
 
-    group.add(trunk);
+    tree.add(trunk);
 
 
     const leaves =
@@ -182,34 +247,40 @@ function createTree(x, z, scale = 1) {
             })
         );
 
-    leaves.position.y = 5 * scale;
+    leaves.position.y =
+        5 * scale;
+
     leaves.castShadow = true;
 
-    group.add(leaves);
+    tree.add(leaves);
 
 
-    group.position.set(
+    tree.position.set(
         x,
         0,
         z
     );
 
-    scene.add(group);
+    scene.add(tree);
 }
 
 
 for (let i = 0; i < 35; i++) {
 
     const angle =
-        Math.random() * Math.PI * 2;
+        Math.random() *
+        Math.PI *
+        2;
 
     const distance =
-        25 + Math.random() * 80;
+        25 +
+        Math.random() * 80;
 
     createTree(
         Math.cos(angle) * distance,
         Math.sin(angle) * distance,
-        0.7 + Math.random() * 0.8
+        0.7 +
+        Math.random() * 0.8
     );
 }
 
@@ -222,16 +293,20 @@ let player = null;
 
 const playerBones = {};
 
-const originalRotations = new Map();
+const originalRotations =
+    new Map();
 
 let rightHand = null;
+
+let wand = null;
 
 
 /* =========================================================
    DRACO LOADER
    ========================================================= */
 
-const dracoLoader = new DRACOLoader();
+const dracoLoader =
+    new DRACOLoader();
 
 dracoLoader.setDecoderPath(
     "https://www.gstatic.com/draco/versioned/decoders/1.5.7/"
@@ -242,7 +317,8 @@ dracoLoader.setDecoderPath(
    GLTF LOADER
    ========================================================= */
 
-const loader = new GLTFLoader();
+const loader =
+    new GLTFLoader();
 
 loader.setDRACOLoader(
     dracoLoader
@@ -250,7 +326,7 @@ loader.setDRACOLoader(
 
 
 /* =========================================================
-   LOAD CHARACTER
+   LOAD PLAYER
    ========================================================= */
 
 loader.load(
@@ -259,13 +335,16 @@ loader.load(
 
     function (gltf) {
 
-        player = gltf.scene;
+        player =
+            gltf.scene;
+
 
         player.position.set(
             0,
             0,
             0
         );
+
 
         player.scale.set(
             1,
@@ -274,57 +353,84 @@ loader.load(
         );
 
 
-        player.traverse(function (object) {
+        /* -----------------------------------------
+           FIND ALL BONES
+           ----------------------------------------- */
 
-            if (object.isMesh) {
+        player.traverse(
+            function (object) {
 
-                object.castShadow = true;
-                object.receiveShadow = true;
+                if (object.isMesh) {
+
+                    object.castShadow = true;
+
+                    object.receiveShadow = true;
+
+                }
+
+
+                if (object.isBone) {
+
+                    playerBones[
+                        object.name
+                    ] = object;
+
+
+                    originalRotations.set(
+                        object.name,
+                        {
+                            x: object.rotation.x,
+                            y: object.rotation.y,
+                            z: object.rotation.z
+                        }
+                    );
+
+                }
 
             }
+        );
 
-            if (object.isBone) {
 
-                playerBones[object.name] = object;
-
-                originalRotations.set(
-                    object.name,
-                    {
-                        x: object.rotation.x,
-                        y: object.rotation.y,
-                        z: object.rotation.z
-                    }
-                );
-
-            }
-
-        });
-
+        /* -----------------------------------------
+           FIND RIGHT HAND
+           ----------------------------------------- */
 
         rightHand =
             playerBones["RightHand"] ||
-            playerBones["RightHandIndex1"];
+            null;
 
 
         scene.add(player);
 
 
+        /* -----------------------------------------
+           CREATE WAND
+           ----------------------------------------- */
+
         createWand();
 
 
-        /* IMPORTANT:
-           Immediately put character into normal pose.
-        */
+        /* -----------------------------------------
+           IMPORTANT:
+           START IN NORMAL STANDING POSE
+           ----------------------------------------- */
 
         resetAnimatedBones();
+
         applyStandingPose();
 
 
-        loading.style.display = "none";
+        if (loading) {
+            loading.style.display = "none";
+        }
 
 
         console.log(
-            "Aren Valen loaded successfully"
+            "================================="
+        );
+
+        console.log(
+            "AREN VALEN LOADED"
         );
 
         console.log(
@@ -332,17 +438,27 @@ loader.load(
             Object.keys(playerBones)
         );
 
+        console.log(
+            "================================="
+        );
+
     },
+
 
     function (xhr) {
 
-        if (xhr.total > 0) {
+        if (
+            xhr.total &&
+            xhr.total > 0
+        ) {
 
             const percent =
-                (xhr.loaded / xhr.total) * 100;
+                xhr.loaded /
+                xhr.total *
+                100;
 
             console.log(
-                "Loading player:",
+                "Player loading:",
                 percent.toFixed(0) + "%"
             );
 
@@ -350,15 +466,21 @@ loader.load(
 
     },
 
+
     function (error) {
 
         console.error(
-            "PLAYER LOAD ERROR:",
+            "PLAYER ERROR:",
             error
         );
 
-        loading.innerHTML =
-            "Player could not be loaded.";
+
+        if (loading) {
+
+            loading.innerHTML =
+                "Player failed to load.";
+
+        }
 
     }
 
@@ -366,15 +488,20 @@ loader.load(
 
 
 /* =========================================================
-   BONE HELPERS
+   BONE FUNCTIONS
    ========================================================= */
 
 function getBone(name) {
 
-    return playerBones[name] || null;
+    return playerBones[name] ||
+        null;
 
 }
 
+
+/* =========================================================
+   SET BONE OFFSET
+   ========================================================= */
 
 function setBoneOffset(
     name,
@@ -388,10 +515,12 @@ function setBoneOffset(
 
     if (!bone) return;
 
+
     const original =
         originalRotations.get(name);
 
     if (!original) return;
+
 
     bone.rotation.x =
         original.x + x;
@@ -406,18 +535,22 @@ function setBoneOffset(
 
 
 /* =========================================================
-   RESET ANIMATED BONES
+   RESET BONES
    ========================================================= */
 
 function resetAnimatedBones() {
 
     originalRotations.forEach(
-        (rotation, name) => {
+        function (
+            rotation,
+            name
+        ) {
 
             const bone =
                 getBone(name);
 
             if (!bone) return;
+
 
             bone.rotation.set(
                 rotation.x,
@@ -433,103 +566,102 @@ function resetAnimatedBones() {
 
 /* =========================================================
    NATURAL STANDING POSE
+   =========================================================
+
+   IMPORTANT:
+
+   Your GLB is originally a T-pose.
+
+   The arm direction of this particular
+   skeleton requires X-axis rotation.
+
+   LeftArm  = +90 degrees X
+   RightArm = +90 degrees X
+
+   This is the main correction.
    ========================================================= */
-
-/*
-   The original model is a T-pose.
-
-   These rotations bring the arms down beside
-   the body.
-
-   The exact skeleton was checked, so these
-   names match Aren's model.
-*/
 
 function applyStandingPose() {
 
-    /* -------------------------
+    /* -----------------------------------------
        SHOULDERS
-       ------------------------- */
+       ----------------------------------------- */
 
     setBoneOffset(
         "LeftShoulder",
         0,
         0,
-        0.10
+        0.05
     );
+
 
     setBoneOffset(
         "RightShoulder",
         0,
         0,
-        -0.10
+        -0.05
     );
 
 
-    /* -------------------------
+    /* -----------------------------------------
        LEFT ARM
-       ------------------------- */
+       ----------------------------------------- */
 
     setBoneOffset(
         "LeftArm",
+        Math.PI / 2,
         0,
-        0,
-        1.05
-    );
-
-    setBoneOffset(
-        "LeftForeArm",
-        0.15,
-        0,
-        0.35
+        0
     );
 
 
-    /* -------------------------
+    /* -----------------------------------------
        RIGHT ARM
-       ------------------------- */
+       ----------------------------------------- */
 
     setBoneOffset(
         "RightArm",
+        Math.PI / 2,
         0,
-        0,
-        -1.05
+        0
     );
+
+
+    /* -----------------------------------------
+       FOREARMS
+       ----------------------------------------- */
+
+    setBoneOffset(
+        "LeftForeArm",
+        0.12,
+        0,
+        0
+    );
+
 
     setBoneOffset(
         "RightForeArm",
-        0.15,
+        0.12,
         0,
-        -0.35
+        0
     );
 
 
-    /* -------------------------
-       ELBOW / EXTRA FOREARM
-       ------------------------- */
+    /* -----------------------------------------
+       EXTRA FOREARM BONES
+       ----------------------------------------- */
 
     setBoneOffset(
         "LeftForeArm1",
-        0.08,
+        0.04,
         0,
-        0.08
+        0
     );
+
 
     setBoneOffset(
         "RightForeArm1",
-        0.08,
-        0,
-        -0.08
-    );
-
-
-    /* -------------------------
-       BODY
-       ------------------------- */
-
-    setBoneOffset(
-        "Spine",
-        0,
+        0.04,
         0,
         0
     );
@@ -541,17 +673,26 @@ function applyStandingPose() {
    WAND
    ========================================================= */
 
-let wand = null;
-
-
 function createWand() {
 
-    if (!rightHand) return;
+    if (!rightHand) {
+
+        console.warn(
+            "Right hand not found."
+        );
+
+        return;
+
+    }
 
 
-    const group =
+    wand =
         new THREE.Group();
 
+
+    /* -----------------------------------------
+       WAND HANDLE
+       ----------------------------------------- */
 
     const handle =
         new THREE.Mesh(
@@ -572,8 +713,12 @@ function createWand() {
         Math.PI / 2;
 
 
-    group.add(handle);
+    wand.add(handle);
 
+
+    /* -----------------------------------------
+       WAND TIP
+       ----------------------------------------- */
 
     const tip =
         new THREE.Mesh(
@@ -596,10 +741,13 @@ function createWand() {
     tip.rotation.z =
         Math.PI / 2;
 
-    group.add(tip);
+
+    wand.add(tip);
 
 
-    wand = group;
+    /* -----------------------------------------
+       ATTACH WAND TO HAND
+       ----------------------------------------- */
 
     rightHand.add(wand);
 
@@ -631,27 +779,12 @@ let joystickX = 0;
 let joystickY = 0;
 
 
-let moveX = 0;
-let moveZ = 0;
-
-
 const moveSpeed = 5.5;
 
 
 /* =========================================================
    JOYSTICK
    ========================================================= */
-
-const joystickBase =
-    document.getElementById(
-        "joystickBase"
-    );
-
-const joystickStick =
-    document.getElementById(
-        "joystickStick"
-    );
-
 
 let joystickActive = false;
 
@@ -661,7 +794,9 @@ function updateJoystick(
     clientY
 ) {
 
-    if (!joystickBase) return;
+    if (!joystickBase)
+        return;
+
 
     const rect =
         joystickBase.getBoundingClientRect();
@@ -671,16 +806,20 @@ function updateJoystick(
         rect.left +
         rect.width / 2;
 
+
     const centerY =
         rect.top +
         rect.height / 2;
 
 
     let dx =
-        clientX - centerX;
+        clientX -
+        centerX;
+
 
     let dy =
-        clientY - centerY;
+        clientY -
+        centerY;
 
 
     const radius =
@@ -697,11 +836,13 @@ function updateJoystick(
     if (distance > radius) {
 
         dx =
-            (dx / distance) *
+            dx /
+            distance *
             radius;
 
         dy =
-            (dy / distance) *
+            dy /
+            distance *
             radius;
 
     }
@@ -709,6 +850,7 @@ function updateJoystick(
 
     joystickX =
         dx / radius;
+
 
     joystickY =
         dy / radius;
@@ -723,6 +865,10 @@ function updateJoystick(
 
 }
 
+
+/* =========================================================
+   RESET JOYSTICK
+   ========================================================= */
 
 function resetJoystick() {
 
@@ -742,6 +888,10 @@ function resetJoystick() {
 }
 
 
+/* =========================================================
+   JOYSTICK TOUCH START
+   ========================================================= */
+
 if (joystickBase) {
 
     joystickBase.addEventListener(
@@ -750,18 +900,23 @@ if (joystickBase) {
 
             joystickActive = true;
 
+
             const touch =
                 event.touches[0];
+
 
             updateJoystick(
                 touch.clientX,
                 touch.clientY
             );
 
+
             event.preventDefault();
 
         },
-        { passive: false }
+        {
+            passive: false
+        }
     );
 
 
@@ -769,20 +924,26 @@ if (joystickBase) {
         "touchmove",
         function (event) {
 
-            if (!joystickActive) return;
+            if (!joystickActive)
+                return;
+
 
             const touch =
                 event.touches[0];
+
 
             updateJoystick(
                 touch.clientX,
                 touch.clientY
             );
 
+
             event.preventDefault();
 
         },
-        { passive: false }
+        {
+            passive: false
+        }
     );
 
 
@@ -791,11 +952,17 @@ if (joystickBase) {
         resetJoystick
     );
 
+
+    joystickBase.addEventListener(
+        "touchcancel",
+        resetJoystick
+    );
+
 }
 
 
 /* =========================================================
-   KEYBOARD
+   KEYBOARD CONTROLS
    ========================================================= */
 
 window.addEventListener(
@@ -804,6 +971,7 @@ window.addEventListener(
 
         if (
             event.key === "w" ||
+            event.key === "W" ||
             event.key === "ArrowUp"
         ) {
 
@@ -811,8 +979,10 @@ window.addEventListener(
 
         }
 
+
         if (
             event.key === "s" ||
+            event.key === "S" ||
             event.key === "ArrowDown"
         ) {
 
@@ -820,8 +990,10 @@ window.addEventListener(
 
         }
 
+
         if (
             event.key === "a" ||
+            event.key === "A" ||
             event.key === "ArrowLeft"
         ) {
 
@@ -829,8 +1001,10 @@ window.addEventListener(
 
         }
 
+
         if (
             event.key === "d" ||
+            event.key === "D" ||
             event.key === "ArrowRight"
         ) {
 
@@ -848,6 +1022,7 @@ window.addEventListener(
 
         if (
             event.key === "w" ||
+            event.key === "W" ||
             event.key === "ArrowUp"
         ) {
 
@@ -855,8 +1030,10 @@ window.addEventListener(
 
         }
 
+
         if (
             event.key === "s" ||
+            event.key === "S" ||
             event.key === "ArrowDown"
         ) {
 
@@ -864,8 +1041,10 @@ window.addEventListener(
 
         }
 
+
         if (
             event.key === "a" ||
+            event.key === "A" ||
             event.key === "ArrowLeft"
         ) {
 
@@ -873,8 +1052,10 @@ window.addEventListener(
 
         }
 
+
         if (
             event.key === "d" ||
+            event.key === "D" ||
             event.key === "ArrowRight"
         ) {
 
@@ -887,43 +1068,55 @@ window.addEventListener(
 
 
 /* =========================================================
-   CAMERA ROTATION
+   CAMERA
    ========================================================= */
 
 let cameraYaw = 0;
+
 let cameraPitch = 0.25;
 
 let cameraTouching = false;
 
 let lastTouchX = 0;
+
 let lastTouchY = 0;
 
 
-/*
-   Only rotate camera when touching outside
-   the joystick/buttons.
-*/
+/* =========================================================
+   TOUCH CAMERA
+   ========================================================= */
 
 renderer.domElement.addEventListener(
     "touchstart",
     function (event) {
 
-        if (event.touches.length !== 1)
+        if (
+            event.touches.length !== 1
+        ) {
+
             return;
+
+        }
+
 
         const touch =
             event.touches[0];
 
+
         cameraTouching = true;
+
 
         lastTouchX =
             touch.clientX;
+
 
         lastTouchY =
             touch.clientY;
 
     },
-    { passive: true }
+    {
+        passive: true
+    }
 );
 
 
@@ -934,8 +1127,15 @@ renderer.domElement.addEventListener(
         if (!cameraTouching)
             return;
 
-        if (event.touches.length !== 1)
+
+        if (
+            event.touches.length !== 1
+        ) {
+
             return;
+
+        }
+
 
         const touch =
             event.touches[0];
@@ -945,6 +1145,7 @@ renderer.domElement.addEventListener(
             touch.clientX -
             lastTouchX;
 
+
         const dy =
             touch.clientY -
             lastTouchY;
@@ -953,12 +1154,14 @@ renderer.domElement.addEventListener(
         lastTouchX =
             touch.clientX;
 
+
         lastTouchY =
             touch.clientY;
 
 
         cameraYaw -=
             dx * 0.006;
+
 
         cameraPitch -=
             dy * 0.004;
@@ -972,7 +1175,9 @@ renderer.domElement.addEventListener(
             );
 
     },
-    { passive: true }
+    {
+        passive: true
+    }
 );
 
 
@@ -991,6 +1196,7 @@ renderer.domElement.addEventListener(
    ========================================================= */
 
 let mouseDown = false;
+
 
 window.addEventListener(
     "mousedown",
@@ -1015,9 +1221,11 @@ window.addEventListener(
         if (!mouseDown)
             return;
 
+
         const dx =
             event.clientX -
             lastTouchX;
+
 
         const dy =
             event.clientY -
@@ -1027,12 +1235,14 @@ window.addEventListener(
         lastTouchX =
             event.clientX;
 
+
         lastTouchY =
             event.clientY;
 
 
         cameraYaw -=
             dx * 0.005;
+
 
         cameraPitch -=
             dy * 0.003;
@@ -1067,30 +1277,38 @@ let velocityY = 0;
 
 let isJumping = false;
 
+
 const gravity = -20;
 
 const jumpPower = 8;
 
 
-const jumpBtn =
-    document.getElementById(
-        "jumpBtn"
-    );
-
+/* =========================================================
+   JUMP FUNCTION
+   ========================================================= */
 
 function jump() {
 
-    if (!player) return;
+    if (!player)
+        return;
 
-    if (isJumping) return;
+
+    if (isJumping)
+        return;
+
 
     velocityY =
         jumpPower;
+
 
     isJumping = true;
 
 }
 
+
+/* =========================================================
+   JUMP BUTTON
+   ========================================================= */
 
 if (jumpBtn) {
 
@@ -1103,19 +1321,26 @@ if (jumpBtn) {
             event.preventDefault();
 
         },
-        { passive: false }
+        {
+            passive: false
+        }
     );
+
 
     jumpBtn.addEventListener(
         "click",
-        jump
+        function () {
+
+            jump();
+
+        }
     );
 
 }
 
 
 /* =========================================================
-   SPELL SYSTEM
+   SPELL
    ========================================================= */
 
 let isCasting = false;
@@ -1125,27 +1350,9 @@ let castTimer = 0;
 const castDuration = 0.65;
 
 
-const spellBtn =
-    document.getElementById(
-        "spellBtn"
-    );
-
-
-function castSpell() {
-
-    if (!player) return;
-
-    if (isCasting) return;
-
-    isCasting = true;
-
-    castTimer = 0;
-
-
-    createSpellProjectile();
-
-}
-
+/* =========================================================
+   SPELL BUTTON
+   ========================================================= */
 
 if (spellBtn) {
 
@@ -1158,13 +1365,44 @@ if (spellBtn) {
             event.preventDefault();
 
         },
-        { passive: false }
+        {
+            passive: false
+        }
     );
+
 
     spellBtn.addEventListener(
         "click",
-        castSpell
+        function () {
+
+            castSpell();
+
+        }
     );
+
+}
+
+
+/* =========================================================
+   CAST SPELL
+   ========================================================= */
+
+function castSpell() {
+
+    if (!player)
+        return;
+
+
+    if (isCasting)
+        return;
+
+
+    isCasting = true;
+
+    castTimer = 0;
+
+
+    createSpellProjectile();
 
 }
 
@@ -1175,7 +1413,8 @@ if (spellBtn) {
 
 function createSpellProjectile() {
 
-    if (!player) return;
+    if (!player)
+        return;
 
 
     const geometry =
@@ -1237,15 +1476,16 @@ function createSpellProjectile() {
     let life = 0;
 
 
-    function animateProjectile(
-        delta
-    ) {
+    function updateProjectile() {
+
+        const delta = 1 / 60;
 
         life += delta;
 
 
         projectile.position.add(
-            direction.clone()
+            direction
+                .clone()
                 .multiplyScalar(
                     22 * delta
                 )
@@ -1258,29 +1498,28 @@ function createSpellProjectile() {
                 projectile
             );
 
+            projectile.geometry.dispose();
+            projectile.material.dispose();
+
             return;
 
         }
 
 
         requestAnimationFrame(
-            () => animateProjectile(
-                1 / 60
-            )
+            updateProjectile
         );
 
     }
 
 
-    animateProjectile(
-        1 / 60
-    );
+    updateProjectile();
 
 }
 
 
 /* =========================================================
-   WALKING ANIMATION
+   WALK ANIMATION
    ========================================================= */
 
 let walkTime = 0;
@@ -1288,155 +1527,184 @@ let walkTime = 0;
 
 function applyWalkingAnimation(
     delta,
-    speedAmount
+    amount
 ) {
 
     walkTime +=
         delta *
-        (7 + speedAmount * 2);
+        8;
 
 
     const swing =
-        Math.sin(walkTime);
-
-
-    const swingOpposite =
         Math.sin(
-            walkTime + Math.PI
+            walkTime
         );
 
 
-    const amount =
+    const opposite =
+        Math.sin(
+            walkTime +
+            Math.PI
+        );
+
+
+    const strength =
         THREE.MathUtils.clamp(
-            speedAmount,
+            amount,
             0,
             1
         );
 
 
-    /* -------------------------
+    /* -----------------------------------------
        LEGS
-       ------------------------- */
+       ----------------------------------------- */
 
     setBoneOffset(
         "LeftUpLeg",
-        swing * 0.55 * amount,
+        swing *
+        0.55 *
+        strength,
         0,
         0
     );
+
 
     setBoneOffset(
         "RightUpLeg",
-        swingOpposite * 0.55 * amount,
+        opposite *
+        0.55 *
+        strength,
         0,
         0
     );
 
+
+    /* -----------------------------------------
+       LOWER LEGS
+       ----------------------------------------- */
 
     setBoneOffset(
         "LeftLeg",
         Math.max(
             0,
             -swing
-        ) * 0.45 * amount,
+        ) *
+        0.45 *
+        strength,
         0,
         0
     );
+
 
     setBoneOffset(
         "RightLeg",
         Math.max(
             0,
-            -swingOpposite
-        ) * 0.45 * amount,
+            -opposite
+        ) *
+        0.45 *
+        strength,
         0,
         0
     );
 
+
+    /* -----------------------------------------
+       FEET
+       ----------------------------------------- */
 
     setBoneOffset(
         "LeftFoot",
         Math.max(
             0,
             swing
-        ) * 0.20 * amount,
+        ) *
+        0.18 *
+        strength,
         0,
         0
     );
+
 
     setBoneOffset(
         "RightFoot",
         Math.max(
             0,
-            swingOpposite
-        ) * 0.20 * amount,
+            opposite
+        ) *
+        0.18 *
+        strength,
         0,
         0
     );
 
 
-    /* -------------------------
-       ARMS
-       ------------------------- */
+    /* -----------------------------------------
+       LEFT ARM
+       ----------------------------------------- */
 
     setBoneOffset(
         "LeftArm",
+        Math.PI / 2 +
+        opposite *
+        0.18 *
+        strength,
         0,
-        0,
-        1.05 +
-        swingOpposite *
-        0.25 *
-        amount
+        0
     );
 
 
-    /*
-       Right arm stays closer to the
-       body because it holds the wand.
-    */
+    /* -----------------------------------------
+       RIGHT ARM
+       ----------------------------------------- */
 
     setBoneOffset(
         "RightArm",
-        0,
-        0,
-        -1.05 +
+        Math.PI / 2 +
         swing *
-        0.12 *
-        amount
+        0.08 *
+        strength,
+        0,
+        0
     );
 
 
+    /* -----------------------------------------
+       FOREARMS
+       ----------------------------------------- */
+
     setBoneOffset(
         "LeftForeArm",
-        0.15,
+        0.12 +
+        opposite *
+        0.08 *
+        strength,
         0,
-        0.35 +
-        swingOpposite *
-        0.12 *
-        amount
+        0
     );
 
 
     setBoneOffset(
         "RightForeArm",
-        0.15,
-        0,
-        -0.35 +
+        0.12 +
         swing *
-        0.08 *
-        amount
+        0.04 *
+        strength,
+        0,
+        0
     );
 
 
-    /* -------------------------
+    /* -----------------------------------------
        BODY BOB
-       ------------------------- */
+       ----------------------------------------- */
 
     setBoneOffset(
         "Spine",
         Math.abs(swing) *
         0.025 *
-        amount,
+        strength,
         0,
         0
     );
@@ -1452,6 +1720,7 @@ function applyIdleAnimation(
     elapsed
 ) {
 
+    /* Start from normal standing */
     applyStandingPose();
 
 
@@ -1467,18 +1736,25 @@ function applyIdleAnimation(
         );
 
 
+    /* Small breathing motion */
+
     setBoneOffset(
         "Spine",
-        breathing * 0.008,
+        breathing *
+        0.008,
         0,
-        gentle * 0.008
+        gentle *
+        0.008
     );
 
+
+    /* Small natural head movement */
 
     setBoneOffset(
         "Head",
         0,
-        gentle * 0.015,
+        gentle *
+        0.015,
         0
     );
 
@@ -1486,7 +1762,7 @@ function applyIdleAnimation(
 
 
 /* =========================================================
-   JUMP POSE
+   JUMP ANIMATION
    ========================================================= */
 
 function applyJumpAnimation() {
@@ -1494,12 +1770,15 @@ function applyJumpAnimation() {
     applyStandingPose();
 
 
+    /* Legs bend */
+
     setBoneOffset(
         "LeftUpLeg",
         -0.20,
         0,
         0
     );
+
 
     setBoneOffset(
         "RightUpLeg",
@@ -1516,6 +1795,7 @@ function applyJumpAnimation() {
         0
     );
 
+
     setBoneOffset(
         "RightLeg",
         0.45,
@@ -1524,25 +1804,30 @@ function applyJumpAnimation() {
     );
 
 
+    /* Arms slightly raised */
+
     setBoneOffset(
         "LeftArm",
-        -0.20,
+        Math.PI / 2 -
+        0.15,
         0,
-        1.15
+        0
     );
+
 
     setBoneOffset(
         "RightArm",
-        -0.20,
+        Math.PI / 2 -
+        0.15,
         0,
-        -1.15
+        0
     );
 
 }
 
 
 /* =========================================================
-   CASTING POSE
+   CASTING ANIMATION
    ========================================================= */
 
 function applyCastingAnimation() {
@@ -1550,33 +1835,38 @@ function applyCastingAnimation() {
     applyStandingPose();
 
 
-    /*
-       Raise wand arm forward.
-    */
+    /* -----------------------------------------
+       WAND ARM RAISES
+       ----------------------------------------- */
 
     setBoneOffset(
         "RightArm",
-        -0.45,
+        Math.PI / 2 -
+        0.75,
         0,
-        -1.20
+        0
     );
 
 
     setBoneOffset(
         "RightForeArm",
-        -0.35,
+        0.12 -
+        0.45,
         0,
-        -0.40
+        0
     );
 
 
     setBoneOffset(
         "RightForeArm1",
-        -0.15,
+        0.04 -
+        0.15,
         0,
-        -0.10
+        0
     );
 
+
+    /* Body leans slightly */
 
     setBoneOffset(
         "Spine",
@@ -1589,7 +1879,7 @@ function applyCastingAnimation() {
 
 
 /* =========================================================
-   PLAYER MOVEMENT
+   PLAYER UPDATE
    ========================================================= */
 
 function updatePlayer(
@@ -1601,12 +1891,13 @@ function updatePlayer(
         return;
 
 
-    /* -------------------------
+    /* =====================================================
        INPUT
-       ------------------------- */
+       ===================================================== */
 
     let inputX =
         joystickX;
+
 
     let inputZ =
         joystickY;
@@ -1615,11 +1906,14 @@ function updatePlayer(
     if (keys.left)
         inputX -= 1;
 
+
     if (keys.right)
         inputX += 1;
 
+
     if (keys.forward)
         inputZ -= 1;
+
 
     if (keys.backward)
         inputZ += 1;
@@ -1643,9 +1937,9 @@ function updatePlayer(
     }
 
 
-    /* -------------------------
+    /* =====================================================
        CAMERA RELATIVE MOVEMENT
-       ------------------------- */
+       ===================================================== */
 
     const forward =
         new THREE.Vector3(
@@ -1668,41 +1962,50 @@ function updatePlayer(
 
 
     movement.add(
-        forward.clone()
-            .multiplyScalar(-inputZ)
+        forward
+            .clone()
+            .multiplyScalar(
+                -inputZ
+            )
     );
 
 
     movement.add(
-        right.clone()
-            .multiplyScalar(inputX)
+        right
+            .clone()
+            .multiplyScalar(
+                inputX
+            )
     );
 
 
     const moving =
-        movement.lengthSq() > 0.001;
+        movement.lengthSq() >
+        0.001;
 
+
+    /* =====================================================
+       MOVE PLAYER
+       ===================================================== */
 
     if (moving) {
 
         movement.normalize();
 
 
-        const speed =
-            moveSpeed;
-
-
         player.position.add(
-            movement.clone()
+            movement
+                .clone()
                 .multiplyScalar(
-                    speed * delta
+                    moveSpeed *
+                    delta
                 )
         );
 
 
-        /* -------------------------
+        /* -----------------------------------------
            TURN PLAYER
-           ------------------------- */
+           ----------------------------------------- */
 
         const targetAngle =
             Math.atan2(
@@ -1711,20 +2014,20 @@ function updatePlayer(
             );
 
 
-        let angleDifference =
+        let difference =
             targetAngle -
             player.rotation.y;
 
 
-        angleDifference =
+        difference =
             Math.atan2(
-                Math.sin(angleDifference),
-                Math.cos(angleDifference)
+                Math.sin(difference),
+                Math.cos(difference)
             );
 
 
         player.rotation.y +=
-            angleDifference *
+            difference *
             Math.min(
                 1,
                 delta * 10
@@ -1733,9 +2036,9 @@ function updatePlayer(
     }
 
 
-    /* -------------------------
+    /* =====================================================
        JUMP PHYSICS
-       ------------------------- */
+       ===================================================== */
 
     if (isJumping) {
 
@@ -1764,9 +2067,9 @@ function updatePlayer(
     }
 
 
-    /* -------------------------
+    /* =====================================================
        ANIMATION
-       ------------------------- */
+       ===================================================== */
 
     resetAnimatedBones();
 
@@ -1785,12 +2088,10 @@ function updatePlayer(
 
         applyStandingPose();
 
+
         applyWalkingAnimation(
             delta,
-            Math.min(
-                inputLength,
-                1
-            )
+            inputLength
         );
 
     }
@@ -1803,13 +2104,14 @@ function updatePlayer(
     }
 
 
-    /* -------------------------
-       CAST TIMER
-       ------------------------- */
+    /* =====================================================
+       SPELL TIMER
+       ===================================================== */
 
     if (isCasting) {
 
-        castTimer += delta;
+        castTimer +=
+            delta;
 
 
         if (
@@ -1853,11 +2155,14 @@ function updateCamera(
     const offset =
         new THREE.Vector3(
             Math.sin(cameraYaw) *
-                distance,
+            distance,
+
             height +
-                Math.sin(cameraPitch) * 3,
+            Math.sin(cameraPitch) *
+            3,
+
             Math.cos(cameraYaw) *
-                distance
+            distance
         );
 
 
@@ -1866,13 +2171,17 @@ function updateCamera(
             .add(offset);
 
 
-    camera.position.lerp(
-        desiredPosition,
+    const smoothing =
         1 -
         Math.pow(
             0.001,
             delta
-        )
+        );
+
+
+    camera.position.lerp(
+        desiredPosition,
+        smoothing
     );
 
 
@@ -1895,7 +2204,9 @@ window.addEventListener(
             window.innerWidth /
             window.innerHeight;
 
+
         camera.updateProjectionMatrix();
+
 
         renderer.setSize(
             window.innerWidth,
@@ -1915,7 +2226,7 @@ const clock =
 
 
 /* =========================================================
-   MAIN LOOP
+   GAME LOOP
    ========================================================= */
 
 function animate() {
@@ -1963,21 +2274,21 @@ animate();
    ========================================================= */
 
 console.log(
-    "Wizarding World 3D started"
+    "Aetheria Academy 3D started"
 );
 
 console.log(
-    "Controls: joystick = move"
+    "Joystick = Move"
 );
 
 console.log(
-    "Drag screen = camera"
+    "Drag screen = Camera"
 );
 
 console.log(
-    "Jump = jump"
+    "Jump = Jump"
 );
 
 console.log(
-    "Spell = cast"
+    "Spell = Cast"
 );
