@@ -3393,5 +3393,59 @@ function animate() {
     );
 }
 
+/* =========================================================
+   MOBILE LANDSCAPE REQUEST
+========================================================= */
 
+const landscapeButton =
+    document.getElementById("landscapeButton");
+
+if (landscapeButton) {
+
+    landscapeButton.addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                if (
+                    document.documentElement.requestFullscreen
+                ) {
+
+                    await document.documentElement
+                        .requestFullscreen();
+                }
+
+            } catch (error) {
+
+                console.log(
+                    "Fullscreen unavailable",
+                    error
+                );
+            }
+
+
+            try {
+
+                if (
+                    screen.orientation &&
+                    screen.orientation.lock
+                ) {
+
+                    await screen.orientation.lock(
+                        "landscape"
+                    );
+                }
+
+            } catch (error) {
+
+                console.log(
+                    "Landscape lock unavailable",
+                    error
+                );
+            }
+
+        }
+    );
+}
 animate();
