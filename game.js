@@ -1,11 +1,14 @@
 /* =========================================================
    WIZARDING WORLD 3D
-   REAL PLAYER GLB VERSION
-   Mobile / Tablet
+   AREN VALEN - REAL 3D PLAYER
+   MOBILE OPTIMIZED
    ========================================================= */
 
-import * as THREE from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+
+import { GLTFLoader } from
+"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+
 
 /* =========================================================
    BASIC SETUP
@@ -13,45 +16,57 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color(0x87b8dc);
+scene.background = new THREE.Color(0x87a6b5);
 
-scene.fog = new THREE.FogExp2(
-  0x87b8dc,
-  0.0035
+scene.fog = new THREE.Fog(
+    0x87a6b5,
+    45,
+    180
 );
+
 
 const camera = new THREE.PerspectiveCamera(
-  65,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  500
+    60,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    500
 );
 
-camera.position.set(0, 5, 10);
 
 const renderer = new THREE.WebGLRenderer({
-  antialias: false,
-  powerPreference: "high-performance"
+    antialias: false,
+    powerPreference: "high-performance"
 });
 
 renderer.setSize(
-  window.innerWidth,
-  window.innerHeight
+    window.innerWidth,
+    window.innerHeight
 );
 
 renderer.setPixelRatio(
-  Math.min(window.devicePixelRatio, 1.5)
+    Math.min(window.devicePixelRatio, 1.5)
 );
 
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.type =
+    THREE.PCFSoftShadowMap;
 
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.outputColorSpace =
+    THREE.SRGBColorSpace;
+
+renderer.toneMapping =
+    THREE.ACESFilmicToneMapping;
+
 renderer.toneMappingExposure = 1.05;
 
-document.body.appendChild(renderer.domElement);
+
+const game = document.getElementById("game");
+
+if (game) {
+    game.innerHTML = "";
+    game.appendChild(renderer.domElement);
+}
 
 
 /* =========================================================
@@ -59,23 +74,23 @@ document.body.appendChild(renderer.domElement);
    ========================================================= */
 
 const hemiLight = new THREE.HemisphereLight(
-  0xbfdfff,
-  0x405040,
-  2.0
+    0xcfe8ff,
+    0x304020,
+    2.0
 );
 
 scene.add(hemiLight);
 
 
 const sun = new THREE.DirectionalLight(
-  0xffffff,
-  3.0
+    0xffffff,
+    3.0
 );
 
 sun.position.set(
-  50,
-  80,
-  30
+    35,
+    60,
+    25
 );
 
 sun.castShadow = true;
@@ -83,48 +98,12 @@ sun.castShadow = true;
 sun.shadow.mapSize.width = 1024;
 sun.shadow.mapSize.height = 1024;
 
-sun.shadow.camera.near = 1;
-sun.shadow.camera.far = 200;
-
-sun.shadow.camera.left = -70;
-sun.shadow.camera.right = 70;
-sun.shadow.camera.top = 70;
-sun.shadow.camera.bottom = -70;
+sun.shadow.camera.left = -80;
+sun.shadow.camera.right = 80;
+sun.shadow.camera.top = 80;
+sun.shadow.camera.bottom = -80;
 
 scene.add(sun);
-
-
-/* =========================================================
-   GAME VARIABLES
-   ========================================================= */
-
-let player = null;
-let playerMixer = null;
-let playerAnimations = [];
-
-let currentAction = null;
-
-let hp = 100;
-let magic = 100;
-let xp = 0;
-
-let velocityY = 0;
-let onGround = true;
-
-let spellCooldown = 0;
-
-const clock = new THREE.Clock();
-
-
-/* =========================================================
-   PLAYER POSITION
-   ========================================================= */
-
-const playerPosition = new THREE.Vector3(
-  0,
-  0,
-  8
-);
 
 
 /* =========================================================
@@ -133,149 +112,81 @@ const playerPosition = new THREE.Vector3(
 
 const textureLoader = new THREE.TextureLoader();
 
-const groundTexture =
-  textureLoader.load("./assets/ground/diffuse.jpg");
+const groundDiffuse =
+    textureLoader.load(
+        "./assets/ground/diffuse.jpg"
+    );
 
 const groundNormal =
-  textureLoader.load("./assets/ground/normal.jpg");
+    textureLoader.load(
+        "./assets/ground/normal.jpg"
+    );
 
 const groundRough =
-  textureLoader.load("./assets/ground/rough.jpg");
+    textureLoader.load(
+        "./assets/ground/rough.jpg"
+    );
 
-groundTexture.colorSpace =
-  THREE.SRGBColorSpace;
 
-groundTexture.wrapS =
-  THREE.RepeatWrapping;
+groundDiffuse.wrapS =
+    THREE.RepeatWrapping;
 
-groundTexture.wrapT =
-  THREE.RepeatWrapping;
+groundDiffuse.wrapT =
+    THREE.RepeatWrapping;
 
 groundNormal.wrapS =
-  THREE.RepeatWrapping;
+    THREE.RepeatWrapping;
 
 groundNormal.wrapT =
-  THREE.RepeatWrapping;
+    THREE.RepeatWrapping;
 
 groundRough.wrapS =
-  THREE.RepeatWrapping;
+    THREE.RepeatWrapping;
 
 groundRough.wrapT =
-  THREE.RepeatWrapping;
+    THREE.RepeatWrapping;
 
-groundTexture.repeat.set(35, 35);
-groundNormal.repeat.set(35, 35);
-groundRough.repeat.set(35, 35);
+
+groundDiffuse.repeat.set(30, 30);
+groundNormal.repeat.set(30, 30);
+groundRough.repeat.set(30, 30);
+
+
+const groundGeometry =
+    new THREE.PlaneGeometry(
+        300,
+        300
+    );
 
 
 const groundMaterial =
-  new THREE.MeshStandardMaterial({
+    new THREE.MeshStandardMaterial({
 
-    map: groundTexture,
+        map: groundDiffuse,
 
-    normalMap: groundNormal,
+        normalMap: groundNormal,
 
-    roughnessMap: groundRough,
+        roughnessMap: groundRough,
 
-    roughness: 1,
+        roughness: 1.0,
 
-    metalness: 0
+        metalness: 0.0
+    });
 
-  });
+
+const ground =
+    new THREE.Mesh(
+        groundGeometry,
+        groundMaterial
+    );
 
 
-const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(
-    220,
-    220,
-    1,
-    1
-  ),
-  groundMaterial
-);
-
-ground.rotation.x = -Math.PI / 2;
-
-ground.position.y = 0;
+ground.rotation.x =
+    -Math.PI / 2;
 
 ground.receiveShadow = true;
 
 scene.add(ground);
-
-
-/* =========================================================
-   CASTLE MATERIAL
-   ========================================================= */
-
-const castleDiffuse =
-  textureLoader.load(
-    "./assets/castle/diffuse.jpg"
-  );
-
-const castleNormal =
-  textureLoader.load(
-    "./assets/castle/normal.jpg"
-  );
-
-const castleRough =
-  textureLoader.load(
-    "./assets/castle/rough.jpg"
-  );
-
-const castleAO =
-  textureLoader.load(
-    "./assets/castle/ao.jpg"
-  );
-
-castleDiffuse.colorSpace =
-  THREE.SRGBColorSpace;
-
-castleDiffuse.wrapS =
-  THREE.RepeatWrapping;
-
-castleDiffuse.wrapT =
-  THREE.RepeatWrapping;
-
-castleNormal.wrapS =
-  THREE.RepeatWrapping;
-
-castleNormal.wrapT =
-  THREE.RepeatWrapping;
-
-castleRough.wrapS =
-  THREE.RepeatWrapping;
-
-castleRough.wrapT =
-  THREE.RepeatWrapping;
-
-castleAO.wrapS =
-  THREE.RepeatWrapping;
-
-castleAO.wrapT =
-  THREE.RepeatWrapping;
-
-castleDiffuse.repeat.set(5, 4);
-castleNormal.repeat.set(5, 4);
-castleRough.repeat.set(5, 4);
-castleAO.repeat.set(5, 4);
-
-
-const castleMaterial =
-  new THREE.MeshStandardMaterial({
-
-    map: castleDiffuse,
-
-    normalMap: castleNormal,
-
-    roughnessMap: castleRough,
-
-    aoMap: castleAO,
-
-    roughness: 0.9,
-
-    metalness: 0
-
-  });
 
 
 /* =========================================================
@@ -284,220 +195,344 @@ const castleMaterial =
 
 function createCastle() {
 
-  const castle = new THREE.Group();
+    const diffuse =
+        textureLoader.load(
+            "./assets/castle/diffuse.jpg"
+        );
 
-  castle.position.set(
-    0,
-    0,
-    -45
-  );
+    const normal =
+        textureLoader.load(
+            "./assets/castle/normal.jpg"
+        );
 
-  scene.add(castle);
+    const rough =
+        textureLoader.load(
+            "./assets/castle/rough.jpg"
+        );
+
+    const ao =
+        textureLoader.load(
+            "./assets/castle/ao.jpg"
+        );
 
 
-  /* Main building */
+    diffuse.wrapS =
+        THREE.RepeatWrapping;
 
-  const mainBuilding =
-    new THREE.Mesh(
+    diffuse.wrapT =
+        THREE.RepeatWrapping;
 
-      new THREE.BoxGeometry(
-        38,
-        25,
-        18
-      ),
+    normal.wrapS =
+        THREE.RepeatWrapping;
 
-      castleMaterial
+    normal.wrapT =
+        THREE.RepeatWrapping;
 
+    rough.wrapS =
+        THREE.RepeatWrapping;
+
+    rough.wrapT =
+        THREE.RepeatWrapping;
+
+
+    diffuse.repeat.set(8, 5);
+    normal.repeat.set(8, 5);
+    rough.repeat.set(8, 5);
+
+
+    const material =
+        new THREE.MeshStandardMaterial({
+
+            map: diffuse,
+
+            normalMap: normal,
+
+            roughnessMap: rough,
+
+            aoMap: ao,
+
+            roughness: 0.9,
+
+            metalness: 0.0
+        });
+
+
+    const main =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                32,
+                22,
+                20
+            ),
+            material
+        );
+
+
+    main.position.set(
+        0,
+        11,
+        -55
     );
 
-  mainBuilding.position.y = 12.5;
+    main.castShadow = true;
+    main.receiveShadow = true;
 
-  mainBuilding.castShadow = true;
-  mainBuilding.receiveShadow = true;
-
-  castle.add(mainBuilding);
+    scene.add(main);
 
 
-  /* Towers */
+    /* Towers */
 
-  const towerPositions = [
-
-    [-23, 0, -5],
-    [23, 0, -5],
-    [-23, 0, 5],
-    [23, 0, 5]
-
-  ];
+    const towerPositions = [
+        [-19, -55],
+        [19, -55],
+        [-19, -39],
+        [19, -39]
+    ];
 
 
-  towerPositions.forEach(
-    position => {
+    for (const [x, z] of towerPositions) {
 
-      const tower =
-        new THREE.Mesh(
+        const tower =
+            new THREE.Mesh(
 
-          new THREE.CylinderGeometry(
-            5,
-            6,
+                new THREE.CylinderGeometry(
+                    5,
+                    6,
+                    28,
+                    12
+                ),
+
+                material
+            );
+
+
+        tower.position.set(
+            x,
+            14,
+            z
+        );
+
+        tower.castShadow = true;
+        tower.receiveShadow = true;
+
+        scene.add(tower);
+
+
+        const roof =
+            new THREE.Mesh(
+
+                new THREE.ConeGeometry(
+                    7,
+                    9,
+                    12
+                ),
+
+                new THREE.MeshStandardMaterial({
+                    color: 0x25252b,
+                    roughness: 0.8
+                })
+            );
+
+
+        roof.position.set(
+            x,
             32,
-            12
-          ),
-
-          castleMaterial
-
+            z
         );
 
-      tower.position.set(
-        position[0],
-        16,
-        position[2]
-      );
+        roof.castShadow = true;
 
-      tower.castShadow = true;
-      tower.receiveShadow = true;
-
-      castle.add(tower);
-
-
-      /* Tower roof */
-
-      const roof =
-        new THREE.Mesh(
-
-          new THREE.ConeGeometry(
-            7,
-            9,
-            12
-          ),
-
-          new THREE.MeshStandardMaterial({
-            color: 0x252a30,
-            roughness: 0.8
-          })
-
-        );
-
-      roof.position.set(
-        position[0],
-        36.5,
-        position[2]
-      );
-
-      roof.castShadow = true;
-
-      castle.add(roof);
-
-    }
-  );
-
-
-  /* Main roof */
-
-  const roof =
-    new THREE.Mesh(
-
-      new THREE.ConeGeometry(
-        25,
-        14,
-        4
-      ),
-
-      new THREE.MeshStandardMaterial({
-        color: 0x292d32,
-        roughness: 0.85
-      })
-
-    );
-
-  roof.rotation.y =
-    Math.PI / 4;
-
-  roof.position.y = 32;
-
-  roof.scale.set(
-    1,
-    1,
-    0.65
-  );
-
-  roof.castShadow = true;
-
-  castle.add(roof);
-
-
-  /* Entrance */
-
-  const entrance =
-    new THREE.Mesh(
-
-      new THREE.BoxGeometry(
-        7,
-        12,
-        2
-      ),
-
-      new THREE.MeshStandardMaterial({
-        color: 0x15191d,
-        roughness: 0.8
-      })
-
-    );
-
-  entrance.position.set(
-    0,
-    6,
-    9.2
-  );
-
-  castle.add(entrance);
-
-
-  /* Windows */
-
-  for (
-    let row = 0;
-    row < 2;
-    row++
-  ) {
-
-    for (
-      let i = -3;
-      i <= 3;
-      i += 2
-    ) {
-
-      const window =
-        new THREE.Mesh(
-
-          new THREE.BoxGeometry(
-            1.5,
-            3,
-            0.3
-          ),
-
-          new THREE.MeshStandardMaterial({
-            color: 0x73bfff,
-            emissive: 0x164d7a,
-            emissiveIntensity: 0.5
-          })
-
-        );
-
-      window.position.set(
-        i * 4,
-        8 + row * 9,
-        9.25
-      );
-
-      castle.add(window);
-
+        scene.add(roof);
     }
 
-  }
 
+    /* Castle entrance */
+
+    const door =
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                6,
+                10,
+                1
+            ),
+
+            new THREE.MeshStandardMaterial({
+                color: 0x17110d,
+                roughness: 0.7
+            })
+        );
+
+
+    door.position.set(
+        0,
+        5,
+        -65.2
+    );
+
+    scene.add(door);
 }
 
+
 createCastle();
+
+
+/* =========================================================
+   ROCKS
+   ========================================================= */
+
+function createRock(x, y, z, scale) {
+
+    const geometry =
+        new THREE.DodecahedronGeometry(
+            2,
+            1
+        );
+
+
+    const material =
+        new THREE.MeshStandardMaterial({
+
+            color: 0x55575b,
+
+            roughness: 1.0
+        });
+
+
+    const rock =
+        new THREE.Mesh(
+            geometry,
+            material
+        );
+
+
+    rock.position.set(
+        x,
+        y,
+        z
+    );
+
+
+    rock.scale.setScalar(scale);
+
+    rock.rotation.y =
+        Math.random() * Math.PI;
+
+    rock.castShadow = true;
+    rock.receiveShadow = true;
+
+    scene.add(rock);
+}
+
+
+for (let i = 0; i < 35; i++) {
+
+    const angle =
+        Math.random() *
+        Math.PI * 2;
+
+    const radius =
+        35 +
+        Math.random() * 70;
+
+    createRock(
+
+        Math.cos(angle) * radius,
+
+        1,
+
+        Math.sin(angle) * radius - 20,
+
+        0.6 +
+        Math.random() * 1.5
+    );
+}
+
+
+/* =========================================================
+   TREES
+   ========================================================= */
+
+const treeLoader =
+    new GLTFLoader();
+
+let treeModel = null;
+
+
+treeLoader.load(
+
+    "./assets/tree.glb",
+
+    (gltf) => {
+
+        treeModel =
+            gltf.scene;
+
+        treeModel.traverse(
+            (child) => {
+
+                if (child.isMesh) {
+
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+
+                }
+
+            }
+        );
+
+
+        for (let i = 0; i < 25; i++) {
+
+            const tree =
+                treeModel.clone(true);
+
+
+            const angle =
+                Math.random() *
+                Math.PI * 2;
+
+            const radius =
+                30 +
+                Math.random() * 75;
+
+
+            tree.position.set(
+
+                Math.cos(angle) * radius,
+
+                0,
+
+                Math.sin(angle) * radius - 20
+
+            );
+
+
+            const scale =
+                0.8 +
+                Math.random() * 0.7;
+
+            tree.scale.setScalar(scale);
+
+            tree.rotation.y =
+                Math.random() * Math.PI * 2;
+
+            scene.add(tree);
+        }
+
+    },
+
+    undefined,
+
+    (error) => {
+
+        console.warn(
+            "Tree loading failed:",
+            error
+        );
+
+    }
+);
 
 
 /* =========================================================
@@ -505,45 +540,48 @@ createCastle();
    ========================================================= */
 
 const waterGeometry =
-  new THREE.PlaneGeometry(
-    70,
-    45,
-    30,
-    20
-  );
+    new THREE.PlaneGeometry(
+        45,
+        45,
+        20,
+        20
+    );
+
 
 const waterMaterial =
-  new THREE.MeshPhysicalMaterial({
+    new THREE.MeshPhysicalMaterial({
 
-    color: 0x245d80,
+        color: 0x244e63,
 
-    transparent: true,
+        transparent: true,
 
-    opacity: 0.58,
+        opacity: 0.65,
 
-    roughness: 0.12,
+        roughness: 0.15,
 
-    metalness: 0.05,
+        metalness: 0.05,
 
-    transmission: 0.08
-
-  });
+        transmission: 0.05
+    });
 
 
 const water =
-  new THREE.Mesh(
-    waterGeometry,
-    waterMaterial
-  );
+    new THREE.Mesh(
+        waterGeometry,
+        waterMaterial
+    );
+
 
 water.rotation.x =
-  -Math.PI / 2;
+    -Math.PI / 2;
+
 
 water.position.set(
-  35,
-  0.08,
-  -10
+    32,
+    0.15,
+    -8
 );
+
 
 water.receiveShadow = true;
 
@@ -551,609 +589,655 @@ scene.add(water);
 
 
 /* =========================================================
-   WATER ANIMATION
+   PLAYER
    ========================================================= */
 
-const waterPositions =
-  water.geometry.attributes.position;
+let player = null;
 
-function animateWater(time) {
+let mixer = null;
 
-  for (
-    let i = 0;
-    i < waterPositions.count;
-    i++
-  ) {
+let currentAction = null;
 
-    const x =
-      waterPositions.getX(i);
+const playerAnimations = {};
 
-    const y =
-      waterPositions.getY(i);
 
-    const wave =
-      Math.sin(
-        x * 0.35 +
-        time * 1.5
-      ) * 0.08;
+const playerLoader =
+    new GLTFLoader();
 
-    const wave2 =
-      Math.cos(
-        y * 0.45 +
-        time * 1.2
-      ) * 0.06;
 
-    waterPositions.setZ(
-      i,
-      wave + wave2
-    );
+function playAnimation(name) {
 
-  }
+    if (!mixer) return;
 
-  waterPositions.needsUpdate = true;
+    const action =
+        playerAnimations[name];
 
+    if (!action) return;
+
+    if (currentAction === action)
+        return;
+
+    if (currentAction) {
+
+        currentAction.fadeOut(0.2);
+
+    }
+
+    action.reset();
+
+    action.fadeIn(0.2);
+
+    action.play();
+
+    currentAction = action;
 }
 
 
-/* =========================================================
-   MOUNTAINS
-   ========================================================= */
-
-function createMountain(
-  x,
-  y,
-  z,
-  scale
-) {
-
-  const mountain =
-    new THREE.Mesh(
-
-      new THREE.ConeGeometry(
-        22,
-        45,
-        7
-      ),
-
-      new THREE.MeshStandardMaterial({
-
-        color: 0x56636a,
-
-        roughness: 1
-
-      })
-
-    );
-
-  mountain.position.set(
-    x,
-    y,
-    z
-  );
-
-  mountain.scale.set(
-    scale,
-    scale,
-    scale
-  );
-
-  mountain.castShadow = true;
-  mountain.receiveShadow = true;
-
-  scene.add(mountain);
-
-}
-
-
-createMountain(
-  -65,
-  18,
-  -75,
-  2.2
-);
-
-createMountain(
-  55,
-  20,
-  -90,
-  2.5
-);
-
-createMountain(
-  90,
-  15,
-  -40,
-  2
-);
-
-createMountain(
-  -100,
-  20,
-  -20,
-  2.4
-);
-
-
-/* =========================================================
-   ROCKS
-   ========================================================= */
-
-function createRock(
-  x,
-  y,
-  z,
-  scale
-) {
-
-  const rock =
-    new THREE.Mesh(
-
-      new THREE.DodecahedronGeometry(
-        2.5,
-        1
-      ),
-
-      new THREE.MeshStandardMaterial({
-
-        color: 0x4c5558,
-
-        roughness: 1
-
-      })
-
-    );
-
-  rock.position.set(
-    x,
-    y,
-    z
-  );
-
-  rock.scale.setScalar(scale);
-
-  rock.rotation.set(
-    Math.random(),
-    Math.random(),
-    Math.random()
-  );
-
-  rock.castShadow = true;
-  rock.receiveShadow = true;
-
-  scene.add(rock);
-
-}
-
-
-[
-  [-12, 1, -10],
-  [15, 1, -5],
-  [-25, 1, 15],
-  [28, 1, 15],
-  [50, 1, 12],
-  [-48, 1, 8],
-  [65, 1, -35],
-  [-60, 1, -45]
-].forEach(
-  p => createRock(
-    p[0],
-    p[1],
-    p[2],
-    0.8 + Math.random()
-  )
-);
-
-
-/* =========================================================
-   TREES
-   ========================================================= */
-
-const gltfLoader =
-  new GLTFLoader();
-
-let treeModel = null;
-
-
-gltfLoader.load(
-
-  "./assets/tree.glb",
-
-  gltf => {
-
-    treeModel =
-      gltf.scene;
-
-    treeModel.traverse(
-      object => {
-
-        if (
-          object.isMesh
-        ) {
-
-          object.castShadow = true;
-
-          object.receiveShadow = true;
-
-        }
-
-      }
-    );
-
-
-    const treePositions = [
-
-      [-20, -15],
-      [-32, -8],
-      [-42, -20],
-      [-52, -5],
-      [18, 5],
-      [27, -5],
-      [45, 8],
-      [55, 20],
-      [-65, 20],
-      [70, -15],
-      [-75, -35],
-      [80, -50],
-      [-85, 0],
-      [10, -25],
-      [25, -35],
-      [-10, -30],
-      [40, -30],
-      [60, -5]
-
-    ];
-
-
-    treePositions.forEach(
-      p => {
-
-        const tree =
-          treeModel.clone(true);
-
-        tree.position.set(
-          p[0],
-          0,
-          p[1]
-        );
-
-        const scale =
-          1.8 +
-          Math.random() * 1.0;
-
-        tree.scale.setScalar(
-          scale
-        );
-
-        tree.rotation.y =
-          Math.random() *
-          Math.PI *
-          2;
-
-        scene.add(tree);
-
-      }
-    );
-
-  },
-
-  undefined,
-
-  error => {
-
-    console.error(
-      "Tree loading error:",
-      error
-    );
-
-  }
-
-);
-
-
-/* =========================================================
-   REAL PLAYER — AREN VALEN
-   ========================================================= */
-
-function loadPlayer() {
-
-  gltfLoader.load(
+playerLoader.load(
 
     "./assets/player/aren_valen.glb",
 
-    gltf => {
+    (gltf) => {
 
-      console.log(
-        "AREN VALEN LOADED",
-        gltf
-      );
-
-
-      player =
-        gltf.scene;
+        console.log(
+            "AREN VALEN LOADED",
+            gltf
+        );
 
 
-      player.position.copy(
-        playerPosition
-      );
+        player =
+            gltf.scene;
 
 
-      /*
-       * Change this value if your
-       * MetaPerson model is extremely
-       * large or extremely small.
-       */
+        /* -----------------------------------------
+           Find model size
+           ----------------------------------------- */
 
-      player.scale.setScalar(
-        1
-      );
+        const box =
+            new THREE.Box3()
+                .setFromObject(player);
 
 
-      player.rotation.y =
-        Math.PI;
+        const size =
+            box.getSize(
+                new THREE.Vector3()
+            );
 
 
-      player.traverse(
-        object => {
-
-          if (
-            object.isMesh
-          ) {
-
-            object.castShadow = true;
-
-            object.receiveShadow = true;
-
-            if (
-              object.material
-            ) {
-
-              object.material.side =
-                THREE.FrontSide;
-
-            }
-
-          }
-
-        }
-      );
-
-
-      scene.add(player);
-
-
-      /* =====================================================
-         ANIMATIONS
-         ===================================================== */
-
-      if (
-        gltf.animations &&
-        gltf.animations.length > 0
-      ) {
-
-        playerMixer =
-          new THREE.AnimationMixer(
-            player
-          );
-
-        playerAnimations =
-          gltf.animations;
+        const height =
+            size.y;
 
 
         console.log(
-          "Player animations:",
-          playerAnimations.map(
-            animation =>
-              animation.name
-          )
+            "Character height:",
+            height
         );
 
 
-        /*
-         * Start first animation.
-         */
+        /* -----------------------------------------
+           Automatic scaling
+           ----------------------------------------- */
 
-        playAnimation(
-          playerAnimations[0].name
+        if (height > 0) {
+
+            const desiredHeight = 3.2;
+
+            const scale =
+                desiredHeight / height;
+
+            player.scale.setScalar(scale);
+        }
+
+
+        /* -----------------------------------------
+           Recalculate position
+           ----------------------------------------- */
+
+        const scaledBox =
+            new THREE.Box3()
+                .setFromObject(player);
+
+
+        const bottom =
+            scaledBox.min.y;
+
+
+        player.position.y -= bottom;
+
+
+        /* -----------------------------------------
+           Place player
+           ----------------------------------------- */
+
+        player.position.x = 0;
+
+        player.position.z = 12;
+
+
+        /* -----------------------------------------
+           Shadows
+           ----------------------------------------- */
+
+        player.traverse(
+            (child) => {
+
+                if (child.isMesh) {
+
+                    child.castShadow = true;
+
+                    child.receiveShadow = true;
+
+                    if (child.material) {
+
+                        child.material.needsUpdate =
+                            true;
+
+                    }
+                }
+
+            }
         );
 
-      }
+
+        scene.add(player);
 
 
-      /*
-       * Hide loading screen.
-       */
+        /* -----------------------------------------
+           Animations
+           ----------------------------------------- */
 
-      setTimeout(
-        () => {
+        if (
+            gltf.animations &&
+            gltf.animations.length > 0
+        ) {
 
-          const loading =
+            mixer =
+                new THREE.AnimationMixer(
+                    player
+                );
+
+
+            for (
+                const clip
+                of gltf.animations
+            ) {
+
+                const action =
+                    mixer.clipAction(
+                        clip
+                    );
+
+
+                const name =
+                    clip.name.toLowerCase();
+
+
+                if (
+                    name.includes("idle")
+                ) {
+
+                    playerAnimations.idle =
+                        action;
+
+                }
+                else if (
+                    name.includes("walk")
+                ) {
+
+                    playerAnimations.walk =
+                        action;
+
+                }
+                else if (
+                    name.includes("run")
+                ) {
+
+                    playerAnimations.run =
+                        action;
+
+                }
+                else if (
+                    name.includes("jump")
+                ) {
+
+                    playerAnimations.jump =
+                        action;
+
+                }
+            }
+
+
+            if (
+                playerAnimations.idle
+            ) {
+
+                playAnimation("idle");
+
+            }
+            else {
+
+                const first =
+                    gltf.animations[0];
+
+                currentAction =
+                    mixer.clipAction(
+                        first
+                    );
+
+                currentAction.play();
+            }
+        }
+
+
+        /* -----------------------------------------
+           Hide loading screen
+           ----------------------------------------- */
+
+        const loading =
             document.getElementById(
-              "loading"
+                "loading"
             );
 
-          if (loading) {
 
-            loading.classList.add(
-              "hidden"
+        if (loading) {
+
+            loading.style.opacity = "0";
+
+            setTimeout(
+                () => {
+
+                    loading.style.display =
+                        "none";
+
+                },
+                500
             );
+        }
 
-          }
 
-        },
-        700
-      );
+        updateMessage(
+            "Aren Valen has entered Aetheria."
+        );
 
     },
 
-    progress => {
+    undefined,
 
-      if (
-        progress.total > 0
-      ) {
+    (error) => {
 
-        const percent =
-          Math.round(
-            progress.loaded /
-            progress.total *
-            100
-          );
+        console.error(
+            "AREN VALEN GLB ERROR:",
+            error
+        );
+
+
+        updateMessage(
+            "Could not load Aren Valen. Check assets/player/aren_valen.glb"
+        );
+
 
         const loadingText =
-          document.querySelector(
-            ".loading-text"
-          );
+            document.querySelector(
+                "#loading p"
+            );
+
 
         if (loadingText) {
 
-          loadingText.textContent =
-            "Loading Aren Valen... " +
-            percent +
-            "%";
+            loadingText.textContent =
+                "Could not load Aren Valen. Check the character file.";
 
         }
-
-      }
-
-    },
-
-    error => {
-
-      console.error(
-        "AREN VALEN GLB ERROR:",
-        error
-      );
-
-
-      const loadingText =
-        document.querySelector(
-          ".loading-text"
-        );
-
-      if (loadingText) {
-
-        loadingText.textContent =
-          "Could not load Aren Valen. Check assets/player/aren_valen.glb";
-
-      }
-
     }
-
-  );
-
-}
-
-loadPlayer();
+);
 
 
 /* =========================================================
-   ANIMATION HELPER
+   PLAYER MOVEMENT
    ========================================================= */
 
-function playAnimation(
-  animationName
-) {
-
-  if (
-    !playerMixer
-  ) return;
+const velocity =
+    new THREE.Vector3();
 
 
-  const clip =
-    THREE.AnimationClip.findByName(
-      playerAnimations,
-      animationName
-    );
+const direction =
+    new THREE.Vector3();
 
 
-  if (!clip) {
+let moving = false;
 
-    console.log(
-      "Animation not found:",
-      animationName
-    );
+let jumpVelocity = 0;
 
-    return;
-
-  }
+let grounded = true;
 
 
-  const action =
-    playerMixer.clipAction(
-      clip
-    );
-
-
-  if (
-    currentAction &&
-    currentAction !== action
-  ) {
-
-    currentAction.fadeOut(
-      0.15
-    );
-
-  }
-
-
-  action.reset();
-
-  action.fadeIn(
-    0.15
-  );
-
-  action.play();
-
-  currentAction =
-    action;
-
-}
+const moveSpeed = 7;
 
 
 /* =========================================================
-   FIND ANIMATION
+   JOYSTICK
    ========================================================= */
 
-function findAnimation(
-  words
-) {
-
-  if (
-    !playerAnimations.length
-  ) return null;
-
-
-  const lower =
-    words.map(
-      word =>
-        word.toLowerCase()
+const joystick =
+    document.getElementById(
+        "joystick"
     );
 
 
-  for (
-    const animation
-    of playerAnimations
-  ) {
-
-    const name =
-      animation.name.toLowerCase();
+const stick =
+    document.getElementById(
+        "stick"
+    );
 
 
-    if (
-      lower.some(
-        word =>
-          name.includes(word)
-      )
+let joystickX = 0;
+
+let joystickY = 0;
+
+let joystickActive = false;
+
+
+if (joystick && stick) {
+
+    function updateJoystick(
+        event
     ) {
 
-      return animation.name;
+        const rect =
+            joystick.getBoundingClientRect();
 
+
+        const centerX =
+            rect.left +
+            rect.width / 2;
+
+
+        const centerY =
+            rect.top +
+            rect.height / 2;
+
+
+        let dx =
+            event.clientX -
+            centerX;
+
+
+        let dy =
+            event.clientY -
+            centerY;
+
+
+        const max =
+            rect.width / 2 -
+            25;
+
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dy * dy
+            );
+
+
+        if (distance > max) {
+
+            dx =
+                dx / distance *
+                max;
+
+            dy =
+                dy / distance *
+                max;
+        }
+
+
+        joystickX =
+            dx / max;
+
+
+        joystickY =
+            dy / max;
+
+
+        stick.style.transform =
+            `translate(${dx}px, ${dy}px)`;
+
+        joystickActive = true;
+
+        moving =
+            Math.abs(joystickX) > 0.1 ||
+            Math.abs(joystickY) > 0.1;
     }
 
-  }
+
+    joystick.addEventListener(
+        "pointerdown",
+        (event) => {
+
+            joystick.setPointerCapture(
+                event.pointerId
+            );
+
+            updateJoystick(event);
+        }
+    );
 
 
-  return null;
+    joystick.addEventListener(
+        "pointermove",
+        (event) => {
 
+            if (joystickActive) {
+
+                updateJoystick(event);
+
+            }
+
+        }
+    );
+
+
+    joystick.addEventListener(
+        "pointerup",
+        resetJoystick
+    );
+
+
+    joystick.addEventListener(
+        "pointercancel",
+        resetJoystick
+    );
+
+
+    function resetJoystick() {
+
+        joystickX = 0;
+
+        joystickY = 0;
+
+        joystickActive = false;
+
+        moving = false;
+
+        stick.style.transform =
+            "translate(0px, 0px)";
+
+        if (player) {
+
+            playAnimation("idle");
+
+        }
+    }
+}
+
+
+/* =========================================================
+   JUMP
+   ========================================================= */
+
+const jumpButton =
+    document.getElementById(
+        "jump"
+    );
+
+
+if (jumpButton) {
+
+    jumpButton.addEventListener(
+        "pointerdown",
+        () => {
+
+            if (!player) return;
+
+            if (!grounded) return;
+
+            jumpVelocity = 9;
+
+            grounded = false;
+
+            playAnimation("jump");
+
+        }
+    );
+}
+
+
+/* =========================================================
+   SPELL
+   ========================================================= */
+
+const spellButton =
+    document.getElementById(
+        "spell"
+    );
+
+
+let magic = 100;
+
+let xp = 0;
+
+
+if (spellButton) {
+
+    spellButton.addEventListener(
+        "pointerdown",
+        castSpell
+    );
+}
+
+
+function castSpell() {
+
+    if (!player) return;
+
+    if (magic < 10) {
+
+        updateMessage(
+            "Not enough magic!"
+        );
+
+        return;
+    }
+
+
+    magic -= 10;
+
+
+    const orb =
+        new THREE.Mesh(
+
+            new THREE.SphereGeometry(
+                0.22,
+                12,
+                12
+            ),
+
+            new THREE.MeshBasicMaterial({
+                color: 0x66ccff
+            })
+        );
+
+
+    orb.position.copy(
+        player.position
+    );
+
+
+    orb.position.y += 2;
+
+
+    const target =
+        new THREE.Vector3(
+            player.position.x,
+            2,
+            player.position.z - 18
+        );
+
+
+    const velocity =
+        target
+            .sub(orb.position)
+            .normalize()
+            .multiplyScalar(22);
+
+
+    orb.userData.velocity =
+        velocity;
+
+
+    scene.add(orb);
+
+
+    updateMessage(
+        "Aren Valen casts a spell!"
+    );
+}
+
+
+/* =========================================================
+   SPELL UPDATE
+   ========================================================= */
+
+const spellObjects = [];
+
+
+function updateSpells(delta) {
+
+    for (
+        let i = scene.children.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const object =
+            scene.children[i];
+
+
+        if (
+            object.userData &&
+            object.userData.velocity
+        ) {
+
+            object.position.addScaledVector(
+                object.userData.velocity,
+                delta
+            );
+
+
+            object.userData.life =
+                (object.userData.life || 0) +
+                delta;
+
+
+            if (
+                object.userData.life > 2
+            ) {
+
+                scene.remove(object);
+
+            }
+        }
+    }
 }
 
 
@@ -1165,987 +1249,182 @@ const enemies = [];
 
 
 function createEnemy(
-  x,
-  z,
-  type
+    x,
+    z,
+    type
 ) {
 
-  const enemy =
-    new THREE.Group();
+    const group =
+        new THREE.Group();
 
 
-  enemy.position.set(
-    x,
-    0,
-    z
-  );
+    /* Body */
 
-
-  /* Body */
-
-  const body =
-    new THREE.Mesh(
-
-      new THREE.CapsuleGeometry(
-        0.75,
-        1.7,
-        5,
-        8
-      ),
-
-      new THREE.MeshStandardMaterial({
-
-        color:
-          type === "mage"
-            ? 0x25163b
-            : 0x17191c,
-
-        roughness: 0.9
-
-      })
-
-    );
-
-  body.position.y =
-    1.6;
-
-  body.castShadow = true;
-
-  enemy.add(body);
-
-
-  /* Head */
-
-  const head =
-    new THREE.Mesh(
-
-      new THREE.SphereGeometry(
-        0.62,
-        12,
-        8
-      ),
-
-      new THREE.MeshStandardMaterial({
-
-        color: 0x5a3e32,
-
-        roughness: 0.9
-
-      })
-
-    );
-
-  head.position.y =
-    3.15;
-
-  head.castShadow = true;
-
-  enemy.add(head);
-
-
-  /* Eyes */
-
-  [-0.22, 0.22].forEach(
-    eyeX => {
-
-      const eye =
+    const body =
         new THREE.Mesh(
 
-          new THREE.SphereGeometry(
-            0.09,
-            8,
-            6
-          ),
-
-          new THREE.MeshBasicMaterial({
-            color: 0xff2222
-          })
-
-        );
-
-      eye.position.set(
-        eyeX,
-        3.18,
-        0.55
-      );
-
-      enemy.add(eye);
-
-    }
-  );
-
-
-  /* Horns */
-
-  if (
-    type !== "mage"
-  ) {
-
-    [-0.35, 0.35].forEach(
-      hornX => {
-
-        const horn =
-          new THREE.Mesh(
-
-            new THREE.ConeGeometry(
-              0.12,
-              0.75,
-              6
+            new THREE.CapsuleGeometry(
+                0.65,
+                1.4,
+                5,
+                10
             ),
 
             new THREE.MeshStandardMaterial({
-              color: 0x252525,
-              roughness: 1
+
+                color:
+                    type === "mage"
+                    ? 0x321b45
+                    : 0x24252b,
+
+                roughness: 0.85
             })
-
-          );
-
-        horn.position.set(
-          hornX,
-          3.75,
-          0
         );
 
-        horn.rotation.z =
-          hornX > 0
-            ? -0.35
-            : 0.35;
 
-        enemy.add(horn);
+    body.position.y = 1.4;
 
-      }
-    );
+    body.castShadow = true;
 
-  }
+    group.add(body);
 
 
-  /* Health bar */
+    /* Head */
 
-  const healthBackground =
-    new THREE.Mesh(
+    const head =
+        new THREE.Mesh(
 
-      new THREE.PlaneGeometry(
-        1.6,
-        0.16
-      ),
+            new THREE.SphereGeometry(
+                0.55,
+                12,
+                12
+            ),
 
-      new THREE.MeshBasicMaterial({
-        color: 0x222222
-      })
+            new THREE.MeshStandardMaterial({
 
-    );
+                color: 0x8a7060,
 
-  healthBackground.position.y =
-    4.3;
+                roughness: 0.9
+            })
+        );
 
-  enemy.add(
-    healthBackground
-  );
 
+    head.position.y = 2.65;
 
-  const healthBar =
-    new THREE.Mesh(
+    head.castShadow = true;
 
-      new THREE.PlaneGeometry(
-        1.5,
-        0.10
-      ),
+    group.add(head);
 
-      new THREE.MeshBasicMaterial({
-        color: 0xff3030
-      })
 
-    );
-
-  healthBar.position.set(
-    0,
-    4.3,
-    0.02
-  );
-
-  enemy.add(
-    healthBar
-  );
-
-
-  enemy.userData = {
-
-    type,
-
-    hp: 100,
-
-    healthBar,
-
-    attackTimer:
-      Math.random() * 2
-
-  };
-
-
-  scene.add(enemy);
-
-  enemies.push(
-    enemy
-  );
-
-}
-
-
-/* =========================================================
-   ENEMY POSITIONS
-   ========================================================= */
-
-createEnemy(
-  7,
-  1,
-  "shadow"
-);
-
-createEnemy(
-  -9,
-  -3,
-  "shadow"
-);
-
-createEnemy(
-  15,
-  -8,
-  "mage"
-);
-
-createEnemy(
-  -17,
-  3,
-  "shadow"
-);
-
-
-/* =========================================================
-   SPELLS
-   ========================================================= */
-
-const spells = [];
-
-
-function castSpell() {
-
-  if (
-    !player
-  ) return;
-
-
-  if (
-    magic < 10
-  ) {
-
-    showMessage(
-      "Not enough magic!"
-    );
-
-    return;
-
-  }
-
-
-  if (
-    spellCooldown > 0
-  ) return;
-
-
-  magic -= 10;
-
-  spellCooldown =
-    0.35;
-
-
-  const direction =
-    new THREE.Vector3(
-      0,
-      0,
-      -1
-    );
-
-
-  direction.applyQuaternion(
-    player.quaternion
-  );
-
-
-  const start =
-    player.position.clone();
-
-
-  start.y += 2.2;
-
-
-  const orb =
-    new THREE.Mesh(
-
-      new THREE.SphereGeometry(
-        0.18,
-        10,
-        10
-      ),
-
-      new THREE.MeshBasicMaterial({
-        color: 0xb86cff
-      })
-
-    );
-
-
-  orb.position.copy(
-    start
-  );
-
-
-  const glow =
-    new THREE.PointLight(
-      0xb86cff,
-      2,
-      6
-    );
-
-
-  orb.add(
-    glow
-  );
-
-
-  scene.add(
-    orb
-  );
-
-
-  spells.push({
-
-    mesh: orb,
-
-    velocity:
-      direction.multiplyScalar(
-        28
-      ),
-
-    life: 2
-
-  });
-
-}
-
-
-/* =========================================================
-   SPELL UPDATE
-   ========================================================= */
-
-function updateSpells(
-  delta
-) {
-
-  for (
-    let i = spells.length - 1;
-    i >= 0;
-    i--
-  ) {
-
-    const spell =
-      spells[i];
-
-
-    spell.mesh.position.addScaledVector(
-      spell.velocity,
-      delta
-    );
-
-
-    spell.life -=
-      delta;
-
+    /* Eyes */
 
     for (
-      let j = enemies.length - 1;
-      j >= 0;
-      j--
+        const side of [-1, 1]
     ) {
 
-      const enemy =
-        enemies[j];
+        const eye =
+            new THREE.Mesh(
+
+                new THREE.SphereGeometry(
+                    0.07,
+                    8,
+                    8
+                ),
+
+                new THREE.MeshBasicMaterial({
+                    color: 0xff2222
+                })
+            );
 
 
-      if (
-        spell.mesh.position.distanceTo(
-          enemy.position
-        ) < 2.0
-      ) {
-
-        enemy.userData.hp -=
-          35;
-
-
-        const health =
-          Math.max(
-            enemy.userData.hp,
-            0
-          ) / 100;
-
-
-        enemy.userData.healthBar.scale.x =
-          health;
-
-
-        xp += 10;
-
-
-        scene.remove(
-          spell.mesh
+        eye.position.set(
+            side * 0.2,
+            2.72,
+            -0.48
         );
 
 
-        spells.splice(
-          i,
-          1
-        );
-
-
-        if (
-          enemy.userData.hp <= 0
-        ) {
-
-          scene.remove(
-            enemy
-          );
-
-          enemies.splice(
-            j,
-            1
-          );
-
-        }
-
-
-        break;
-
-      }
-
+        group.add(eye);
     }
 
 
-    if (
-      spell.life <= 0
-    ) {
+    group.position.set(
+        x,
+        0,
+        z
+    );
 
-      scene.remove(
-        spell.mesh
-      );
 
-      spells.splice(
-        i,
-        1
-      );
+    scene.add(group);
 
-    }
 
-  }
+    enemies.push({
 
+        mesh: group,
+
+        health: 100,
+
+        speed:
+            type === "mage"
+            ? 1.5
+            : 2.0
+
+    });
 }
+
+
+createEnemy(-8, -5, "shadow");
+createEnemy(8, -5, "shadow");
+createEnemy(-14, -20, "mage");
+createEnemy(14, -20, "shadow");
 
 
 /* =========================================================
    ENEMY AI
    ========================================================= */
 
-function updateEnemies(
-  delta
-) {
+function updateEnemies(delta) {
 
-  if (
-    !player
-  ) return;
+    if (!player) return;
 
 
-  enemies.forEach(
-    enemy => {
+    for (
+        const enemy
+        of enemies
+    ) {
 
-      const distance =
-        enemy.position.distanceTo(
-          player.position
-        );
-
-
-      if (
-        distance > 2.7
-      ) {
-
-        const direction =
-          new THREE.Vector3()
-            .subVectors(
-              player.position,
-              enemy.position
-            )
-            .normalize();
-
-
-        enemy.position.addScaledVector(
-          direction,
-          delta * 1.5
-        );
-
-
-        enemy.lookAt(
-          player.position.x,
-          enemy.position.y,
-          player.position.z
-        );
-
-      } else {
-
-        enemy.userData.attackTimer -=
-          delta;
+        const distance =
+            enemy.mesh.position.distanceTo(
+                player.position
+            );
 
 
         if (
-          enemy.userData.attackTimer <= 0
+            distance > 3 &&
+            distance < 35
         ) {
 
-          hp -= 5;
+            direction
+                .subVectors(
+                    player.position,
+                    enemy.mesh.position
+                )
+                .normalize();
 
-          enemy.userData.attackTimer =
-            1.5;
+
+            enemy.mesh.position.addScaledVector(
+                direction,
+                enemy.speed * delta
+            );
 
 
-          showMessage(
-            "You were attacked!"
-          );
-
+            enemy.mesh.lookAt(
+                player.position.x,
+                enemy.mesh.position.y,
+                player.position.z
+            );
         }
-
-      }
-
     }
-  );
-
-}
-
-
-/* =========================================================
-   PLAYER MOVEMENT
-   ========================================================= */
-
-let joystickX = 0;
-let joystickY = 0;
-
-
-function updatePlayer(
-  delta
-) {
-
-  if (
-    !player
-  ) return;
-
-
-  const speed =
-    6;
-
-
-  if (
-    Math.abs(joystickX) > 0.05 ||
-    Math.abs(joystickY) > 0.05
-  ) {
-
-    const move =
-      new THREE.Vector3(
-        joystickX,
-        0,
-        joystickY
-      );
-
-
-    move.normalize();
-
-
-    /*
-     * Camera-relative movement
-     */
-
-    const cameraDirection =
-      new THREE.Vector3();
-
-    camera.getWorldDirection(
-      cameraDirection
-    );
-
-    cameraDirection.y = 0;
-
-    cameraDirection.normalize();
-
-
-    const forward =
-      cameraDirection.clone();
-
-
-    const right =
-      new THREE.Vector3(
-        forward.z,
-        0,
-        -forward.x
-      );
-
-
-    const finalMove =
-      new THREE.Vector3();
-
-
-    finalMove.addScaledVector(
-      right,
-      move.x
-    );
-
-    finalMove.addScaledVector(
-      forward,
-      -move.z
-    );
-
-
-    finalMove.normalize();
-
-
-    player.position.addScaledVector(
-      finalMove,
-      speed * delta
-    );
-
-
-    /*
-     * Rotate character toward movement.
-     */
-
-    const targetRotation =
-      Math.atan2(
-        finalMove.x,
-        finalMove.z
-      );
-
-
-    player.rotation.y =
-      THREE.MathUtils.lerp(
-        player.rotation.y,
-        targetRotation,
-        0.15
-      );
-
-
-    /*
-     * Try to use walking animation
-     * if the GLB contains one.
-     */
-
-    const walk =
-      findAnimation([
-        "walk",
-        "run",
-        "locomotion"
-      ]);
-
-
-    if (
-      walk &&
-      currentAction &&
-      currentAction._clip &&
-      currentAction._clip.name !== walk
-    ) {
-
-      playAnimation(
-        walk
-      );
-
-    }
-
-  }
-
-
-  /* Gravity */
-
-  if (
-    !onGround
-  ) {
-
-    velocityY -=
-      18 * delta;
-
-    player.position.y +=
-      velocityY * delta;
-
-
-    if (
-      player.position.y <= 0
-    ) {
-
-      player.position.y =
-        0;
-
-      velocityY =
-        0;
-
-      onGround =
-        true;
-
-    }
-
-  }
-
-}
-
-
-/* =========================================================
-   JUMP
-   ========================================================= */
-
-function jump() {
-
-  if (
-    !player ||
-    !onGround
-  ) return;
-
-
-  velocityY =
-    8;
-
-  onGround =
-    false;
-
-
-  const jumpAnimation =
-    findAnimation([
-      "jump"
-    ]);
-
-
-  if (
-    jumpAnimation
-  ) {
-
-    playAnimation(
-      jumpAnimation
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   JOYSTICK
-   ========================================================= */
-
-const joystickBase =
-  document.getElementById(
-    "joystickBase"
-  );
-
-const joystickStick =
-  document.getElementById(
-    "joystickStick"
-  );
-
-
-let joystickPointer = null;
-
-
-function updateJoystick(
-  event
-) {
-
-  if (
-    !joystickBase
-  ) return;
-
-
-  const rect =
-    joystickBase.getBoundingClientRect();
-
-
-  const centerX =
-    rect.left +
-    rect.width / 2;
-
-
-  const centerY =
-    rect.top +
-    rect.height / 2;
-
-
-  let dx =
-    event.clientX -
-    centerX;
-
-
-  let dy =
-    event.clientY -
-    centerY;
-
-
-  const maxDistance =
-    rect.width / 2 -
-    30;
-
-
-  const distance =
-    Math.sqrt(
-      dx * dx +
-      dy * dy
-    );
-
-
-  if (
-    distance > maxDistance
-  ) {
-
-    dx =
-      dx / distance *
-      maxDistance;
-
-    dy =
-      dy / distance *
-      maxDistance;
-
-  }
-
-
-  joystickX =
-    dx / maxDistance;
-
-
-  joystickY =
-    dy / maxDistance;
-
-
-  joystickStick.style.transform =
-    `translate(${dx}px, ${dy}px)`;
-
-}
-
-
-if (
-  joystickBase
-) {
-
-  joystickBase.addEventListener(
-    "pointerdown",
-    event => {
-
-      joystickPointer =
-        event.pointerId;
-
-      joystickBase.setPointerCapture(
-        event.pointerId
-      );
-
-      updateJoystick(
-        event
-      );
-
-    }
-  );
-
-
-  joystickBase.addEventListener(
-    "pointermove",
-    event => {
-
-      if (
-        event.pointerId ===
-        joystickPointer
-      ) {
-
-        updateJoystick(
-          event
-        );
-
-      }
-
-    }
-  );
-
-
-  function resetJoystick() {
-
-    joystickPointer =
-      null;
-
-    joystickX =
-      0;
-
-    joystickY =
-      0;
-
-    joystickStick.style.transform =
-      "translate(0px, 0px)";
-
-  }
-
-
-  joystickBase.addEventListener(
-    "pointerup",
-    resetJoystick
-  );
-
-  joystickBase.addEventListener(
-    "pointercancel",
-    resetJoystick
-  );
-
-}
-
-
-/* =========================================================
-   BUTTONS
-   ========================================================= */
-
-const jumpBtn =
-  document.getElementById(
-    "jumpBtn"
-  );
-
-const spellBtn =
-  document.getElementById(
-    "spellBtn"
-  );
-
-
-if (
-  jumpBtn
-) {
-
-  jumpBtn.addEventListener(
-    "pointerdown",
-    event => {
-
-      event.preventDefault();
-
-      jump();
-
-    }
-  );
-
-}
-
-
-if (
-  spellBtn
-) {
-
-  spellBtn.addEventListener(
-    "pointerdown",
-    event => {
-
-      event.preventDefault();
-
-      castSpell();
-
-    }
-  );
-
 }
 
 
@@ -2153,121 +1432,163 @@ if (
    CAMERA
    ========================================================= */
 
-let cameraAngle =
-  0;
-
-let cameraDistance =
-  9;
-
-let cameraHeight =
-  4.5;
+const cameraTarget =
+    new THREE.Vector3();
 
 
-let cameraPointer = null;
-let previousCameraX = 0;
+function updateCamera(delta) {
+
+    if (!player) return;
 
 
-renderer.domElement.addEventListener(
-  "pointerdown",
-  event => {
-
-    cameraPointer =
-      event.pointerId;
-
-    previousCameraX =
-      event.clientX;
-
-  }
-);
+    const desired =
+        new THREE.Vector3(
+            player.position.x,
+            player.position.y + 5,
+            player.position.z + 9
+        );
 
 
-renderer.domElement.addEventListener(
-  "pointermove",
-  event => {
-
-    if (
-      cameraPointer !==
-      event.pointerId
-    ) return;
-
-
-    const dx =
-      event.clientX -
-      previousCameraX;
-
-
-    previousCameraX =
-      event.clientX;
-
-
-    cameraAngle -=
-      dx * 0.008;
-
-  }
-);
-
-
-renderer.domElement.addEventListener(
-  "pointerup",
-  () => {
-
-    cameraPointer =
-      null;
-
-  }
-);
-
-
-function updateCamera() {
-
-  if (
-    !player
-  ) return;
-
-
-  const target =
-    player.position.clone();
-
-
-  target.y +=
-    2.0;
-
-
-  const cameraX =
-    player.position.x +
-    Math.sin(
-      cameraAngle
-    ) *
-    cameraDistance;
-
-
-  const cameraZ =
-    player.position.z +
-    Math.cos(
-      cameraAngle
-    ) *
-    cameraDistance;
-
-
-  const desired =
-    new THREE.Vector3(
-      cameraX,
-      player.position.y +
-      cameraHeight,
-      cameraZ
+    camera.position.lerp(
+        desired,
+        1 -
+        Math.pow(
+            0.001,
+            delta
+        )
     );
 
 
-  camera.position.lerp(
-    desired,
-    0.08
-  );
+    cameraTarget.set(
+
+        player.position.x,
+
+        player.position.y + 1.5,
+
+        player.position.z
+
+    );
 
 
-  camera.lookAt(
-    target
-  );
+    camera.lookAt(
+        cameraTarget
+    );
+}
 
+
+/* =========================================================
+   PLAYER UPDATE
+   ========================================================= */
+
+function updatePlayer(delta) {
+
+    if (!player) return;
+
+
+    if (joystickActive) {
+
+        const forward =
+            new THREE.Vector3(
+                0,
+                0,
+                -joystickY
+            );
+
+
+        const sideways =
+            new THREE.Vector3(
+                joystickX,
+                0,
+                0
+            );
+
+
+        direction
+            .copy(forward)
+            .add(sideways);
+
+
+        if (direction.length() > 1) {
+
+            direction.normalize();
+
+        }
+
+
+        player.position.addScaledVector(
+            direction,
+            moveSpeed * delta
+        );
+
+
+        if (
+            direction.lengthSq() > 0.01
+        ) {
+
+            const angle =
+                Math.atan2(
+                    direction.x,
+                    direction.z
+                );
+
+
+            player.rotation.y =
+                angle + Math.PI;
+
+
+            if (
+                playerAnimations.run
+            ) {
+
+                playAnimation("run");
+
+            }
+            else if (
+                playerAnimations.walk
+            ) {
+
+                playAnimation("walk");
+
+            }
+        }
+
+    }
+    else {
+
+        if (
+            playerAnimations.idle
+        ) {
+
+            playAnimation("idle");
+
+        }
+    }
+
+
+    /* Jump */
+
+    if (!grounded) {
+
+        jumpVelocity -=
+            22 * delta;
+
+        player.position.y +=
+            jumpVelocity * delta;
+
+
+        if (
+            player.position.y <= 0
+        ) {
+
+            player.position.y = 0;
+
+            jumpVelocity = 0;
+
+            grounded = true;
+
+            playAnimation("idle");
+        }
+    }
 }
 
 
@@ -2277,115 +1598,141 @@ function updateCamera() {
 
 function updateHUD() {
 
-  const hpBar =
-    document.getElementById(
-      "hpBar"
-    );
-
-  const magicBar =
-    document.getElementById(
-      "magicBar"
-    );
-
-  const hpText =
-    document.getElementById(
-      "hpText"
-    );
-
-  const magicText =
-    document.getElementById(
-      "magicText"
-    );
-
-  const xpText =
-    document.getElementById(
-      "xpText"
-    );
+    const hp =
+        document.getElementById(
+            "hp"
+        );
 
 
-  if (hpBar) {
-
-    hpBar.style.width =
-      Math.max(
-        hp,
-        0
-      ) +
-      "%";
-
-  }
+    const magicBar =
+        document.getElementById(
+            "magic"
+        );
 
 
-  if (magicBar) {
-
-    magicBar.style.width =
-      Math.max(
-        magic,
-        0
-      ) +
-      "%";
-
-  }
+    const xpBar =
+        document.getElementById(
+            "xp"
+        );
 
 
-  if (hpText) {
+    if (magicBar) {
 
-    hpText.textContent =
-      Math.round(
-        hp
-      );
+        magicBar.style.width =
+            `${magic}%`;
 
-  }
+    }
 
 
-  if (magicText) {
+    if (xpBar) {
 
-    magicText.textContent =
-      Math.round(
-        magic
-      );
+        xpBar.style.width =
+            `${Math.min(xp, 100)}%`;
 
-  }
+    }
 
 
-  if (xpText) {
+    if (hp) {
 
-    xpText.textContent =
-      xp;
+        hp.style.width =
+            "100%";
 
-  }
+    }
+}
 
+
+function updateMessage(text) {
+
+    const message =
+        document.getElementById(
+            "message"
+        );
+
+
+    if (message) {
+
+        message.textContent =
+            text;
+
+    }
 }
 
 
 /* =========================================================
-   MESSAGE
+   WATER ANIMATION
    ========================================================= */
 
-let messageTimer =
-  0;
+let waterTime = 0;
 
 
-function showMessage(
-  text
-) {
+function updateWater(delta) {
 
-  const message =
-    document.getElementById(
-      "message"
-    );
+    waterTime += delta;
 
 
-  if (!message)
-    return;
+    const position =
+        water.geometry.attributes.position;
 
 
-  message.textContent =
-    text;
+    for (
+        let i = 0;
+        i < position.count;
+        i++
+    ) {
+
+        const x =
+            position.getX(i);
+
+        const y =
+            position.getY(i);
 
 
-  messageTimer =
-    2;
+        position.setZ(
+            i,
+            Math.sin(
+                x * 0.3 +
+                waterTime * 1.5
+            ) *
+            0.12 +
+            Math.cos(
+                y * 0.25 +
+                waterTime
+            ) *
+            0.08
+        );
+    }
 
+
+    position.needsUpdate = true;
+}
+
+
+/* =========================================================
+   MAGIC REGENERATION
+   ========================================================= */
+
+let magicTimer = 0;
+
+
+function regenerateMagic(delta) {
+
+    magicTimer += delta;
+
+
+    if (
+        magicTimer > 0.15
+    ) {
+
+        magic += 0.5;
+
+        magic =
+            Math.min(
+                magic,
+                100
+            );
+
+        magicTimer = 0;
+    }
 }
 
 
@@ -2394,189 +1741,83 @@ function showMessage(
    ========================================================= */
 
 window.addEventListener(
-  "resize",
-  () => {
+    "resize",
+    () => {
 
-    camera.aspect =
-      window.innerWidth /
-      window.innerHeight;
-
-    camera.updateProjectionMatrix();
+        camera.aspect =
+            window.innerWidth /
+            window.innerHeight;
 
 
-    renderer.setSize(
-      window.innerWidth,
-      window.innerHeight
-    );
+        camera.updateProjectionMatrix();
 
 
-    renderer.setPixelRatio(
-      Math.min(
-        window.devicePixelRatio,
-        1.5
-      )
-    );
-
-  }
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+    }
 );
 
 
 /* =========================================================
-   MAIN LOOP
+   GAME LOOP
    ========================================================= */
+
+const clock =
+    new THREE.Clock();
+
 
 function animate() {
 
-  requestAnimationFrame(
-    animate
-  );
-
-
-  const delta =
-    Math.min(
-      clock.getDelta(),
-      0.05
+    requestAnimationFrame(
+        animate
     );
 
 
-  const elapsed =
-    clock.elapsedTime;
-
-
-  /* Water */
-
-  animateWater(
-    elapsed
-  );
-
-
-  /* Player animation */
-
-  if (
-    playerMixer
-  ) {
-
-    playerMixer.update(
-      delta
-    );
-
-  }
-
-
-  /* Player */
-
-  updatePlayer(
-    delta
-  );
-
-
-  /* Enemies */
-
-  updateEnemies(
-    delta
-  );
-
-
-  /* Spells */
-
-  updateSpells(
-    delta
-  );
-
-
-  /* Camera */
-
-  updateCamera();
-
-
-  /* Magic regeneration */
-
-  magic =
-    Math.min(
-      100,
-      magic +
-      delta * 3
-    );
-
-
-  /* Spell cooldown */
-
-  spellCooldown =
-    Math.max(
-      0,
-      spellCooldown -
-      delta
-    );
-
-
-  /* Message */
-
-  if (
-    messageTimer > 0
-  ) {
-
-    messageTimer -=
-      delta;
-
-    if (
-      messageTimer <= 0
-    ) {
-
-      const message =
-        document.getElementById(
-          "message"
+    const delta =
+        Math.min(
+            clock.getDelta(),
+            0.05
         );
 
-      if (message) {
 
-        message.textContent =
-          "";
+    if (mixer) {
 
-      }
+        mixer.update(delta);
 
     }
 
-  }
+
+    updatePlayer(delta);
+
+    updateEnemies(delta);
+
+    updateSpells(delta);
+
+    updateWater(delta);
+
+    regenerateMagic(delta);
+
+    updateHUD();
+
+    updateCamera(delta);
 
 
-  /* HUD */
-
-  updateHUD();
-
-
-  renderer.render(
-    scene,
-    camera
-  );
-
+    renderer.render(
+        scene,
+        camera
+    );
 }
+
 
 animate();
 
 
 /* =========================================================
-   STARTUP MESSAGE
+   START MESSAGE
    ========================================================= */
 
-setTimeout(
-  () => {
-
-    if (!player) {
-
-      const loadingText =
-        document.querySelector(
-          ".loading-text"
-        );
-
-      if (loadingText) {
-
-        loadingText.textContent =
-          "Loading 3D character...";
-
-      }
-
-    }
-
-  },
-  500
+updateMessage(
+    "Entering Aetheria Academy..."
 );
