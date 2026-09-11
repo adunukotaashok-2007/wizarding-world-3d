@@ -2,7 +2,6 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 
-
 /* =========================================================
    BASIC SETUP
    ========================================================= */
@@ -31,11 +30,7 @@ const camera = new THREE.PerspectiveCamera(
   600
 );
 
-camera.position.set(
-  0,
-  5,
-  78
-);
+camera.position.set(0, 5, 78);
 
 
 /* =========================================================
@@ -76,19 +71,21 @@ container.appendChild(renderer.domElement);
    LIGHTING
    ========================================================= */
 
-const hemiLight = new THREE.HemisphereLight(
-  0xbfd3e8,
-  0x39412f,
-  2.0
-);
+const hemiLight =
+  new THREE.HemisphereLight(
+    0xbfd3e8,
+    0x39412f,
+    2.0
+  );
 
 scene.add(hemiLight);
 
 
-const sun = new THREE.DirectionalLight(
-  0xfff4df,
-  3.2
-);
+const sun =
+  new THREE.DirectionalLight(
+    0xfff4df,
+    3.2
+  );
 
 sun.position.set(
   80,
@@ -113,7 +110,7 @@ scene.add(sun);
 
 
 /* =========================================================
-   MATERIAL HELPERS
+   MATERIALS
    ========================================================= */
 
 function material(
@@ -128,48 +125,63 @@ function material(
   });
 }
 
+const stoneMat =
+  material(0x59616b, 0.9);
 
-const stoneMat = material(
-  0x59616b,
-  0.9
-);
+const darkStoneMat =
+  material(0x303841, 0.95);
 
-const darkStoneMat = material(
-  0x303841,
-  0.95
-);
+const roofMat =
+  material(0x202832, 0.9);
 
-const roofMat = material(
-  0x202832,
-  0.9
-);
+const woodMat =
+  material(0x4b2f20, 0.85);
 
-const woodMat = material(
-  0x4b2f20,
-  0.85
-);
+const woodDarkMat =
+  material(0x281812, 0.9);
 
-const woodDarkMat = material(
-  0x281812,
-  0.9
-);
+const grassMat =
+  material(0x40583c, 1);
 
-const grassMat = material(
-  0x40583c,
-  1
-);
+const pathMat =
+  material(0x77786f, 1);
 
-const pathMat = material(
-  0x77786f,
-  1
-);
+const goldMat =
+  new THREE.MeshStandardMaterial({
+    color: 0xd8b45d,
+    emissive: 0x4a350c,
+    emissiveIntensity: 0.35,
+    roughness: 0.45
+  });
 
-const goldMat = new THREE.MeshStandardMaterial({
-  color: 0xd8b45d,
-  emissive: 0x4a350c,
-  emissiveIntensity: 0.35,
-  roughness: 0.45
-});
+
+/* =========================================================
+   COLLISION SYSTEM
+   ========================================================= */
+
+const collisionBoxes = [];
+const treeColliders = [];
+
+const playerRadius = 0.7;
+
+
+/* =========================================================
+   COLLISION BOX
+   ========================================================= */
+
+function addCollisionBox(
+  x,
+  z,
+  width,
+  depth
+) {
+  collisionBoxes.push({
+    minX: x - width / 2,
+    maxX: x + width / 2,
+    minZ: z - depth / 2,
+    maxZ: z + depth / 2
+  });
+}
 
 
 /* =========================================================
@@ -183,8 +195,10 @@ function box(
   x,
   y,
   z,
-  mat = stoneMat
+  mat = stoneMat,
+  collision = false
 ) {
+
   const geometry =
     new THREE.BoxGeometry(
       width,
@@ -209,6 +223,15 @@ function box(
 
   scene.add(mesh);
 
+  if (collision) {
+    addCollisionBox(
+      x,
+      z,
+      width,
+      depth
+    );
+  }
+
   return mesh;
 }
 
@@ -226,6 +249,7 @@ function cylinder(
   mat = stoneMat,
   segments = 24
 ) {
+
   const geometry =
     new THREE.CylinderGeometry(
       radius,
@@ -266,6 +290,7 @@ function towerRoof(
   y,
   z
 ) {
+
   const geometry =
     new THREE.ConeGeometry(
       radius,
@@ -297,15 +322,12 @@ function towerRoof(
    GROUND
    ========================================================= */
 
-const groundGeometry =
-  new THREE.PlaneGeometry(
-    500,
-    500
-  );
-
 const ground =
   new THREE.Mesh(
-    groundGeometry,
+    new THREE.PlaneGeometry(
+      500,
+      500
+    ),
     grassMat
   );
 
@@ -329,7 +351,9 @@ function createMainCastle() {
     28,
     0,
     12,
-    -30
+    -30,
+    stoneMat,
+    true
   );
 
   box(
@@ -339,8 +363,16 @@ function createMainCastle() {
     0,
     29,
     -30,
-    darkStoneMat
+    darkStoneMat,
+    true
   );
+
+  /*
+   * Front section.
+   *
+   * The entrance opening is kept free.
+   * Collision is handled by the side walls.
+   */
 
   box(
     18,
@@ -349,7 +381,8 @@ function createMainCastle() {
     0,
     15,
     -14,
-    stoneMat
+    stoneMat,
+    false
   );
 
   box(
@@ -359,7 +392,8 @@ function createMainCastle() {
     -25,
     9,
     -29,
-    stoneMat
+    stoneMat,
+    true
   );
 
   box(
@@ -369,7 +403,8 @@ function createMainCastle() {
     25,
     9,
     -29,
-    stoneMat
+    stoneMat,
+    true
   );
 
   box(
@@ -379,7 +414,8 @@ function createMainCastle() {
     0,
     20,
     -46,
-    darkStoneMat
+    darkStoneMat,
+    true
   );
 }
 
@@ -414,6 +450,18 @@ function createCentralTower() {
     40,
     -34,
     stoneMat
+  );
+
+  /*
+   * Central tower collision.
+   * Approximate cylinder with a square.
+   */
+
+  addCollisionBox(
+    0,
+    -34,
+    12,
+    12
   );
 }
 
@@ -452,6 +500,13 @@ function createTower(
     z,
     darkStoneMat
   );
+
+  addCollisionBox(
+    x,
+    z,
+    10,
+    10
+  );
 }
 
 
@@ -467,7 +522,9 @@ function createFrontWalls() {
     5,
     -28,
     7.5,
-    -13
+    -13,
+    stoneMat,
+    true
   );
 
   box(
@@ -476,7 +533,9 @@ function createFrontWalls() {
     5,
     28,
     7.5,
-    -13
+    -13,
+    stoneMat,
+    true
   );
 
   box(
@@ -485,7 +544,9 @@ function createFrontWalls() {
     5,
     0,
     21,
-    -13
+    -13,
+    stoneMat,
+    true
   );
 }
 
@@ -496,6 +557,11 @@ function createFrontWalls() {
 
 function createMainGate() {
 
+  /*
+   * Gate pillars are collidable.
+   * The middle opening remains free.
+   */
+
   box(
     3,
     14,
@@ -503,7 +569,8 @@ function createMainGate() {
     -7,
     7,
     -16,
-    darkStoneMat
+    darkStoneMat,
+    true
   );
 
   box(
@@ -513,7 +580,8 @@ function createMainGate() {
     7,
     7,
     -16,
-    darkStoneMat
+    darkStoneMat,
+    true
   );
 
   box(
@@ -523,8 +591,15 @@ function createMainGate() {
     0,
     14,
     -16,
-    darkStoneMat
+    darkStoneMat,
+    true
   );
+
+  /*
+   * Wooden doors are decorative only.
+   * This means Aren can enter through
+   * the gate opening.
+   */
 
   box(
     4.7,
@@ -533,7 +608,8 @@ function createMainGate() {
     -2.35,
     5.5,
     -18,
-    woodDarkMat
+    woodDarkMat,
+    false
   );
 
   box(
@@ -543,7 +619,8 @@ function createMainGate() {
     2.35,
     5.5,
     -18,
-    woodDarkMat
+    woodDarkMat,
+    false
   );
 
   box(
@@ -584,15 +661,12 @@ function createCourtyard() {
     pathMat
   );
 
-  const plazaGeometry =
-    new THREE.CircleGeometry(
-      10,
-      48
-    );
-
   const plaza =
     new THREE.Mesh(
-      plazaGeometry,
+      new THREE.CircleGeometry(
+        10,
+        48
+      ),
       stoneMat
     );
 
@@ -647,27 +721,20 @@ function createFountain() {
     32
   );
 
-  const waterGeometry =
-    new THREE.CylinderGeometry(
-      5.2,
-      5.2,
-      0.15,
-      48
-    );
-
-  const waterMat =
-    new THREE.MeshStandardMaterial({
-      color: 0x5d8ca0,
-      transparent: true,
-      opacity: 0.75,
-      roughness: 0.2,
-      metalness: 0.1
-    });
-
   const water =
     new THREE.Mesh(
-      waterGeometry,
-      waterMat
+      new THREE.CylinderGeometry(
+        5.2,
+        5.2,
+        0.15,
+        48
+      ),
+      new THREE.MeshStandardMaterial({
+        color: 0x5d8ca0,
+        transparent: true,
+        opacity: 0.75,
+        roughness: 0.2
+      })
     );
 
   water.position.set(
@@ -746,24 +813,18 @@ function createTorch(
     12
   );
 
-  const flameGeometry =
-    new THREE.SphereGeometry(
-      0.45,
-      12,
-      12
-    );
-
-  const flameMat =
-    new THREE.MeshStandardMaterial({
-      color: 0xffb347,
-      emissive: 0xff6600,
-      emissiveIntensity: 2
-    });
-
   const flame =
     new THREE.Mesh(
-      flameGeometry,
-      flameMat
+      new THREE.SphereGeometry(
+        0.45,
+        12,
+        10
+      ),
+      new THREE.MeshStandardMaterial({
+        color: 0xffb347,
+        emissive: 0xff6600,
+        emissiveIntensity: 2
+      })
     );
 
   flame.position.set(
@@ -801,36 +862,27 @@ function createTree(
   scale = 1
 ) {
 
-  const trunk =
-    cylinder(
-      0.7 * scale,
-      5 * scale,
-      x,
-      2.5 * scale,
-      z,
-      woodMat,
-      10
-    );
-
-  trunk.castShadow = true;
-
-  const leavesGeometry =
-    new THREE.SphereGeometry(
-      3.5 * scale,
-      12,
-      10
-    );
-
-  const leavesMat =
-    new THREE.MeshStandardMaterial({
-      color: 0x28482e,
-      roughness: 1
-    });
+  cylinder(
+    0.7 * scale,
+    5 * scale,
+    x,
+    2.5 * scale,
+    z,
+    woodMat,
+    10
+  );
 
   const leaves =
     new THREE.Mesh(
-      leavesGeometry,
-      leavesMat
+      new THREE.SphereGeometry(
+        3.5 * scale,
+        12,
+        10
+      ),
+      new THREE.MeshStandardMaterial({
+        color: 0x28482e,
+        roughness: 1
+      })
     );
 
   leaves.position.set(
@@ -843,36 +895,33 @@ function createTree(
   leaves.receiveShadow = true;
 
   scene.add(leaves);
+
+
+  /*
+   * Tree collision radius
+   */
+
+  treeColliders.push({
+    x,
+    z,
+    r: 2.2 * scale
+  });
 }
 
 
 /* =========================================================
-   BUILD ACADEMY
+   BUILD WORLD
    ========================================================= */
 
 createMainCastle();
 
 createCentralTower();
 
-createTower(
-  -35,
-  -22
-);
+createTower(-35, -22);
+createTower(35, -22);
 
-createTower(
-  35,
-  -22
-);
-
-createTower(
-  -35,
-  34
-);
-
-createTower(
-  35,
-  34
-);
+createTower(-35, 34);
+createTower(35, 34);
 
 createFrontWalls();
 
@@ -889,35 +938,14 @@ createPath();
    TORCHES
    ========================================================= */
 
-createTorch(
-  -8,
-  -19
-);
+createTorch(-8, -19);
+createTorch(8, -19);
 
-createTorch(
-  8,
-  -19
-);
+createTorch(-15, 5);
+createTorch(15, 5);
 
-createTorch(
-  -15,
-  5
-);
-
-createTorch(
-  15,
-  5
-);
-
-createTorch(
-  -15,
-  30
-);
-
-createTorch(
-  15,
-  30
-);
+createTorch(-15, 30);
+createTorch(15, 30);
 
 
 /* =========================================================
@@ -948,6 +976,7 @@ for (
   const [x, z, scale]
   of treePositions
 ) {
+
   createTree(
     x,
     z,
@@ -963,17 +992,14 @@ for (
 const questMarker =
   new THREE.Group();
 
-const markerGeometry =
-  new THREE.CylinderGeometry(
-    0.7,
-    0.7,
-    0.15,
-    24
-  );
-
 const marker =
   new THREE.Mesh(
-    markerGeometry,
+    new THREE.CylinderGeometry(
+      0.7,
+      0.7,
+      0.15,
+      24
+    ),
     goldMat
   );
 
@@ -1007,14 +1033,14 @@ scene.add(questMarker);
    ========================================================= */
 
 let player = null;
-let playerMixer = null;
 
 const playerBones = {};
 const originalRotations = {};
 
 let rightHand = null;
 
-const loader = new GLTFLoader();
+const loader =
+  new GLTFLoader();
 
 const dracoLoader =
   new DRACOLoader();
@@ -1033,7 +1059,8 @@ loader.load(
 
   (gltf) => {
 
-    player = gltf.scene;
+    player =
+      gltf.scene;
 
     player.position.set(
       0,
@@ -1044,6 +1071,7 @@ loader.load(
     player.scale.setScalar(
       1
     );
+
 
     player.traverse(
       (object) => {
@@ -1062,17 +1090,21 @@ loader.load(
 
           originalRotations[
             object.name
-          ] = object.rotation.clone();
+          ] =
+            object.rotation.clone();
 
           if (
             object.name ===
             "RightHand"
           ) {
-            rightHand = object;
+
+            rightHand =
+              object;
           }
         }
       }
     );
+
 
     scene.add(player);
 
@@ -1082,8 +1114,8 @@ loader.load(
 
     document.getElementById(
       "loading"
-    ).style.display = "none";
-
+    ).style.display =
+      "none";
   },
 
   (progress) => {
@@ -1115,18 +1147,6 @@ loader.load(
       "PLAYER LOAD ERROR:",
       error
     );
-
-    document.getElementById(
-      "loading"
-    ).innerHTML =
-      `
-      <div class="loading-box">
-        <h1>PLAYER ERROR</h1>
-        <p>
-          Could not load Aren Valen.
-        </p>
-      </div>
-      `;
   }
 );
 
@@ -1140,24 +1160,18 @@ function createWand() {
   if (!rightHand)
     return;
 
-  const geometry =
-    new THREE.CylinderGeometry(
-      0.045,
-      0.07,
-      1.6,
-      8
-    );
-
-  const mat =
-    new THREE.MeshStandardMaterial({
-      color: 0x1b1008,
-      roughness: 0.7
-    });
-
   const wand =
     new THREE.Mesh(
-      geometry,
-      mat
+      new THREE.CylinderGeometry(
+        0.045,
+        0.07,
+        1.6,
+        8
+      ),
+      new THREE.MeshStandardMaterial({
+        color: 0x1b1008,
+        roughness: 0.7
+      })
     );
 
   wand.rotation.z =
@@ -1174,7 +1188,7 @@ function createWand() {
 
 
 /* =========================================================
-   POSE HELPERS
+   POSE
    ========================================================= */
 
 function setBoneOffset(
@@ -1187,13 +1201,10 @@ function setBoneOffset(
   const bone =
     playerBones[name];
 
-  if (!bone)
-    return;
-
   const original =
     originalRotations[name];
 
-  if (!original)
+  if (!bone || !original)
     return;
 
   bone.rotation.set(
@@ -1203,10 +1214,6 @@ function setBoneOffset(
   );
 }
 
-
-/* =========================================================
-   RESET ANIMATED BONES
-   ========================================================= */
 
 function resetAnimatedBones() {
 
@@ -1231,7 +1238,7 @@ function resetAnimatedBones() {
 
 
 /* =========================================================
-   STANDING POSE
+   STANDING
    ========================================================= */
 
 function applyStandingPose() {
@@ -1240,14 +1247,6 @@ function applyStandingPose() {
     return;
 
   resetAnimatedBones();
-
-  /*
-   * Aren's GLB is originally
-   * in a T-pose.
-   *
-   * The arms are moved down
-   * around their local X axis.
-   */
 
   setBoneOffset(
     "LeftArm",
@@ -1316,53 +1315,32 @@ function applyWalkingAnimation(
 
   setBoneOffset(
     "LeftUpLeg",
-    swing,
-    0,
-    0
+    swing
   );
 
   setBoneOffset(
     "RightUpLeg",
-    -swing,
-    0,
-    0
+    -swing
   );
 
   setBoneOffset(
     "LeftLeg",
-    -swing * 0.55,
-    0,
-    0
+    -swing * 0.55
   );
 
   setBoneOffset(
     "RightLeg",
-    swing * 0.55,
-    0,
-    0
+    swing * 0.55
   );
 
   setBoneOffset(
     "LeftArm",
-    Math.PI / 2 + armSwing,
-    0,
-    0
+    Math.PI / 2 + armSwing
   );
 
   setBoneOffset(
     "RightArm",
-    Math.PI / 2 - armSwing,
-    0,
-    0
-  );
-
-  setBoneOffset(
-    "Spine",
-    0,
-    0,
-    Math.sin(time * 9) *
-    0.025 *
-    amount
+    Math.PI / 2 - armSwing
   );
 }
 
@@ -1397,38 +1375,28 @@ function applyIdleAnimation(
    JUMP ANIMATION
    ========================================================= */
 
-function applyJumpAnimation(
-  time
-) {
+function applyJumpAnimation() {
 
   applyStandingPose();
 
   setBoneOffset(
     "LeftUpLeg",
-    -0.25,
-    0,
-    0
+    -0.25
   );
 
   setBoneOffset(
     "RightUpLeg",
-    -0.25,
-    0,
-    0
+    -0.25
   );
 
   setBoneOffset(
     "LeftArm",
-    Math.PI / 2 - 0.25,
-    0,
-    0
+    Math.PI / 2 - 0.25
   );
 
   setBoneOffset(
     "RightArm",
-    Math.PI / 2 + 0.25,
-    0,
-    0
+    Math.PI / 2 + 0.25
   );
 }
 
@@ -1437,37 +1405,24 @@ function applyJumpAnimation(
    CASTING ANIMATION
    ========================================================= */
 
-function applyCastingAnimation(
-  time
-) {
+function applyCastingAnimation() {
 
   applyStandingPose();
 
   setBoneOffset(
     "RightArm",
-    Math.PI / 2 - 0.9,
-    0,
-    0
+    Math.PI / 2 - 0.9
   );
 
   setBoneOffset(
     "RightForeArm",
-    -0.4,
-    0,
-    0
-  );
-
-  setBoneOffset(
-    "Spine",
-    0,
-    0.1,
-    0
+    -0.4
   );
 }
 
 
 /* =========================================================
-   PLAYER MOVEMENT
+   MOVEMENT
    ========================================================= */
 
 const keys = {};
@@ -1475,24 +1430,24 @@ const keys = {};
 window.addEventListener(
   "keydown",
   (event) => {
-
-    keys[event.key.toLowerCase()] =
-      true;
+    keys[
+      event.key.toLowerCase()
+    ] = true;
   }
 );
 
 window.addEventListener(
   "keyup",
   (event) => {
-
-    keys[event.key.toLowerCase()] =
-      false;
+    keys[
+      event.key.toLowerCase()
+    ] = false;
   }
 );
 
 
-const moveInput =
-  new THREE.Vector2();
+let joystickX = 0;
+let joystickY = 0;
 
 let velocityY = 0;
 
@@ -1506,7 +1461,7 @@ const jumpPower = 8;
 
 
 /* =========================================================
-   CAMERA CONTROL
+   CAMERA
    ========================================================= */
 
 let cameraYaw = 0;
@@ -1520,7 +1475,6 @@ const cameraHeight = 3.5;
 let cameraDragging = false;
 
 let lastPointerX = 0;
-
 let lastPointerY = 0;
 
 
@@ -1586,7 +1540,6 @@ renderer.domElement.addEventListener(
 renderer.domElement.addEventListener(
   "pointerup",
   () => {
-
     cameraDragging = false;
   }
 );
@@ -1594,7 +1547,6 @@ renderer.domElement.addEventListener(
 renderer.domElement.addEventListener(
   "pointercancel",
   () => {
-
     cameraDragging = false;
   }
 );
@@ -1617,10 +1569,6 @@ const joystickStick =
 let joystickActive = false;
 
 let joystickPointerId = null;
-
-let joystickX = 0;
-
-let joystickY = 0;
 
 
 function updateJoystick(
@@ -1760,35 +1708,24 @@ joystickBase.addEventListener(
    JUMP
    ========================================================= */
 
-const jumpBtn =
-  document.getElementById(
-    "jumpBtn"
-  );
-
-
-function jump() {
-
-  if (
-    !player ||
-    !grounded
-  ) {
-    return;
-  }
-
-  velocityY =
-    jumpPower;
-
-  grounded = false;
-}
-
-
-jumpBtn.addEventListener(
+document.getElementById(
+  "jumpBtn"
+).addEventListener(
   "pointerdown",
   (event) => {
 
     event.preventDefault();
 
-    jump();
+    if (
+      player &&
+      grounded
+    ) {
+
+      velocityY =
+        jumpPower;
+
+      grounded = false;
+    }
   }
 );
 
@@ -1796,11 +1733,6 @@ jumpBtn.addEventListener(
 /* =========================================================
    SPELL
    ========================================================= */
-
-const spellBtn =
-  document.getElementById(
-    "spellBtn"
-  );
 
 let casting = false;
 
@@ -1813,7 +1745,9 @@ let spellCooldown = 0;
 const projectiles = [];
 
 
-spellBtn.addEventListener(
+document.getElementById(
+  "spellBtn"
+).addEventListener(
   "pointerdown",
   (event) => {
 
@@ -1823,6 +1757,10 @@ spellBtn.addEventListener(
   }
 );
 
+
+/* =========================================================
+   CORRECT FORWARD SPELL
+   ========================================================= */
 
 function castSpell() {
 
@@ -1843,37 +1781,55 @@ function castSpell() {
     0.25;
 
 
-  const geometry =
-    new THREE.SphereGeometry(
-      0.15,
-      12,
-      12
-    );
-
-  const mat =
-    new THREE.MeshStandardMaterial({
-      color: 0x9fdcff,
-      emissive: 0x3a9cff,
-      emissiveIntensity: 3
-    });
-
-  const projectile =
-    new THREE.Mesh(
-      geometry,
-      mat
-    );
+  /*
+   * IMPORTANT:
+   *
+   * Aren's GLB faces +Z.
+   *
+   * Therefore the projectile uses
+   * local +Z as forward.
+   */
 
   const forward =
     new THREE.Vector3(
       0,
       0,
-      -1
+      1
     );
 
-  forward.applyAxisAngle(
-    new THREE.Vector3(0,1,0),
-    player.rotation.y
+
+  /*
+   * Convert Aren's local forward
+   * direction into world direction.
+   */
+
+  forward.applyQuaternion(
+    player.quaternion
   );
+
+  forward.normalize();
+
+
+  /* Projectile */
+
+  const projectile =
+    new THREE.Mesh(
+      new THREE.SphereGeometry(
+        0.16,
+        12,
+        12
+      ),
+      new THREE.MeshStandardMaterial({
+        color: 0x9fdcff,
+        emissive: 0x3a9cff,
+        emissiveIntensity: 3
+      })
+    );
+
+
+  /*
+   * Start in front of Aren.
+   */
 
   projectile.position.copy(
     player.position
@@ -1883,16 +1839,26 @@ function castSpell() {
     2.1;
 
   projectile.position.add(
-    forward.clone().multiplyScalar(1.2)
+    forward.clone()
+      .multiplyScalar(1.5)
   );
 
+
+  /*
+   * Shoot forward.
+   */
+
   projectile.userData.velocity =
-    forward.multiplyScalar(22);
+    forward.clone()
+      .multiplyScalar(22);
 
   projectile.userData.life =
     2;
 
-  scene.add(projectile);
+
+  scene.add(
+    projectile
+  );
 
   projectiles.push(
     projectile
@@ -1901,7 +1867,7 @@ function castSpell() {
 
 
 /* =========================================================
-   UPDATE PROJECTILES
+   PROJECTILES
    ========================================================= */
 
 function updateProjectiles(
@@ -1926,6 +1892,7 @@ function updateProjectiles(
     projectile.userData.life -=
       delta;
 
+
     if (
       projectile.userData.life <=
       0
@@ -1949,7 +1916,96 @@ function updateProjectiles(
 
 
 /* =========================================================
-   PLAYER UPDATE
+   COLLISION CHECK
+   ========================================================= */
+
+function canMoveTo(
+  x,
+  z
+) {
+
+  /*
+   * Castle rectangle collision
+   */
+
+  for (
+    const box of collisionBoxes
+  ) {
+
+    const closestX =
+      THREE.MathUtils.clamp(
+        x,
+        box.minX,
+        box.maxX
+      );
+
+    const closestZ =
+      THREE.MathUtils.clamp(
+        z,
+        box.minZ,
+        box.maxZ
+      );
+
+    const dx =
+      x - closestX;
+
+    const dz =
+      z - closestZ;
+
+    const distanceSquared =
+      dx * dx +
+      dz * dz;
+
+
+    if (
+      distanceSquared <
+      playerRadius *
+      playerRadius
+    ) {
+
+      return false;
+    }
+  }
+
+
+  /*
+   * Tree collision
+   */
+
+  for (
+    const tree of treeColliders
+  ) {
+
+    const dx =
+      x - tree.x;
+
+    const dz =
+      z - tree.z;
+
+    const distance =
+      Math.sqrt(
+        dx * dx +
+        dz * dz
+      );
+
+
+    if (
+      distance <
+      tree.r +
+      playerRadius
+    ) {
+
+      return false;
+    }
+  }
+
+
+  return true;
+}
+
+
+/* =========================================================
+   PLAYER MOVEMENT UPDATE
    ========================================================= */
 
 function updatePlayer(
@@ -1960,10 +2016,6 @@ function updatePlayer(
   if (!player)
     return;
 
-
-  /* ---------------------------------
-     INPUT
-     --------------------------------- */
 
   let inputX =
     joystickX;
@@ -2007,16 +2059,13 @@ function updatePlayer(
       inputY
     );
 
+
   if (
     input.lengthSq() > 1
   ) {
     input.normalize();
   }
 
-
-  /* ---------------------------------
-     CAMERA RELATIVE MOVEMENT
-     --------------------------------- */
 
   const forward =
     new THREE.Vector3(
@@ -2025,6 +2074,7 @@ function updatePlayer(
       -Math.cos(cameraYaw)
     );
 
+
   const right =
     new THREE.Vector3(
       Math.cos(cameraYaw),
@@ -2032,8 +2082,10 @@ function updatePlayer(
       -Math.sin(cameraYaw)
     );
 
+
   const direction =
     new THREE.Vector3();
+
 
   direction
     .addScaledVector(
@@ -2051,21 +2103,62 @@ function updatePlayer(
     0.001;
 
 
-  /* ---------------------------------
-     MOVE
-     --------------------------------- */
-
   if (moving) {
 
     direction.normalize();
 
-    player.position.addScaledVector(
-      direction,
-      moveSpeed * delta
-    );
+
+    const movement =
+      direction.clone()
+        .multiplyScalar(
+          moveSpeed * delta
+        );
 
 
-    /* Turn character */
+    /*
+     * AXIS-SEPARATED COLLISION
+     *
+     * This allows Aren to slide
+     * along walls instead of getting
+     * completely stuck.
+     */
+
+    const newX =
+      player.position.x +
+      movement.x;
+
+    const newZ =
+      player.position.z +
+      movement.z;
+
+
+    if (
+      canMoveTo(
+        newX,
+        player.position.z
+      )
+    ) {
+
+      player.position.x =
+        newX;
+    }
+
+
+    if (
+      canMoveTo(
+        player.position.x,
+        newZ
+      )
+    ) {
+
+      player.position.z =
+        newZ;
+    }
+
+
+    /*
+     * Turn Aren toward movement.
+     */
 
     const targetRotation =
       Math.atan2(
@@ -2073,15 +2166,22 @@ function updatePlayer(
         direction.z
       );
 
+
     let rotationDifference =
       targetRotation -
       player.rotation.y;
 
+
     rotationDifference =
       Math.atan2(
-        Math.sin(rotationDifference),
-        Math.cos(rotationDifference)
+        Math.sin(
+          rotationDifference
+        ),
+        Math.cos(
+          rotationDifference
+        )
       );
+
 
     player.rotation.y +=
       rotationDifference *
@@ -2092,9 +2192,9 @@ function updatePlayer(
   }
 
 
-  /* ---------------------------------
-     WORLD BOUNDS
-     --------------------------------- */
+  /*
+   * World boundaries
+   */
 
   player.position.x =
     THREE.MathUtils.clamp(
@@ -2111,15 +2211,16 @@ function updatePlayer(
     );
 
 
-  /* ---------------------------------
-     JUMP / GRAVITY
-     --------------------------------- */
+  /*
+   * Gravity
+   */
 
   velocityY +=
     gravity * delta;
 
   player.position.y +=
     velocityY * delta;
+
 
   if (
     player.position.y <= 0
@@ -2133,30 +2234,23 @@ function updatePlayer(
   }
 
 
-  /* ---------------------------------
-     ANIMATION
-     --------------------------------- */
+  /*
+   * Animation
+   */
 
   if (!grounded) {
 
-    applyJumpAnimation(
-      elapsed
-    );
+    applyJumpAnimation();
 
   } else if (casting) {
 
-    applyCastingAnimation(
-      elapsed
-    );
+    applyCastingAnimation();
 
   } else if (moving) {
 
     applyWalkingAnimation(
       elapsed,
-      Math.min(
-        1,
-        input.length()
-      )
+      input.length()
     );
 
   } else {
@@ -2167,9 +2261,9 @@ function updatePlayer(
   }
 
 
-  /* ---------------------------------
-     CAST TIMER
-     --------------------------------- */
+  /*
+   * Casting timer
+   */
 
   if (casting) {
 
@@ -2179,13 +2273,16 @@ function updatePlayer(
     if (
       castTimer <= 0
     ) {
+
       casting = false;
     }
   }
 
+
   if (
     spellCooldown > 0
   ) {
+
     spellCooldown -=
       delta;
   }
@@ -2222,6 +2319,7 @@ function updateCamera(
 
   const desiredPosition =
     new THREE.Vector3(
+
       target.x +
       Math.sin(cameraYaw) *
       horizontalDistance,
@@ -2284,6 +2382,7 @@ function showMessage(
   messageElement.style.opacity =
     "1";
 
+
   setTimeout(
     () => {
 
@@ -2306,16 +2405,21 @@ function updateQuest() {
   }
 
 
-  const target =
-    new THREE.Vector3(
-      0,
-      0,
-      -18
-    );
+  /*
+   * Gate target.
+   */
+
+  const dx =
+    player.position.x;
+
+  const dz =
+    player.position.z + 18;
+
 
   const distance =
-    player.position.distanceTo(
-      target
+    Math.sqrt(
+      dx * dx +
+      dz * dz
     );
 
 
@@ -2328,12 +2432,15 @@ function updateQuest() {
 
     questCompleted = true;
 
+
     questElement.textContent =
       "Quest Complete: Reach the academy gate";
+
 
     showMessage(
       "Welcome to Aetheria Academy!"
     );
+
 
     questMarker.visible =
       false;
@@ -2342,7 +2449,7 @@ function updateQuest() {
 
 
 /* =========================================================
-   QUEST MARKER ANIMATION
+   QUEST MARKER
    ========================================================= */
 
 function updateQuestMarker(
@@ -2355,14 +2462,17 @@ function updateQuestMarker(
     return;
   }
 
+
   questMarker.position.y =
     Math.sin(
       elapsed * 3
     ) *
     0.25;
 
+
   questMarker.rotation.y =
     elapsed * 2;
+
 
   markerLight.intensity =
     1.5 +
@@ -2379,24 +2489,16 @@ function updateQuestMarker(
 
 function resize() {
 
-  const width =
-    window.innerWidth;
-
-  const height =
-    window.innerHeight;
-
-
   camera.aspect =
-    width / height;
+    window.innerWidth /
+    window.innerHeight;
 
   camera.updateProjectionMatrix();
 
-
   renderer.setSize(
-    width,
-    height
+    window.innerWidth,
+    window.innerHeight
   );
-
 
   renderer.setPixelRatio(
     Math.min(
@@ -2438,11 +2540,13 @@ function animate() {
     animate
   );
 
+
   const delta =
     Math.min(
       clock.getDelta(),
       0.05
     );
+
 
   const elapsed =
     clock.elapsedTime;
