@@ -1,78 +1,343 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
 
-  <title>Wizarding World 3D</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
 
-  <link rel="stylesheet" href="./style.css">
+    <title>Wizarding World 3D</title>
 
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #071018;
+            font-family: Arial, sans-serif;
+        }
+
+        #game {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #game canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* =========================
+           LOADING SCREEN
+           ========================= */
+
+        #loading {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background:
+                radial-gradient(
+                    circle at center,
+                    #1b2d3d 0%,
+                    #101c27 45%,
+                    #071018 100%
+                );
+
+            color: white;
+        }
+
+        .loading-box {
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .loading-title {
+            margin: 0 0 18px;
+
+            font-size: clamp(28px, 8vw, 48px);
+            font-weight: 700;
+            letter-spacing: 3px;
+
+            text-shadow:
+                0 0 10px rgba(255,255,255,0.3),
+                0 0 30px rgba(100,180,255,0.25);
+        }
+
+        .loading-text {
+            margin: 0;
+
+            font-size: 18px;
+            color: #cbd7e2;
+        }
+
+        .loading-status {
+            margin-top: 15px;
+
+            font-size: 13px;
+            line-height: 1.5;
+
+            color: #8799a8;
+            word-break: break-word;
+        }
+
+        /* =========================
+           HUD
+           ========================= */
+
+        #topHud {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+
+            z-index: 100;
+
+            pointer-events: none;
+        }
+
+        #quest {
+            display: inline-block;
+
+            padding: 10px 14px;
+
+            border-radius: 10px;
+
+            background: rgba(0, 0, 0, 0.55);
+            color: white;
+
+            font-size: 14px;
+        }
+
+        #message {
+            position: fixed;
+
+            left: 50%;
+            bottom: 110px;
+
+            transform: translateX(-50%);
+
+            z-index: 100;
+
+            width: 90%;
+            max-width: 500px;
+
+            padding: 10px 15px;
+
+            text-align: center;
+
+            border-radius: 10px;
+
+            background: rgba(0, 0, 0, 0.55);
+
+            color: white;
+
+            font-size: 14px;
+
+            pointer-events: none;
+        }
+
+        /* =========================
+           JOYSTICK
+           ========================= */
+
+        #joystickBase {
+            position: fixed;
+
+            left: 25px;
+            bottom: 25px;
+
+            width: 120px;
+            height: 120px;
+
+            z-index: 200;
+
+            border-radius: 50%;
+
+            background: rgba(255,255,255,0.12);
+
+            border: 2px solid rgba(255,255,255,0.25);
+
+            touch-action: none;
+        }
+
+        #joystickStick {
+            position: absolute;
+
+            left: 50%;
+            top: 50%;
+
+            width: 55px;
+            height: 55px;
+
+            transform: translate(-50%, -50%);
+
+            border-radius: 50%;
+
+            background: rgba(255,255,255,0.35);
+
+            border: 2px solid rgba(255,255,255,0.5);
+
+            pointer-events: none;
+        }
+
+        /* =========================
+           BUTTONS
+           ========================= */
+
+        #jumpBtn,
+        #spellBtn {
+            position: fixed;
+
+            z-index: 200;
+
+            width: 75px;
+            height: 75px;
+
+            border-radius: 50%;
+
+            border: 2px solid rgba(255,255,255,0.35);
+
+            color: white;
+
+            font-weight: bold;
+
+            touch-action: manipulation;
+
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #jumpBtn {
+            right: 25px;
+            bottom: 110px;
+
+            background: rgba(40,120,255,0.45);
+        }
+
+        #spellBtn {
+            right: 25px;
+            bottom: 25px;
+
+            background: rgba(130,50,220,0.45);
+        }
+
+        #jumpBtn:active,
+        #spellBtn:active {
+            transform: scale(0.92);
+        }
+    </style>
+
+    <!--
+        IMPORTANT:
+        Both Three.js and GLTFLoader use the SAME CDN.
+    -->
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
     }
-  }
-  </script>
+    </script>
 </head>
 
 <body>
 
-  <div id="loading">
-    <div class="loading-title">WIZARDING WORLD 3D</div>
-    <div class="loading-text">Loading magical world...</div>
-  </div>
+    <!-- =========================
+         LOADING
+         ========================= -->
 
-  <div id="game">
+    <div id="loading">
+
+        <div class="loading-box">
+
+            <h1 class="loading-title">
+                WIZARDING WORLD 3D
+            </h1>
+
+            <p class="loading-text">
+                Loading magical world...
+            </p>
+
+            <p class="loading-status">
+                Preparing Aren Valen...
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         GAME
+         ========================= -->
+
+    <div id="game"></div>
+
+
+    <!-- =========================
+         HUD
+         ========================= -->
 
     <div id="topHud">
-      <div class="title">WIZARDING WORLD 3D</div>
 
-      <div class="bars">
-
-        <div class="bar-row">
-          <span>HP</span>
-          <div class="bar">
-            <div id="hpBar"></div>
-          </div>
-          <span id="hpText">100</span>
+        <div id="quest">
+            Quest: Enter Aetheria Academy
         </div>
 
-        <div class="bar-row">
-          <span>MAGIC</span>
-          <div class="bar">
-            <div id="magicBar"></div>
-          </div>
-          <span id="magicText">100</span>
-        </div>
-
-        <div class="xp">
-          XP: <span id="xpText">0</span>
-        </div>
-
-      </div>
     </div>
 
-    <div id="quest">
-      <b>QUEST</b>
-      <br>
-      Explore the magical valley
+
+    <div id="message">
+        Preparing the magical world...
     </div>
 
-    <div id="message"></div>
+
+    <!-- =========================
+         CONTROLS
+         ========================= -->
 
     <div id="joystickBase">
-      <div id="joystickStick"></div>
+        <div id="joystickStick"></div>
     </div>
 
-    <button id="jumpBtn">JUMP</button>
-    <button id="spellBtn">SPELL</button>
+    <button id="jumpBtn">
+        JUMP
+    </button>
 
-  </div>
-<script type="module" src="game.js?v=2"></script>
+    <button id="spellBtn">
+        SPELL
+    </button>
+
+
+    <!-- =========================
+         GAME SCRIPT
+         ========================= -->
+
+    <script
+        type="module"
+        src="./game.js?v=3"
+    ></script>
 
 </body>
 </html>
