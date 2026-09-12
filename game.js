@@ -1,845 +1,589 @@
 /* =========================================================
    AETHERIA ACADEMY
-   COMPLETE 3D MOBILE GAME
-========================================================= */
+   STEP 1 — WORLD ENVIRONMENT UPGRADE
+   ---------------------------------------------------------
+   • 3D academy courtyard
+   • Grass
+   • Trees
+   • Rocks
+   • Bushes
+   • Paths
+   • Fountain
+   • Torches + fire
+   • NPC + quest
+   • Aren player GLB
+   • Movement / run / jump
+   • Camera
+   • Magic spell
+   • Mobile joystick
+   ========================================================= */
 
-import * as THREE from
-    "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
-
+import * as THREE from "three";
 import { GLTFLoader } from
-    "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
 
 import { DRACOLoader } from
-    "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/DRACOLoader.js";
+"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/DRACOLoader.js";
 
 
 /* =========================================================
-   DOM
-========================================================= */
+   BASIC SETUP
+   ========================================================= */
 
-const game =
-    document.getElementById("game");
+const scene = new THREE.Scene();
 
-const loading =
-    document.getElementById("loading");
+scene.background = new THREE.Color(0x87b9d8);
 
-const joystick =
-    document.getElementById("joystick");
-
-const joystickKnob =
-    document.getElementById("joystickKnob");
-
-const jumpButton =
-    document.getElementById("jumpButton");
-
-const spellButton =
-    document.getElementById("spellButton");
-
-const questText =
-    document.getElementById("questText");
-
-const xpElement =
-    document.getElementById("xp");
-
-const dialogueBox =
-    document.getElementById("dialogueBox");
-
-let interactButton =
-    document.getElementById("interactButton");
-
-
-/* =========================================================
-   LOADING
-========================================================= */
-
-function hideLoadingScreen() {
-
-    if (!loading) return;
-
-    loading.style.opacity = "0";
-
-    setTimeout(() => {
-
-        loading.style.display =
-            "none";
-
-    }, 600);
-
-}
-
-
-/* =========================================================
-   ERROR LOG
-========================================================= */
-
-window.addEventListener(
-    "error",
-    function (event) {
-
-        console.error(
-            "Aetheria error:",
-            event.error ||
-            event.message
-        );
-
-    }
+scene.fog = new THREE.Fog(
+    0x87b9d8,
+    70,
+    260
 );
 
 
-window.addEventListener(
-    "unhandledrejection",
-    function (event) {
-
-        console.error(
-            "Aetheria promise error:",
-            event.reason
-        );
-
-    }
+const camera = new THREE.PerspectiveCamera(
+    60,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    500
 );
 
 
-/* =========================================================
-   SCENE
-========================================================= */
-
-const scene =
-    new THREE.Scene();
-
-scene.background =
-    new THREE.Color(
-        0x07111c
-    );
-
-scene.fog =
-    new THREE.Fog(
-        0x07111c,
-        45,
-        230
-    );
-
-
-/* =========================================================
-   CAMERA
-========================================================= */
-
-const camera =
-    new THREE.PerspectiveCamera(
-        60,
-        window.innerWidth /
-            window.innerHeight,
-        0.1,
-        1000
-    );
-
-camera.position.set(
-    0,
-    5,
-    82
-);
-
-
-/* =========================================================
-   RENDERER
-========================================================= */
-
-const renderer =
-    new THREE.WebGLRenderer({
-
-        antialias: true,
-
-        powerPreference:
-            "high-performance"
-
-    });
-
+const renderer = new THREE.WebGLRenderer({
+    antialias: true
+});
 
 renderer.setSize(
     window.innerWidth,
     window.innerHeight
 );
 
-
 renderer.setPixelRatio(
-    Math.min(
-        window.devicePixelRatio || 1,
-        1.8
-    )
+    Math.min(window.devicePixelRatio, 2)
 );
 
-
-renderer.shadowMap.enabled =
-    true;
-
+renderer.shadowMap.enabled = true;
 
 renderer.shadowMap.type =
     THREE.PCFSoftShadowMap;
 
-
 renderer.outputColorSpace =
     THREE.SRGBColorSpace;
-
 
 renderer.toneMapping =
     THREE.ACESFilmicToneMapping;
 
+renderer.toneMappingExposure = 1.1;
 
-renderer.toneMappingExposure =
-    1.15;
-
-
-renderer.domElement.style.touchAction =
-    "none";
-
-
-game.appendChild(
+document.body.appendChild(
     renderer.domElement
 );
 
 
 /* =========================================================
-   LIGHTING
-========================================================= */
+   LOADING
+   ========================================================= */
 
-const hemisphere =
+const loadingScreen =
+    document.getElementById("loadingScreen");
+
+const loadingText =
+    document.getElementById("loadingText");
+
+
+function setLoading(text) {
+
+    if (loadingText) {
+        loadingText.textContent = text;
+    }
+
+}
+
+
+function hideLoading() {
+
+    if (!loadingScreen) return;
+
+    loadingScreen.style.opacity = "0";
+
+    setTimeout(() => {
+
+        loadingScreen.style.display =
+            "none";
+
+    }, 700);
+
+}
+
+
+/* =========================================================
+   LIGHTING
+   ========================================================= */
+
+const hemiLight =
     new THREE.HemisphereLight(
-        0xbfdcff,
-        0x263018,
-        2.2
+        0xbfe8ff,
+        0x526342,
+        1.8
     );
 
-scene.add(
-    hemisphere
-);
+scene.add(hemiLight);
 
 
 const sun =
     new THREE.DirectionalLight(
-        0xfff2d0,
+        0xfff3d1,
         3
     );
 
 sun.position.set(
-    50,
+    60,
     100,
     40
 );
 
-sun.castShadow =
-    true;
+sun.castShadow = true;
 
-sun.shadow.mapSize.width =
-    2048;
+sun.shadow.mapSize.width = 2048;
+sun.shadow.mapSize.height = 2048;
 
-sun.shadow.mapSize.height =
-    2048;
+sun.shadow.camera.left = -120;
+sun.shadow.camera.right = 120;
+sun.shadow.camera.top = 120;
+sun.shadow.camera.bottom = -120;
 
-sun.shadow.camera.left =
-    -120;
+sun.shadow.camera.near = 1;
+sun.shadow.camera.far = 300;
 
-sun.shadow.camera.right =
-    120;
+scene.add(sun);
 
-sun.shadow.camera.top =
-    120;
 
-sun.shadow.camera.bottom =
-    -120;
+/* =========================================================
+   WORLD GROUPS
+   ========================================================= */
 
-sun.shadow.camera.near =
-    1;
+const world =
+    new THREE.Group();
 
-sun.shadow.camera.far =
-    300;
+scene.add(world);
 
-scene.add(
-    sun
-);
+
+const environment =
+    new THREE.Group();
+
+world.add(environment);
+
+
+const decorations =
+    new THREE.Group();
+
+world.add(decorations);
+
+
+const effects =
+    new THREE.Group();
+
+scene.add(effects);
 
 
 /* =========================================================
    MATERIALS
-========================================================= */
+   ========================================================= */
 
-const groundMat =
+const grassMaterial =
     new THREE.MeshStandardMaterial({
-
-        color: 0x33452f,
-
+        color: 0x3e7138,
         roughness: 1
-
     });
 
 
-const grassMat =
+const grassLightMaterial =
     new THREE.MeshStandardMaterial({
-
-        color: 0x526b3b,
-
+        color: 0x64964d,
         roughness: 1
-
     });
 
 
-const stoneMat =
+const dirtMaterial =
     new THREE.MeshStandardMaterial({
-
-        color: 0x6c7077,
-
-        roughness: 0.92,
-
-        metalness: 0.05
-
+        color: 0x80633d,
+        roughness: 1
     });
 
 
-const darkStoneMat =
+const stoneMaterial =
     new THREE.MeshStandardMaterial({
-
-        color: 0x333740,
-
+        color: 0x777b76,
         roughness: 0.95
-
     });
 
 
-const roofMat =
+const stoneDarkMaterial =
     new THREE.MeshStandardMaterial({
-
-        color: 0x242832,
-
-        roughness: 0.9
-
+        color: 0x4f514e,
+        roughness: 1
     });
 
 
-const woodMat =
+const woodMaterial =
     new THREE.MeshStandardMaterial({
-
-        color: 0x4b3020,
-
-        roughness: 0.9
-
+        color: 0x4a2d18,
+        roughness: 1
     });
 
 
-const goldMat =
+const leafMaterial =
     new THREE.MeshStandardMaterial({
-
-        color: 0xb9964c,
-
-        metalness: 0.7,
-
-        roughness: 0.3
-
+        color: 0x285d31,
+        roughness: 1
     });
 
 
-const waterMat =
+const leafLightMaterial =
     new THREE.MeshStandardMaterial({
-
-        color: 0x327eaa,
-
-        transparent: true,
-
-        opacity: 0.75,
-
-        roughness: 0.1
-
+        color: 0x3d7d42,
+        roughness: 1
     });
 
 
-/* =========================================================
-   COLLISION
-========================================================= */
+const flowerMaterials = [
 
-const collisionBoxes = [];
+    new THREE.MeshStandardMaterial({
+        color: 0xb05d86
+    }),
 
-const treeColliders = [];
+    new THREE.MeshStandardMaterial({
+        color: 0xc98b3c
+    }),
 
-const playerRadius = 0.7;
+    new THREE.MeshStandardMaterial({
+        color: 0x8c6bb1
+    }),
 
+    new THREE.MeshStandardMaterial({
+        color: 0xd8d1b1
+    })
 
-function addCollisionBox(
-    x,
-    y,
-    z,
-    width,
-    height,
-    depth
-) {
-
-    collisionBoxes.push({
-
-        minX:
-            x - width / 2,
-
-        maxX:
-            x + width / 2,
-
-        minY:
-            y - height / 2,
-
-        maxY:
-            y + height / 2,
-
-        minZ:
-            z - depth / 2,
-
-        maxZ:
-            z + depth / 2
-
-    });
-
-}
-
-
-/* =========================================================
-   BOX
-========================================================= */
-
-function box(
-    width,
-    height,
-    depth,
-    x,
-    y,
-    z,
-    material,
-    collision = false
-) {
-
-    const geometry =
-        new THREE.BoxGeometry(
-            width,
-            height,
-            depth
-        );
-
-
-    const mesh =
-        new THREE.Mesh(
-            geometry,
-            material
-        );
-
-
-    mesh.position.set(
-        x,
-        y,
-        z
-    );
-
-
-    mesh.castShadow =
-        true;
-
-    mesh.receiveShadow =
-        true;
-
-
-    scene.add(
-        mesh
-    );
-
-
-    if (collision) {
-
-        addCollisionBox(
-            x,
-            y,
-            z,
-            width,
-            height,
-            depth
-        );
-
-    }
-
-
-    return mesh;
-
-}
+];
 
 
 /* =========================================================
    GROUND
-========================================================= */
+   ========================================================= */
 
-box(
-    240,
-    1,
-    240,
-    0,
-    -0.5,
-    25,
-    groundMat,
-    false
-);
+const groundGeometry =
+    new THREE.PlaneGeometry(
+        300,
+        300,
+        80,
+        80
+    );
+
+
+const ground =
+    new THREE.Mesh(
+        groundGeometry,
+        grassMaterial
+    );
+
+ground.rotation.x =
+    -Math.PI / 2;
+
+ground.receiveShadow = true;
+
+environment.add(ground);
 
 
 /* =========================================================
-   GRASS
-========================================================= */
+   GRASS PATCH
+   ========================================================= */
 
 function createGrassPatch(
+    x,
+    z,
+    radius = 3,
+    count = 30
+) {
+
+    const group =
+        new THREE.Group();
+
+    group.position.set(
+        x,
+        0.03,
+        z
+    );
+
+    for (
+        let i = 0;
+        i < count;
+        i++
+    ) {
+
+        const blade =
+            new THREE.Mesh(
+                new THREE.ConeGeometry(
+                    0.035,
+                    THREE.MathUtils.randFloat(
+                        0.25,
+                        0.6
+                    ),
+                    3
+                ),
+                i % 2 === 0
+                    ? grassLightMaterial
+                    : grassMaterial
+            );
+
+        const angle =
+            Math.random() *
+            Math.PI * 2;
+
+        const distance =
+            Math.sqrt(Math.random()) *
+            radius;
+
+        blade.position.x =
+            Math.cos(angle) *
+            distance;
+
+        blade.position.z =
+            Math.sin(angle) *
+            distance;
+
+        blade.position.y =
+            0.25;
+
+        blade.rotation.y =
+            Math.random() *
+            Math.PI;
+
+        blade.rotation.z =
+            THREE.MathUtils.randFloat(
+                -0.25,
+                0.25
+            );
+
+        blade.castShadow = true;
+
+        group.add(blade);
+    }
+
+    decorations.add(group);
+}
+
+
+/* =========================================================
+   MANY GRASS PATCHES
+   ========================================================= */
+
+for (
+    let i = 0;
+    i < 100;
+    i++
+) {
+
+    const x =
+        THREE.MathUtils.randFloat(
+            -110,
+            110
+        );
+
+    const z =
+        THREE.MathUtils.randFloat(
+            -110,
+            110
+        );
+
+    createGrassPatch(
+        x,
+        z,
+        THREE.MathUtils.randFloat(2, 5),
+        THREE.MathUtils.randInt(15, 35)
+    );
+}
+
+
+/* =========================================================
+   PATH
+   ========================================================= */
+
+function createPath(
+    width,
+    length,
     x,
     z
 ) {
 
     const geometry =
-        new THREE.PlaneGeometry(
-            14,
-            14
+        new THREE.BoxGeometry(
+            width,
+            0.12,
+            length
         );
-
 
     const mesh =
         new THREE.Mesh(
             geometry,
-            grassMat
+            dirtMaterial
         );
-
-
-    mesh.rotation.x =
-        -Math.PI / 2;
-
 
     mesh.position.set(
         x,
-        0.01,
+        0.06,
         z
     );
 
+    mesh.receiveShadow = true;
 
-    mesh.receiveShadow =
-        true;
+    environment.add(mesh);
+
+    return mesh;
+}
 
 
-    scene.add(
-        mesh
+/* Main academy path */
+
+createPath(
+    12,
+    170,
+    0,
+    -35
+);
+
+
+/* Cross path */
+
+const crossPath =
+    createPath(
+        150,
+        10,
+        0,
+        20
     );
-
-}
-
-
-for (
-    let x = -100;
-    x <= 100;
-    x += 20
-) {
-
-    for (
-        let z = -20;
-        z <= 120;
-        z += 20
-    ) {
-
-        createGrassPatch(
-            x,
-            z
-        );
-
-    }
-
-}
 
 
 /* =========================================================
-   ACADEMY
-========================================================= */
+   STONE PATH BLOCKS
+   ========================================================= */
 
-function createAcademy() {
+function createPathStone(
+    x,
+    y,
+    z,
+    scaleX = 1,
+    scaleZ = 1
+) {
 
-    box(
-        42,
-        24,
-        28,
-        0,
-        12,
-        -30,
-        stoneMat,
-        true
-    );
-
-
-    box(
-        30,
-        10,
-        22,
-        0,
-        29,
-        -30,
-        darkStoneMat,
-        true
-    );
-
-
-    box(
-        18,
-        30,
-        10,
-        0,
-        15,
-        -14,
-        stoneMat,
-        false
-    );
-
-
-    box(
-        15,
-        18,
-        24,
-        -25,
-        9,
-        -29,
-        stoneMat,
-        true
-    );
-
-
-    box(
-        15,
-        18,
-        24,
-        25,
-        9,
-        -29,
-        stoneMat,
-        true
-    );
-
-
-    box(
-        44,
-        6,
-        30,
-        0,
-        27,
-        -30,
-        roofMat,
-        true
-    );
-
-
-    box(
-        16,
-        38,
-        16,
-        0,
-        19,
-        -30,
-        stoneMat,
-        true
-    );
-
-
-    /* Gate */
-
-    box(
-        4,
-        16,
-        5,
-        -10,
-        8,
-        -17,
-        stoneMat,
-        true
-    );
-
-
-    box(
-        4,
-        16,
-        5,
-        10,
-        8,
-        -17,
-        stoneMat,
-        true
-    );
-
-
-    box(
-        24,
-        5,
-        5,
-        0,
-        16,
-        -17,
-        stoneMat,
-        true
-    );
-
-
-    const door =
+    const stone =
         new THREE.Mesh(
             new THREE.BoxGeometry(
-                18,
-                14,
-                1.2
+                scaleX,
+                0.18,
+                scaleZ
             ),
-            woodMat
+            stoneMaterial
         );
 
-
-    door.position.set(
-        0,
-        7,
-        -16
+    stone.position.set(
+        x,
+        y,
+        z
     );
 
-
-    door.castShadow =
-        true;
-
-
-    scene.add(
-        door
-    );
-
-
-    const crest =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                3,
-                3,
-                0.5,
-                32
-            ),
-            goldMat
+    stone.rotation.y =
+        THREE.MathUtils.randFloat(
+            -0.05,
+            0.05
         );
 
+    stone.castShadow = true;
+    stone.receiveShadow = true;
 
-    crest.rotation.x =
-        Math.PI / 2;
-
-
-    crest.position.set(
-        0,
-        12,
-        -16.5
-    );
-
-
-    scene.add(
-        crest
-    );
-
+    decorations.add(stone);
 }
-
-
-createAcademy();
 
 
 /* =========================================================
    COURTYARD
-========================================================= */
+   ========================================================= */
 
 const courtyard =
     new THREE.Mesh(
         new THREE.CylinderGeometry(
-            18,
-            18,
+            38,
+            38,
             0.25,
             64
         ),
-        stoneMat
+        stoneMaterial
     );
-
 
 courtyard.position.set(
     0,
-    0.12,
-    18
+    0.13,
+    15
 );
 
+courtyard.receiveShadow = true;
 
-courtyard.receiveShadow =
-    true;
-
-
-scene.add(
-    courtyard
-);
-
-
-/* =========================================================
-   PATH
-========================================================= */
-
-box(
-    14,
-    0.15,
-    110,
-    0,
-    0.08,
-    40,
-    stoneMat,
-    false
-);
+environment.add(courtyard);
 
 
 /* =========================================================
    FOUNTAIN
-========================================================= */
+   ========================================================= */
 
 function createFountain() {
+
+    const group =
+        new THREE.Group();
+
+    group.position.set(
+        0,
+        0.2,
+        15
+    );
+
 
     const base =
         new THREE.Mesh(
             new THREE.CylinderGeometry(
                 8,
-                9,
-                1,
+                8.5,
+                0.7,
                 48
             ),
-            stoneMat
+            stoneMaterial
         );
 
+    base.castShadow = true;
+    base.receiveShadow = true;
 
-    base.position.set(
-        0,
-        0.5,
-        18
-    );
-
-
-    base.castShadow =
-        true;
-
-    base.receiveShadow =
-        true;
-
-
-    scene.add(
-        base
-    );
+    group.add(base);
 
 
     const water =
         new THREE.Mesh(
             new THREE.CylinderGeometry(
-                7.3,
-                7.3,
-                0.35,
+                6.8,
+                6.8,
+                0.12,
                 48
             ),
-            waterMat
+            new THREE.MeshStandardMaterial({
+                color: 0x4ba6c6,
+                roughness: 0.1,
+                metalness: 0.15,
+                transparent: true,
+                opacity: 0.85
+            })
         );
 
+    water.position.y =
+        0.42;
 
-    water.position.set(
-        0,
-        1.1,
-        18
-    );
-
-
-    scene.add(
-        water
-    );
+    group.add(water);
 
 
     const pillar =
@@ -847,56 +591,72 @@ function createFountain() {
             new THREE.CylinderGeometry(
                 1.2,
                 1.6,
-                6,
-                32
+                4,
+                24
             ),
-            stoneMat
+            stoneMaterial
         );
 
+    pillar.position.y =
+        2.1;
 
-    pillar.position.set(
-        0,
-        3.5,
-        18
-    );
+    pillar.castShadow = true;
 
-
-    pillar.castShadow =
-        true;
+    group.add(pillar);
 
 
-    scene.add(
-        pillar
-    );
-
-
-    const top =
+    const bowl =
         new THREE.Mesh(
             new THREE.CylinderGeometry(
-                3,
-                2.2,
-                0.8,
+                4,
+                2.5,
+                0.7,
                 32
             ),
-            stoneMat
+            stoneMaterial
         );
 
+    bowl.position.y =
+        4.1;
 
-    top.position.set(
-        0,
-        6.7,
-        18
-    );
+    bowl.castShadow = true;
 
-
-    top.castShadow =
-        true;
+    group.add(bowl);
 
 
-    scene.add(
-        top
-    );
+    const crystal =
+        new THREE.Mesh(
+            new THREE.OctahedronGeometry(
+                1.1,
+                1
+            ),
+            new THREE.MeshStandardMaterial({
+                color: 0x75d9ff,
+                emissive: 0x247da0,
+                emissiveIntensity: 1.5
+            })
+        );
 
+    crystal.position.y =
+        5.4;
+
+    group.add(crystal);
+
+
+    const light =
+        new THREE.PointLight(
+            0x69dfff,
+            2,
+            20
+        );
+
+    light.position.y =
+        5;
+
+    group.add(light);
+
+
+    decorations.add(group);
 }
 
 
@@ -904,10 +664,271 @@ createFountain();
 
 
 /* =========================================================
-   TREES
-========================================================= */
+   ROCK
+   ========================================================= */
+
+function createRock(
+    x,
+    z,
+    scale = 1
+) {
+
+    const rock =
+        new THREE.Mesh(
+            new THREE.DodecahedronGeometry(
+                THREE.MathUtils.randFloat(
+                    0.5,
+                    1.4
+                ),
+                1
+            ),
+            Math.random() > 0.5
+                ? stoneMaterial
+                : stoneDarkMaterial
+        );
+
+    rock.position.set(
+        x,
+        0.45 * scale,
+        z
+    );
+
+    rock.scale.set(
+        scale,
+        scale *
+        THREE.MathUtils.randFloat(
+            0.6,
+            1
+        ),
+        scale
+    );
+
+    rock.rotation.set(
+        Math.random(),
+        Math.random(),
+        Math.random()
+    );
+
+    rock.castShadow = true;
+    rock.receiveShadow = true;
+
+    decorations.add(rock);
+}
+
+
+/* =========================================================
+   ROCK GROUPS
+   ========================================================= */
+
+for (
+    let i = 0;
+    i < 45;
+    i++
+) {
+
+    const x =
+        THREE.MathUtils.randFloat(
+            -100,
+            100
+        );
+
+    const z =
+        THREE.MathUtils.randFloat(
+            -100,
+            100
+        );
+
+
+    if (
+        Math.abs(x) < 45 &&
+        Math.abs(z - 15) < 35
+    ) {
+        continue;
+    }
+
+
+    createRock(
+        x,
+        z,
+        THREE.MathUtils.randFloat(
+            0.5,
+            1.5
+        )
+    );
+}
+
+
+/* =========================================================
+   TREE
+   ========================================================= */
 
 function createTree(
+    x,
+    z,
+    scale = 1
+) {
+
+    const tree =
+        new THREE.Group();
+
+    tree.position.set(
+        x,
+        0,
+        z
+    );
+
+    tree.scale.setScalar(
+        scale
+    );
+
+
+    /* trunk */
+
+    const trunk =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                0.55,
+                0.8,
+                6,
+                10
+            ),
+            woodMaterial
+        );
+
+    trunk.position.y =
+        3;
+
+    trunk.castShadow = true;
+
+    tree.add(trunk);
+
+
+    /* main crown */
+
+    const crown1 =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                3.1,
+                12,
+                10
+            ),
+            leafMaterial
+        );
+
+    crown1.position.y =
+        6.2;
+
+    crown1.castShadow = true;
+
+    tree.add(crown1);
+
+
+    /* second crown */
+
+    const crown2 =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                2.3,
+                12,
+                10
+            ),
+            leafLightMaterial
+        );
+
+    crown2.position.set(
+        1.8,
+        7,
+        0
+    );
+
+    crown2.castShadow = true;
+
+    tree.add(crown2);
+
+
+    const crown3 =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                2.2,
+                12,
+                10
+            ),
+            leafMaterial
+        );
+
+    crown3.position.set(
+        -1.8,
+        6.8,
+        0.4
+    );
+
+    crown3.castShadow = true;
+
+    tree.add(crown3);
+
+
+    decorations.add(tree);
+
+    return tree;
+}
+
+
+/* =========================================================
+   TREE PLACEMENT
+   ========================================================= */
+
+const treePositions = [
+
+    [-42, -42],
+    [42, -42],
+
+    [-48, -15],
+    [48, -15],
+
+    [-52, 25],
+    [52, 25],
+
+    [-43, 55],
+    [43, 55],
+
+    [-75, -55],
+    [75, -55],
+
+    [-85, 10],
+    [85, 10],
+
+    [-72, 70],
+    [72, 70],
+
+    [-95, 55],
+    [95, 55],
+
+    [-20, 80],
+    [20, 80]
+
+];
+
+
+for (
+    const position of treePositions
+) {
+
+    createTree(
+        position[0],
+        position[1],
+        THREE.MathUtils.randFloat(
+            0.85,
+            1.25
+        )
+    );
+}
+
+
+/* =========================================================
+   BUSH
+   ========================================================= */
+
+function createBush(
     x,
     z,
     scale = 1
@@ -916,6 +937,99 @@ function createTree(
     const group =
         new THREE.Group();
 
+    group.position.set(
+        x,
+        0,
+        z
+    );
+
+    group.scale.setScalar(
+        scale
+    );
+
+
+    for (
+        let i = 0;
+        i < 5;
+        i++
+    ) {
+
+        const bush =
+            new THREE.Mesh(
+                new THREE.SphereGeometry(
+                    THREE.MathUtils.randFloat(
+                        0.7,
+                        1.3
+                    ),
+                    10,
+                    8
+                ),
+                leafLightMaterial
+            );
+
+        bush.position.set(
+            THREE.MathUtils.randFloat(
+                -1.2,
+                1.2
+            ),
+            THREE.MathUtils.randFloat(
+                0.5,
+                1.2
+            ),
+            THREE.MathUtils.randFloat(
+                -1.2,
+                1.2
+            )
+        );
+
+        bush.castShadow = true;
+
+        group.add(bush);
+    }
+
+
+    decorations.add(group);
+}
+
+
+/* =========================================================
+   BUSH PLACEMENT
+   ========================================================= */
+
+for (
+    let i = 0;
+    i < 45;
+    i++
+) {
+
+    createBush(
+        THREE.MathUtils.randFloat(
+            -85,
+            85
+        ),
+        THREE.MathUtils.randFloat(
+            -80,
+            85
+        ),
+        THREE.MathUtils.randFloat(
+            0.7,
+            1.3
+        )
+    );
+}
+
+
+/* =========================================================
+   FLOWERS
+   ========================================================= */
+
+function createFlower(
+    x,
+    z
+) {
+
+    const group =
+        new THREE.Group();
 
     group.position.set(
         x,
@@ -924,177 +1038,308 @@ function createTree(
     );
 
 
-    group.scale.setScalar(
-        scale
-    );
-
-
-    const trunk =
+    const stem =
         new THREE.Mesh(
             new THREE.CylinderGeometry(
-                0.8,
-                1.15,
-                7,
-                12
+                0.025,
+                0.025,
+                0.45,
+                5
             ),
-            woodMat
+            new THREE.MeshStandardMaterial({
+                color: 0x477a38
+            })
         );
 
+    stem.position.y =
+        0.22;
 
-    trunk.position.y =
-        3.5;
-
-
-    trunk.castShadow =
-        true;
+    group.add(stem);
 
 
-    group.add(
-        trunk
-    );
-
-
-    const leafMaterial =
-        new THREE.MeshStandardMaterial({
-
-            color: 0x29452b,
-
-            roughness: 1
-
-        });
-
-
-    const leaves =
+    const flower =
         new THREE.Mesh(
             new THREE.SphereGeometry(
-                4.2,
-                16,
-                12
+                0.12,
+                8,
+                8
             ),
-            leafMaterial
+            flowerMaterials[
+                Math.floor(
+                    Math.random() *
+                    flowerMaterials.length
+                )
+            ]
         );
 
+    flower.position.y =
+        0.5;
 
-    leaves.position.y =
-        8;
+    group.add(flower);
 
-
-    leaves.scale.set(
-        1.25,
-        1.15,
-        1.25
-    );
-
-
-    leaves.castShadow =
-        true;
-
-
-    group.add(
-        leaves
-    );
-
-
-    const leaves2 =
-        leaves.clone();
-
-
-    leaves2.position.set(
-        -2.5,
-        10,
-        0.5
-    );
-
-
-    leaves2.scale.setScalar(
-        0.7
-    );
-
-
-    group.add(
-        leaves2
-    );
-
-
-    const leaves3 =
-        leaves.clone();
-
-
-    leaves3.position.set(
-        2.4,
-        10.5,
-        -0.4
-    );
-
-
-    leaves3.scale.setScalar(
-        0.7
-    );
-
-
-    group.add(
-        leaves3
-    );
-
-
-    scene.add(
-        group
-    );
-
-
-    treeColliders.push({
-
-        x,
-        z,
-
-        radius:
-            2.2 * scale
-
-    });
-
+    decorations.add(group);
 }
 
 
-const treePositions = [
-
-    [-45, 35],
-    [-55, 55],
-    [-42, 75],
-
-    [45, 35],
-    [55, 55],
-    [42, 75],
-
-    [-70, 20],
-    [70, 20],
-
-    [-75, 70],
-    [75, 70]
-
-];
-
-
 for (
-    const [x, z]
-    of treePositions
+    let i = 0;
+    i < 100;
+    i++
 ) {
 
-    createTree(
-        x,
-        z,
-        1 +
-        Math.random() * 0.25
+    createFlower(
+        THREE.MathUtils.randFloat(
+            -70,
+            70
+        ),
+        THREE.MathUtils.randFloat(
+            -70,
+            80
+        )
     );
-
 }
 
 
 /* =========================================================
-   TORCHES
-========================================================= */
+   ACADEMY CASTLE
+   ========================================================= */
 
-const torches = [];
+function createAcademy() {
 
+    const castle =
+        new THREE.Group();
+
+    castle.position.set(
+        0,
+        0,
+        -75
+    );
+
+
+    const wallMaterial =
+        new THREE.MeshStandardMaterial({
+            color: 0x686a68,
+            roughness: 0.9
+        });
+
+
+    /* Main building */
+
+    const main =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                58,
+                24,
+                22
+            ),
+            wallMaterial
+        );
+
+    main.position.y =
+        12;
+
+    main.castShadow = true;
+    main.receiveShadow = true;
+
+    castle.add(main);
+
+
+    /* Central tower */
+
+    const tower =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                8,
+                9,
+                38,
+                8
+            ),
+            wallMaterial
+        );
+
+    tower.position.set(
+        0,
+        19,
+        0
+    );
+
+    tower.castShadow = true;
+
+    castle.add(tower);
+
+
+    /* Tower roof */
+
+    const roof =
+        new THREE.Mesh(
+            new THREE.ConeGeometry(
+                10,
+                10,
+                8
+            ),
+            new THREE.MeshStandardMaterial({
+                color: 0x292d39,
+                roughness: 0.8
+            })
+        );
+
+    roof.position.set(
+        0,
+        43,
+        0
+    );
+
+    roof.castShadow = true;
+
+    castle.add(roof);
+
+
+    /* Side towers */
+
+    const sidePositions = [
+        [-25, 0],
+        [25, 0]
+    ];
+
+
+    for (
+        const p of sidePositions
+    ) {
+
+        const sideTower =
+            new THREE.Mesh(
+                new THREE.CylinderGeometry(
+                    5,
+                    6,
+                    30,
+                    8
+                ),
+                wallMaterial
+            );
+
+        sideTower.position.set(
+            p[0],
+            15,
+            p[1]
+        );
+
+        sideTower.castShadow = true;
+
+        castle.add(sideTower);
+
+
+        const sideRoof =
+            new THREE.Mesh(
+                new THREE.ConeGeometry(
+                    7,
+                    8,
+                    8
+                ),
+                new THREE.MeshStandardMaterial({
+                    color: 0x292d39
+                })
+            );
+
+        sideRoof.position.set(
+            p[0],
+            34,
+            p[1]
+        );
+
+        sideRoof.castShadow = true;
+
+        castle.add(sideRoof);
+    }
+
+
+    /* Entrance */
+
+    const entrance =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                14,
+                13,
+                4
+            ),
+            stoneDarkMaterial
+        );
+
+    entrance.position.set(
+        0,
+        6.5,
+        11.5
+    );
+
+    castle.add(entrance);
+
+
+    /* Magical doorway */
+
+    const doorway =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                7,
+                10,
+                0.5
+            ),
+            new THREE.MeshStandardMaterial({
+                color: 0x17202c,
+                emissive: 0x183c52,
+                emissiveIntensity: 1
+            })
+        );
+
+    doorway.position.set(
+        0,
+        5,
+        13.7
+    );
+
+    castle.add(doorway);
+
+
+    /* Windows */
+
+    for (
+        let x = -20;
+        x <= 20;
+        x += 10
+    ) {
+
+        const window =
+            new THREE.Mesh(
+                new THREE.BoxGeometry(
+                    2.4,
+                    4,
+                    0.3
+                ),
+                new THREE.MeshStandardMaterial({
+                    color: 0x8dd9ed,
+                    emissive: 0x256b83,
+                    emissiveIntensity: 0.7
+                })
+            );
+
+        window.position.set(
+            x,
+            11,
+            11.2
+        );
+
+        castle.add(window);
+    }
+
+
+    environment.add(castle);
+}
+
+
+createAcademy();
+
+
+/* =========================================================
+   TORCH
+   ========================================================= */
 
 function createTorch(
     x,
@@ -1104,7 +1349,6 @@ function createTorch(
     const group =
         new THREE.Group();
 
-
     group.position.set(
         x,
         0,
@@ -1112,607 +1356,239 @@ function createTorch(
     );
 
 
-    const stick =
+    const pole =
         new THREE.Mesh(
             new THREE.CylinderGeometry(
+                0.12,
                 0.15,
-                0.2,
-                3,
-                10
+                2.8,
+                8
             ),
-            woodMat
+            woodMaterial
         );
 
+    pole.position.y =
+        1.4;
 
-    stick.position.y =
-        1.5;
+    pole.castShadow = true;
+
+    group.add(pole);
 
 
-    stick.castShadow =
-        true;
+    const fire =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                0.45,
+                10,
+                10
+            ),
+            new THREE.MeshBasicMaterial({
+                color: 0xff8a21
+            })
+        );
 
+    fire.scale.y =
+        1.6;
 
-    group.add(
-        stick
-    );
+    fire.position.y =
+        3;
+
+    group.add(fire);
 
 
     const flame =
         new THREE.Mesh(
-            new THREE.SphereGeometry(
-                0.65,
-                16,
-                16
+            new THREE.ConeGeometry(
+                0.28,
+                1.2,
+                8
             ),
             new THREE.MeshBasicMaterial({
-
-                color: 0xff9f32,
-
-                transparent: true,
-
-                opacity: 0.95
-
+                color: 0xffd15a
             })
         );
 
-
     flame.position.y =
-        3.3;
+        3.5;
 
-
-    flame.scale.set(
-        0.65,
-        1.4,
-        0.65
-    );
-
-
-    group.add(
-        flame
-    );
+    group.add(flame);
 
 
     const light =
         new THREE.PointLight(
-            0xff9b3d,
-            3,
-            13
+            0xff8a32,
+            2.5,
+            14
         );
 
-
     light.position.y =
-        3.2;
+        3;
+
+    group.add(light);
 
 
-    group.add(
-        light
-    );
+    effects.add(group);
 
-
-    scene.add(
-        group
-    );
-
-
-    torches.push({
-
+    return {
+        group,
+        fire,
         flame,
-        light,
-
-        base:
-            Math.random() * 10
-
-    });
-
+        light
+    };
 }
 
 
-createTorch(
-    -8,
-    -13
+/* =========================================================
+   TORCHES
+   ========================================================= */
+
+const torches = [];
+
+torches.push(
+    createTorch(-10, 8)
 );
 
+torches.push(
+    createTorch(10, 8)
+);
 
-createTorch(
-    8,
-    -13
+torches.push(
+    createTorch(-18, -4)
+);
+
+torches.push(
+    createTorch(18, -4)
 );
 
 
 /* =========================================================
    PLAYER
-========================================================= */
+   ========================================================= */
 
 let player = null;
 
+let playerModel = null;
+
+let mixer = null;
+
 let playerBones = {};
 
-let rightHandBone = null;
-
-let wand = null;
+let playerReady = false;
 
 
-/* =========================================================
-   PLAYER STATE
-========================================================= */
-
-let isJumping = false;
-
-let verticalVelocity = 0;
-
-let isMoving = false;
-
-let isRunning = false;
-
-let casting = false;
-
-let castTimer = 0;
-
-let xp = 0;
-
-let lastMoveDirection =
+const playerStart =
     new THREE.Vector3(
         0,
         0,
-        -1
+        50
     );
 
 
 /* =========================================================
-   BONE ROTATIONS
-========================================================= */
+   COLLISION OBJECTS
+   ========================================================= */
 
-const baseBoneQuaternions =
-    new Map();
+const collisionObjects = [];
 
 
-function saveBoneRotation(
-    bone
+/* Trees as collision */
+
+for (
+    const p of treePositions
 ) {
 
-    if (
-        !baseBoneQuaternions.has(
-            bone.name
-        )
-    ) {
-
-        baseBoneQuaternions.set(
-            bone.name,
-            bone.quaternion.clone()
-        );
-
-    }
+    collisionObjects.push({
+        x: p[0],
+        z: p[1],
+        radius: 2.2
+    });
 
 }
 
 
-function setBoneOffset(
-    name,
-    x = 0,
-    y = 0,
-    z = 0
+/* Rocks */
+
+for (
+    let i = 0;
+    i < 20;
+    i++
 ) {
 
-    const bone =
-        playerBones[name];
-
-
-    if (!bone) return;
-
-
-    saveBoneRotation(
-        bone
-    );
-
-
-    const base =
-        baseBoneQuaternions.get(
-            name
-        );
-
-
-    bone.quaternion.copy(
-        base
-    );
-
-
-    const offset =
-        new THREE.Quaternion();
-
-
-    offset.setFromEuler(
-        new THREE.Euler(
-            x,
-            y,
-            z,
-            "XYZ"
-        )
-    );
-
-
-    bone.quaternion.multiply(
-        offset
-    );
+    /* decorative collision approximation */
 
 }
 
 
 /* =========================================================
-   STANDING
-========================================================= */
+   PLAYER GROUP
+   ========================================================= */
 
-function applyStandingPose() {
+player =
+    new THREE.Group();
 
-    if (!player) return;
+player.position.copy(
+    playerStart
+);
 
-
-    setBoneOffset(
-        "LeftArm",
-        Math.PI / 2,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "RightArm",
-        Math.PI / 2,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "LeftForeArm",
-        0.12,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "RightForeArm",
-        0.12,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "LeftShoulder",
-        0,
-        0,
-        0.05
-    );
-
-
-    setBoneOffset(
-        "RightShoulder",
-        0,
-        0,
-        -0.05
-    );
-
-}
+scene.add(player);
 
 
 /* =========================================================
-   IDLE
-========================================================= */
-
-function applyIdleAnimation(
-    time
-) {
-
-    applyStandingPose();
-
-
-    const breathe =
-        Math.sin(
-            time * 2
-        ) * 0.025;
-
-
-    setBoneOffset(
-        "Spine",
-        breathe,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "Head",
-        Math.sin(
-            time * 0.8
-        ) * 0.025,
-        Math.sin(
-            time * 0.6
-        ) * 0.03,
-        0
-    );
-
-}
-
-
-/* =========================================================
-   WALK
-========================================================= */
-
-function applyWalkingAnimation(
-    time,
-    speed,
-    running
-) {
-
-    applyStandingPose();
-
-
-    const swing =
-        Math.sin(
-            time *
-            speed *
-            7
-        ) *
-        (
-            running
-                ? 0.65
-                : 0.45
-        );
-
-
-    setBoneOffset(
-        "LeftUpLeg",
-        swing,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "RightUpLeg",
-        -swing,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "LeftLeg",
-        Math.max(
-            0,
-            -swing
-        ) * 0.45,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "RightLeg",
-        Math.max(
-            0,
-            swing
-        ) * 0.45,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "LeftArm",
-        Math.PI / 2,
-        0,
-        -swing * 0.45
-    );
-
-
-    setBoneOffset(
-        "RightArm",
-        Math.PI / 2,
-        0,
-        swing * 0.45
-    );
-
-}
-
-
-/* =========================================================
-   JUMP
-========================================================= */
-
-function applyJumpAnimation() {
-
-    applyStandingPose();
-
-
-    setBoneOffset(
-        "LeftArm",
-        Math.PI / 2 - 0.35,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "RightArm",
-        Math.PI / 2 - 0.35,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "LeftUpLeg",
-        -0.35,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "RightUpLeg",
-        -0.35,
-        0,
-        0
-    );
-
-}
-
-
-/* =========================================================
-   CASTING ANIMATION
-========================================================= */
-
-function applyCastingAnimation(
-    time
-) {
-
-    applyStandingPose();
-
-
-    const progress =
-        Math.min(
-            1,
-            castTimer /
-            0.55
-        );
-
-
-    const raise =
-        Math.sin(
-            progress *
-            Math.PI
-        );
-
-
-    setBoneOffset(
-        "RightArm",
-        Math.PI / 2 -
-        1.1 * raise,
-        0,
-        -0.35 * raise
-    );
-
-
-    setBoneOffset(
-        "RightForeArm",
-        -0.8 * raise,
-        0,
-        0
-    );
-
-
-    setBoneOffset(
-        "Head",
-        0,
-        Math.sin(
-            time * 4
-        ) * 0.03,
-        0
-    );
-
-}
-
-
-/* =========================================================
-   WAND
-========================================================= */
-
-function createWand() {
-
-    if (!rightHandBone)
-        return;
-
-
-    const geometry =
-        new THREE.CylinderGeometry(
-            0.055,
-            0.08,
-            1.5,
-            10
-        );
-
-
-    const material =
-        new THREE.MeshStandardMaterial({
-
-            color: 0x382217,
-
-            roughness: 0.7
-
-        });
-
-
-    wand =
-        new THREE.Mesh(
-            geometry,
-            material
-        );
-
-
-    wand.rotation.z =
-        -Math.PI / 2;
-
-
-    rightHandBone.add(
-        wand
-    );
-
-}
-
-
-/* =========================================================
-   LOAD AREN
-========================================================= */
-
-const loader =
-    new GLTFLoader();
-
+   DRACO LOADER
+   ========================================================= */
 
 const dracoLoader =
     new DRACOLoader();
-
 
 dracoLoader.setDecoderPath(
     "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/"
 );
 
 
+/* =========================================================
+   GLTF LOADER
+   ========================================================= */
+
+const loader =
+    new GLTFLoader();
+
 loader.setDRACOLoader(
     dracoLoader
 );
 
 
+/* =========================================================
+   LOAD AREN
+   ========================================================= */
+
+setLoading(
+    "Loading Aetheria Academy..."
+);
+
+
 loader.load(
 
-    "./assets/player/aren_valen.glb",
+    "assets/player/aren_valen.glb",
 
-    function (gltf) {
+    function(gltf) {
 
-        player =
+        playerModel =
             gltf.scene;
 
-
-        player.position.set(
-            0,
-            0,
-            70
+        player.add(
+            playerModel
         );
 
 
-        player.traverse(
-            function (object) {
+        playerModel.traverse(
+            function(object) {
 
                 if (
                     object.isMesh
                 ) {
 
-                    object.castShadow =
-                        true;
-
-                    object.receiveShadow =
-                        true;
+                    object.castShadow = true;
+                    object.receiveShadow = true;
 
                 }
 
@@ -1731,57 +1607,37 @@ loader.load(
         );
 
 
-        const bounds =
+        /* =================================================
+           AUTO SCALE
+           ================================================= */
+
+        const box =
             new THREE.Box3()
                 .setFromObject(
-                    player
+                    playerModel
                 );
-
 
         const size =
             new THREE.Vector3();
 
-
-        bounds.getSize(
-            size
-        );
+        box.getSize(size);
 
 
-        if (size.y > 0) {
+        const desiredHeight =
+            3.4;
 
-            const desiredHeight =
-                2.8;
 
+        if (
+            size.y > 0
+        ) {
 
             const scale =
                 desiredHeight /
                 size.y;
 
-
-            player.scale.setScalar(
+            playerModel.scale.setScalar(
                 scale
             );
-
-        }
-
-
-        scene.add(
-            player
-        );
-
-
-        rightHandBone =
-            playerBones[
-                "RightHand"
-            ] ||
-            null;
-
-
-        if (
-            rightHandBone
-        ) {
-
-            createWand();
 
         }
 
@@ -1789,40 +1645,59 @@ loader.load(
         applyStandingPose();
 
 
-        hideLoadingScreen();
+        playerReady = true;
+
+
+        setLoading(
+            "Aetheria Academy ready..."
+        );
+
+
+        setTimeout(
+            hideLoading,
+            500
+        );
 
     },
 
+    function(xhr) {
 
-    function (xhr) {
+        if (
+            xhr.total
+        ) {
 
-        if (xhr.total) {
-
-            console.log(
-                "Player loading:",
+            const percent =
                 Math.round(
                     xhr.loaded /
                     xhr.total *
                     100
-                ) + "%"
+                );
+
+            setLoading(
+                `Loading character ${percent}%`
             );
 
         }
 
     },
 
-
-    function (error) {
+    function(error) {
 
         console.error(
-            "Aren GLB error:",
+            "Player loading error:",
             error
         );
 
-
         createFallbackPlayer();
 
-        hideLoadingScreen();
+        setLoading(
+            "Aetheria Academy ready..."
+        );
+
+        setTimeout(
+            hideLoading,
+            500
+        );
 
     }
 
@@ -1831,781 +1706,217 @@ loader.load(
 
 /* =========================================================
    FALLBACK PLAYER
-========================================================= */
+   ========================================================= */
 
 function createFallbackPlayer() {
 
-    const group =
+    playerModel =
         new THREE.Group();
-
-
-    group.position.set(
-        0,
-        0,
-        70
-    );
 
 
     const body =
         new THREE.Mesh(
             new THREE.CapsuleGeometry(
                 0.55,
-                1.2,
+                1.5,
                 8,
-                16
+                12
             ),
             new THREE.MeshStandardMaterial({
-
-                color: 0x25263a,
-
-                roughness: 0.8
-
+                color: 0x241d36
             })
         );
-
 
     body.position.y =
         1.25;
 
+    body.castShadow = true;
 
-    body.castShadow =
-        true;
-
-
-    group.add(
-        body
-    );
+    playerModel.add(body);
 
 
     const head =
         new THREE.Mesh(
             new THREE.SphereGeometry(
-                0.42,
-                20,
+                0.45,
+                16,
                 16
             ),
             new THREE.MeshStandardMaterial({
-
-                color: 0xb78362,
-
-                roughness: 0.8
-
+                color: 0xc99070
             })
         );
-
 
     head.position.y =
-        2.25;
+        2.6;
+
+    head.castShadow = true;
+
+    playerModel.add(head);
 
 
-    head.castShadow =
-        true;
-
-
-    group.add(
-        head
+    player.add(
+        playerModel
     );
 
-
-    const hat =
-        new THREE.Mesh(
-            new THREE.ConeGeometry(
-                0.55,
-                0.9,
-                20
-            ),
-            new THREE.MeshStandardMaterial({
-
-                color: 0x201a35,
-
-                roughness: 0.8
-
-            })
-        );
+    playerReady = true;
+}
 
 
-    hat.position.y =
-        2.9;
+/* =========================================================
+   BONE HELPERS
+   ========================================================= */
+
+function setBoneOffset(
+    name,
+    x,
+    y,
+    z
+) {
+
+    const bone =
+        playerBones[name];
+
+    if (!bone) return;
+
+    bone.rotation.x += x;
+    bone.rotation.y += y;
+    bone.rotation.z += z;
+}
 
 
-    group.add(
-        hat
-    );
+/* =========================================================
+   STANDING POSE
+   ========================================================= */
+
+function applyStandingPose() {
+
+    if (!playerModel) return;
 
 
-    scene.add(
-        group
-    );
+    if (
+        playerBones["LeftArm"]
+    ) {
+
+        playerBones[
+            "LeftArm"
+        ].rotation.x =
+            Math.PI / 2;
+
+    }
 
 
-    player =
-        group;
+    if (
+        playerBones["RightArm"]
+    ) {
+
+        playerBones[
+            "RightArm"
+        ].rotation.x =
+            Math.PI / 2;
+
+    }
+
+
+    if (
+        playerBones["LeftForeArm"]
+    ) {
+
+        playerBones[
+            "LeftForeArm"
+        ].rotation.x =
+            0;
+
+    }
+
+
+    if (
+        playerBones["RightForeArm"]
+    ) {
+
+        playerBones[
+            "RightForeArm"
+        ].rotation.x =
+            0;
+
+    }
+
+
+    if (
+        playerBones["LeftShoulder"]
+    ) {
+
+        playerBones[
+            "LeftShoulder"
+        ].rotation.z =
+            -0.12;
+
+    }
+
+
+    if (
+        playerBones["RightShoulder"]
+    ) {
+
+        playerBones[
+            "RightShoulder"
+        ].rotation.z =
+            0.12;
+
+    }
 
 }
 
 
 /* =========================================================
-   NPC
-========================================================= */
+   MOVEMENT
+   ========================================================= */
 
-let npc = null;
+let moveX = 0;
+let moveY = 0;
 
-let npcCrystal = null;
+let isMoving = false;
 
+let isRunning = false;
 
-function createNPC() {
+const moveSpeed = 8;
 
-    npc =
-        new THREE.Group();
+const runSpeed = 13;
 
-
-    npc.position.set(
-        14,
+const lastMoveDirection =
+    new THREE.Vector3(
         0,
-        15
+        0,
+        -1
     );
 
 
-    const robe =
-        new THREE.Mesh(
-            new THREE.ConeGeometry(
-                0.9,
-                2.5,
-                20
-            ),
-            new THREE.MeshStandardMaterial({
+let cameraYaw = 0;
 
-                color: 0x30264b,
+let cameraPitch = 0.28;
 
-                roughness: 0.9
-
-            })
-        );
-
-
-    robe.position.y =
-        1.25;
-
-
-    robe.castShadow =
-        true;
-
-
-    npc.add(
-        robe
-    );
-
-
-    const head =
-        new THREE.Mesh(
-            new THREE.SphereGeometry(
-                0.38,
-                20,
-                16
-            ),
-            new THREE.MeshStandardMaterial({
-
-                color: 0xb98261,
-
-                roughness: 0.8
-
-            })
-        );
-
-
-    head.position.y =
-        2.85;
-
-
-    npc.add(
-        head
-    );
-
-
-    const hat =
-        new THREE.Mesh(
-            new THREE.ConeGeometry(
-                0.55,
-                0.85,
-                20
-            ),
-            new THREE.MeshStandardMaterial({
-
-                color: 0x161421,
-
-                roughness: 0.9
-
-            })
-        );
-
-
-    hat.position.y =
-        3.5;
-
-
-    npc.add(
-        hat
-    );
-
-
-    const staff =
-        new THREE.Mesh(
-            new THREE.CylinderGeometry(
-                0.07,
-                0.09,
-                3.3,
-                10
-            ),
-            woodMat
-        );
-
-
-    staff.position.set(
-        1,
-        1.6,
-        0
-    );
-
-
-    npc.add(
-        staff
-    );
-
-
-    npcCrystal =
-        new THREE.Mesh(
-            new THREE.OctahedronGeometry(
-                0.25
-            ),
-            new THREE.MeshStandardMaterial({
-
-                color: 0x8d6cff,
-
-                emissive: 0x4820aa,
-
-                emissiveIntensity: 2
-
-            })
-        );
-
-
-    npcCrystal.position.set(
-        1,
-        3.3,
-        0
-    );
-
-
-    npc.add(
-        npcCrystal
-    );
-
-
-    scene.add(
-        npc
-    );
-
-}
-
-
-createNPC();
-
-
-/* =========================================================
-   QUEST
-========================================================= */
-
-const QUEST_TALK =
-    "TALK_TO_AELION";
-
-const QUEST_MARKER =
-    "FIND_ANCIENT_MARKER";
-
-const QUEST_COMPLETE =
-    "COMPLETED";
-
-
-let questState =
-    QUEST_TALK;
-
-
-function updateQuestUI() {
-
-    if (questState === QUEST_TALK) {
-
-        questText.textContent =
-            "Quest: Meet the Academy Guide";
-
-    }
-
-
-    if (questState === QUEST_MARKER) {
-
-        questText.textContent =
-            "Quest: Find the Ancient Marker";
-
-    }
-
-
-    if (questState === QUEST_COMPLETE) {
-
-        questText.textContent =
-            "Quest Complete: The First Secret";
-
-    }
-
-
-    xpElement.textContent =
-        "XP " + xp;
-
-}
-
-
-updateQuestUI();
-
-
-/* =========================================================
-   DIALOGUE
-========================================================= */
-
-function showDialogue(
-    text
-) {
-
-    dialogueBox.textContent =
-        text;
-
-
-    dialogueBox.style.display =
-        "block";
-
-
-    clearTimeout(
-        showDialogue.timer
-    );
-
-
-    showDialogue.timer =
-        setTimeout(
-            function () {
-
-                dialogueBox.style.display =
-                    "none";
-
-            },
-            4500
-        );
-
-}
-
-
-/* =========================================================
-   TALK
-========================================================= */
-
-if (!interactButton) {
-
-    interactButton =
-        document.createElement(
-            "button"
-        );
-
-
-    interactButton.id =
-        "interactButton";
-
-
-    interactButton.textContent =
-        "TALK";
-
-
-    document.body.appendChild(
-        interactButton
-    );
-
-}
-
-
-interactButton.addEventListener(
-    "click",
-    interactWithNPC
-);
-
-
-function interactWithNPC() {
-
-    if (
-        !player ||
-        !npc
-    ) {
-
-        return;
-
-    }
-
-
-    const distance =
-        player.position.distanceTo(
-            npc.position
-        );
-
-
-    if (distance > 7) {
-
-        return;
-
-    }
-
-
-    if (
-        questState ===
-        QUEST_TALK
-    ) {
-
-        questState =
-            QUEST_MARKER;
-
-
-        xp += 50;
-
-
-        updateQuestUI();
-
-
-        showDialogue(
-            "Professor Aelion: Welcome to Aetheria Academy. An ancient magical marker waits beyond the courtyard."
-        );
-
-
-        return;
-
-    }
-
-
-    if (
-        questState ===
-        QUEST_MARKER
-    ) {
-
-        showDialogue(
-            "Professor Aelion: Search near the great academy gate."
-        );
-
-
-        return;
-
-    }
-
-
-    showDialogue(
-        "Professor Aelion: The academy has many secrets."
-    );
-
-}
-
-
-/* =========================================================
-   ANCIENT MARKER
-========================================================= */
-
-const markerGroup =
-    new THREE.Group();
-
-
-markerGroup.position.set(
-    0,
-    0,
-    -18
-);
-
-
-const markerBase =
-    new THREE.Mesh(
-        new THREE.CylinderGeometry(
-            1.2,
-            1.5,
-            2.4,
-            8
-        ),
-        darkStoneMat
-    );
-
-
-markerBase.position.y =
-    1.2;
-
-
-markerBase.castShadow =
-    true;
-
-
-markerGroup.add(
-    markerBase
-);
-
-
-const markerCrystal =
-    new THREE.Mesh(
-        new THREE.OctahedronGeometry(
-            0.65
-        ),
-        new THREE.MeshStandardMaterial({
-
-            color: 0x7c8cff,
-
-            emissive: 0x2630aa,
-
-            emissiveIntensity: 2
-
-        })
-    );
-
-
-markerCrystal.position.y =
-    2.8;
-
-
-markerGroup.add(
-    markerCrystal
-);
-
-
-scene.add(
-    markerGroup
-);
-
-
-/* =========================================================
-   JOYSTICK
-========================================================= */
-
-const joystickInput = {
-
-    x: 0,
-
-    y: 0
-
-};
-
-
-let joystickActive =
-    false;
-
-let joystickPointerId =
-    null;
-
-
-function updateJoystick(
-    clientX,
-    clientY
-) {
-
-    const rect =
-        joystick.getBoundingClientRect();
-
-
-    const centerX =
-        rect.left +
-        rect.width / 2;
-
-
-    const centerY =
-        rect.top +
-        rect.height / 2;
-
-
-    let dx =
-        clientX -
-        centerX;
-
-
-    let dy =
-        clientY -
-        centerY;
-
-
-    const radius =
-        rect.width * 0.5;
-
-
-    const knobRadius =
-        rect.width * 0.24;
-
-
-    const maxDistance =
-        radius -
-        knobRadius;
-
-
-    const distance =
-        Math.sqrt(
-            dx * dx +
-            dy * dy
-        );
-
-
-    if (
-        distance >
-        maxDistance
-    ) {
-
-        dx =
-            dx /
-            distance *
-            maxDistance;
-
-
-        dy =
-            dy /
-            distance *
-            maxDistance;
-
-    }
-
-
-    joystickInput.x =
-        dx /
-        maxDistance;
-
-
-    joystickInput.y =
-        dy /
-        maxDistance;
-
-
-    joystickKnob.style.transform =
-        `translate(${dx}px, ${dy}px)`;
-
-}
-
-
-function resetJoystick() {
-
-    joystickActive =
-        false;
-
-
-    joystickPointerId =
-        null;
-
-
-    joystickInput.x =
-        0;
-
-
-    joystickInput.y =
-        0;
-
-
-    joystickKnob.style.transform =
-        "translate(0px, 0px)";
-
-}
-
-
-joystick.addEventListener(
-    "pointerdown",
-    function (event) {
-
-        event.preventDefault();
-
-        joystickActive =
-            true;
-
-        joystickPointerId =
-            event.pointerId;
-
-
-        try {
-
-            joystick.setPointerCapture(
-                event.pointerId
-            );
-
-        } catch {}
-
-
-        updateJoystick(
-            event.clientX,
-            event.clientY
-        );
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-joystick.addEventListener(
-    "pointermove",
-    function (event) {
-
-        if (
-            !joystickActive ||
-            event.pointerId !==
-                joystickPointerId
-        ) {
-
-            return;
-
-        }
-
-
-        event.preventDefault();
-
-
-        updateJoystick(
-            event.clientX,
-            event.clientY
-        );
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-joystick.addEventListener(
-    "pointerup",
-    resetJoystick
-);
-
-
-joystick.addEventListener(
-    "pointercancel",
-    resetJoystick
-);
-
-
-joystick.addEventListener(
-    "lostpointercapture",
-    resetJoystick
-);
+let cameraDistance = 8;
 
 
 /* =========================================================
    KEYBOARD
-========================================================= */
+   ========================================================= */
 
 const keys = {};
 
 
 window.addEventListener(
     "keydown",
-    function (event) {
+    function(event) {
 
-        keys[event.code] =
-            true;
+        keys[
+            event.key.toLowerCase()
+        ] = true;
 
 
         if (
-            event.code ===
-            "Space"
+            event.key === " "
         ) {
-
-            event.preventDefault();
 
             jump();
 
@@ -2613,8 +1924,8 @@ window.addEventListener(
 
 
         if (
-            event.code ===
-            "KeyF"
+            event.key.toLowerCase()
+            === "f"
         ) {
 
             castSpell();
@@ -2627,135 +1938,853 @@ window.addEventListener(
 
 window.addEventListener(
     "keyup",
-    function (event) {
+    function(event) {
 
-        keys[event.code] =
-            false;
+        keys[
+            event.key.toLowerCase()
+        ] = false;
 
     }
 );
 
 
 /* =========================================================
-   CAMERA
-========================================================= */
+   UPDATE MOVEMENT
+   ========================================================= */
 
-let cameraYaw =
-    0;
-
-let cameraPitch =
-    0.18;
-
-let cameraDragging =
-    false;
-
-let cameraPointerId =
-    null;
-
-let cameraLastX =
-    0;
-
-let cameraLastY =
-    0;
-
-
-function isControlElement(
-    target
+function updateMovement(
+    delta
 ) {
 
-    if (!target)
-        return false;
+    let inputX =
+        moveX;
+
+    let inputY =
+        moveY;
 
 
-    return (
-        target.closest &&
-        target.closest(
-            "#joystick, #jumpButton, #spellButton, #interactButton, #landscapeButton"
+    if (
+        keys["w"] ||
+        keys["arrowup"]
+    ) {
+
+        inputY -= 1;
+
+    }
+
+
+    if (
+        keys["s"] ||
+        keys["arrowdown"]
+    ) {
+
+        inputY += 1;
+
+    }
+
+
+    if (
+        keys["a"] ||
+        keys["arrowleft"]
+    ) {
+
+        inputX -= 1;
+
+    }
+
+
+    if (
+        keys["d"] ||
+        keys["arrowright"]
+    ) {
+
+        inputX += 1;
+
+    }
+
+
+    const length =
+        Math.sqrt(
+            inputX * inputX +
+            inputY * inputY
+        );
+
+
+    isMoving =
+        length > 0.05;
+
+
+    if (!isMoving) {
+
+        return;
+
+    }
+
+
+    inputX /= length;
+    inputY /= length;
+
+
+    const forward =
+        new THREE.Vector3(
+            0,
+            0,
+            -1
+        );
+
+    const right =
+        new THREE.Vector3(
+            1,
+            0,
+            0
+        );
+
+
+    forward.applyAxisAngle(
+        new THREE.Vector3(0,1,0),
+        cameraYaw
+    );
+
+    right.applyAxisAngle(
+        new THREE.Vector3(0,1,0),
+        cameraYaw
+    );
+
+
+    const direction =
+        new THREE.Vector3();
+
+
+    direction
+        .add(
+            forward.multiplyScalar(
+                -inputY
+            )
         )
+        .add(
+            right.multiplyScalar(
+                inputX
+            )
+        );
+
+
+    direction.normalize();
+
+
+    lastMoveDirection.copy(
+        direction
+    );
+
+
+    isRunning =
+        keys["shift"] ||
+        Math.abs(moveX) +
+        Math.abs(moveY) > 1.5;
+
+
+    const speed =
+        isRunning
+            ? runSpeed
+            : moveSpeed;
+
+
+    player.position.add(
+        direction
+            .clone()
+            .multiplyScalar(
+                speed * delta
+            )
+    );
+
+
+    /* Player rotation */
+
+    const targetRotation =
+        Math.atan2(
+            direction.x,
+            direction.z
+        );
+
+
+    player.rotation.y =
+        THREE.MathUtils.lerp(
+            player.rotation.y,
+            targetRotation,
+            0.18
+        );
+
+
+    /* World boundaries */
+
+    player.position.x =
+        THREE.MathUtils.clamp(
+            player.position.x,
+            -135,
+            135
+        );
+
+    player.position.z =
+        THREE.MathUtils.clamp(
+            player.position.z,
+            -130,
+            130
+        );
+
+
+    checkTreeCollision();
+
+}
+
+
+/* =========================================================
+   TREE COLLISION
+   ========================================================= */
+
+function checkTreeCollision() {
+
+    for (
+        const tree of collisionObjects
+    ) {
+
+        const dx =
+            player.position.x -
+            tree.x;
+
+        const dz =
+            player.position.z -
+            tree.z;
+
+        const distance =
+            Math.sqrt(
+                dx * dx +
+                dz * dz
+            );
+
+
+        const minimum =
+            tree.radius;
+
+
+        if (
+            distance < minimum
+        ) {
+
+            const angle =
+                Math.atan2(
+                    dz,
+                    dx
+                );
+
+
+            player.position.x =
+                tree.x +
+                Math.cos(angle) *
+                minimum;
+
+            player.position.z =
+                tree.z +
+                Math.sin(angle) *
+                minimum;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   JUMP
+   ========================================================= */
+
+let isJumping = false;
+
+let verticalVelocity = 0;
+
+const gravity = 24;
+
+const jumpPower = 10;
+
+
+function jump() {
+
+    if (
+        isJumping
+    ) return;
+
+    isJumping = true;
+
+    verticalVelocity =
+        jumpPower;
+
+}
+
+
+/* =========================================================
+   JUMP UPDATE
+   ========================================================= */
+
+function updateJump(
+    delta
+) {
+
+    if (
+        !isJumping
+    ) return;
+
+
+    player.position.y +=
+        verticalVelocity *
+        delta;
+
+
+    verticalVelocity -=
+        gravity *
+        delta;
+
+
+    if (
+        player.position.y <= 0
+    ) {
+
+        player.position.y =
+            0;
+
+        verticalVelocity =
+            0;
+
+        isJumping =
+            false;
+
+    }
+
+}
+
+
+/* =========================================================
+   IDLE ANIMATION
+   ========================================================= */
+
+function applyIdleAnimation(
+    time
+) {
+
+    if (!playerModel) return;
+
+
+    const breathing =
+        Math.sin(time * 2.2) *
+        0.015;
+
+
+    playerModel.position.y =
+        breathing;
+
+
+    applyStandingPose();
+
+}
+
+
+/* =========================================================
+   WALKING ANIMATION
+   ========================================================= */
+
+function applyWalkingAnimation(
+    time
+) {
+
+    if (!playerModel) return;
+
+
+    const speed =
+        isRunning
+            ? 9
+            : 6;
+
+
+    const swing =
+        Math.sin(
+            time * speed
+        ) *
+        0.35;
+
+
+    const leftLeg =
+        playerBones["LeftLeg"];
+
+    const rightLeg =
+        playerBones["RightLeg"];
+
+    const leftArm =
+        playerBones["LeftArm"];
+
+    const rightArm =
+        playerBones["RightArm"];
+
+
+    if (leftLeg) {
+
+        leftLeg.rotation.x =
+            swing;
+
+    }
+
+
+    if (rightLeg) {
+
+        rightLeg.rotation.x =
+            -swing;
+
+    }
+
+
+    if (leftArm) {
+
+        leftArm.rotation.x =
+            Math.PI / 2 -
+            swing * 0.5;
+
+    }
+
+
+    if (rightArm) {
+
+        rightArm.rotation.x =
+            Math.PI / 2 +
+            swing * 0.5;
+
+    }
+
+
+    playerModel.position.y =
+        Math.abs(
+            Math.sin(
+                time * speed
+            )
+        ) * 0.025;
+
+}
+
+
+/* =========================================================
+   JUMP ANIMATION
+   ========================================================= */
+
+function applyJumpAnimation() {
+
+    if (!playerModel) return;
+
+
+    const leftArm =
+        playerBones["LeftArm"];
+
+    const rightArm =
+        playerBones["RightArm"];
+
+
+    if (leftArm) {
+
+        leftArm.rotation.x =
+            Math.PI / 2 -
+            0.5;
+
+    }
+
+
+    if (rightArm) {
+
+        rightArm.rotation.x =
+            Math.PI / 2 -
+            0.5;
+
+    }
+
+
+    const leftLeg =
+        playerBones["LeftLeg"];
+
+    const rightLeg =
+        playerBones["RightLeg"];
+
+
+    if (leftLeg) {
+
+        leftLeg.rotation.x =
+            -0.25;
+
+    }
+
+
+    if (rightLeg) {
+
+        rightLeg.rotation.x =
+            0.25;
+
+    }
+
+}
+
+
+/* =========================================================
+   SPELL SYSTEM
+   ========================================================= */
+
+let casting = false;
+
+let castCooldown = 0;
+
+
+/* =========================================================
+   CAST SPELL
+   ========================================================= */
+
+function castSpell() {
+
+    if (
+        castCooldown > 0 ||
+        casting
+    ) return;
+
+
+    casting = true;
+
+    castCooldown =
+        0.7;
+
+
+    createSpellProjectile();
+
+
+    setTimeout(
+        () => {
+
+            casting = false;
+
+        },
+        500
     );
 
 }
 
 
-renderer.domElement.addEventListener(
-    "pointerdown",
-    function (event) {
+/* =========================================================
+   SPELL PROJECTILE
+   ========================================================= */
+
+function createSpellProjectile() {
+
+    const group =
+        new THREE.Group();
+
+
+    const core =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                0.25,
+                12,
+                12
+            ),
+            new THREE.MeshStandardMaterial({
+                color: 0x8be9ff,
+                emissive: 0x1bbce8,
+                emissiveIntensity: 3
+            })
+        );
+
+
+    group.add(core);
+
+
+    const glow =
+        new THREE.PointLight(
+            0x43d9ff,
+            5,
+            12
+        );
+
+
+    group.add(glow);
+
+
+    const direction =
+        lastMoveDirection
+            .clone()
+            .normalize();
+
+
+    const position =
+        player.position.clone();
+
+
+    position.y += 1.7;
+
+
+    position.add(
+        direction
+            .clone()
+            .multiplyScalar(
+                1.5
+            )
+    );
+
+
+    group.position.copy(
+        position
+    );
+
+
+    group.userData.velocity =
+        direction
+            .clone()
+            .multiplyScalar(
+                18
+            );
+
+
+    group.userData.life =
+        2;
+
+
+    effects.add(group);
+
+}
+
+
+/* =========================================================
+   SPELL UPDATE
+   ========================================================= */
+
+function updateSpells(
+    delta
+) {
+
+    for (
+        let i =
+            effects.children.length -
+            1;
+
+        i >= 0;
+
+        i--
+    ) {
+
+        const object =
+            effects.children[i];
+
 
         if (
-            isControlElement(
-                event.target
-            )
+            !object.userData.velocity
         ) {
 
-            return;
+            continue;
 
         }
 
 
-        cameraDragging =
-            true;
+        object.position.add(
+            object.userData.velocity
+                .clone()
+                .multiplyScalar(
+                    delta
+                )
+        );
 
 
-        cameraPointerId =
-            event.pointerId;
+        object.userData.life -=
+            delta;
 
 
-        cameraLastX =
-            event.clientX;
+        if (
+            object.userData.life <= 0
+        ) {
 
-
-        cameraLastY =
-            event.clientY;
-
-
-        try {
-
-            renderer.domElement.setPointerCapture(
-                event.pointerId
+            effects.remove(
+                object
             );
 
-        } catch {}
+        }
+
+    }
+
+}
 
 
-        event.preventDefault();
+/* =========================================================
+   CAST ANIMATION
+   ========================================================= */
 
-    },
-    {
-        passive: false
+function applyCastingAnimation(
+    time
+) {
+
+    if (!playerModel) return;
+
+
+    const rightArm =
+        playerBones["RightArm"];
+
+
+    const leftArm =
+        playerBones["LeftArm"];
+
+
+    if (rightArm) {
+
+        rightArm.rotation.x =
+            Math.PI / 2 -
+            0.7;
+
+        rightArm.rotation.z =
+            -0.15;
+
+    }
+
+
+    if (leftArm) {
+
+        leftArm.rotation.x =
+            Math.PI / 2 +
+            0.1;
+
+    }
+
+
+    if (rightArm) {
+
+        rightArm.rotation.z +=
+            Math.sin(
+                time * 15
+            ) *
+            0.02;
+
+    }
+
+}
+
+
+/* =========================================================
+   CAMERA
+   ========================================================= */
+
+function updateCamera(
+    delta
+) {
+
+    if (!player) return;
+
+
+    const target =
+        player.position.clone();
+
+    target.y += 1.5;
+
+
+    const horizontalDistance =
+        cameraDistance *
+        Math.cos(
+            cameraPitch
+        );
+
+
+    const verticalDistance =
+        cameraDistance *
+        Math.sin(
+            cameraPitch
+        );
+
+
+    const offset =
+        new THREE.Vector3(
+            Math.sin(cameraYaw) *
+            horizontalDistance,
+
+            verticalDistance,
+
+            Math.cos(cameraYaw) *
+            horizontalDistance
+        );
+
+
+    const desiredPosition =
+        target.clone()
+            .add(offset);
+
+
+    camera.position.lerp(
+        desiredPosition,
+        1 -
+        Math.pow(
+            0.001,
+            delta
+        )
+    );
+
+
+    camera.lookAt(
+        target
+    );
+
+}
+
+
+/* =========================================================
+   CAMERA TOUCH DRAG
+   ========================================================= */
+
+let draggingCamera = false;
+
+let previousPointerX = 0;
+
+let previousPointerY = 0;
+
+
+renderer.domElement.addEventListener(
+    "pointerdown",
+    function(event) {
+
+        if (
+            event.target !==
+            renderer.domElement
+        ) {
+            return;
+        }
+
+
+        draggingCamera = true;
+
+        previousPointerX =
+            event.clientX;
+
+        previousPointerY =
+            event.clientY;
+
     }
 );
 
 
-renderer.domElement.addEventListener(
+window.addEventListener(
     "pointermove",
-    function (event) {
+    function(event) {
 
         if (
-            !cameraDragging ||
-            event.pointerId !==
-                cameraPointerId
-        ) {
-
-            return;
-
-        }
+            !draggingCamera
+        ) return;
 
 
         const dx =
             event.clientX -
-            cameraLastX;
-
+            previousPointerX;
 
         const dy =
             event.clientY -
-            cameraLastY;
+            previousPointerY;
 
 
-        cameraLastX =
+        previousPointerX =
             event.clientX;
 
-
-        cameraLastY =
+        previousPointerY =
             event.clientY;
 
 
@@ -2770,907 +2799,452 @@ renderer.domElement.addEventListener(
         cameraPitch =
             THREE.MathUtils.clamp(
                 cameraPitch,
-                -0.35,
-                0.75
+                -0.1,
+                0.8
             );
 
-
-        event.preventDefault();
-
-    },
-    {
-        passive: false
     }
 );
 
 
-function stopCameraDrag() {
+window.addEventListener(
+    "pointerup",
+    function() {
 
-    cameraDragging =
+        draggingCamera = false;
+
+    }
+);
+
+
+/* =========================================================
+   MOBILE JOYSTICK
+   ========================================================= */
+
+const joystick =
+    document.getElementById(
+        "joystick"
+    );
+
+const joystickKnob =
+    document.getElementById(
+        "joystickKnob"
+    );
+
+
+if (
+    joystick &&
+    joystickKnob
+) {
+
+    let joystickActive =
         false;
 
 
-    cameraPointerId =
-        null;
-
-}
-
-
-renderer.domElement.addEventListener(
-    "pointerup",
-    stopCameraDrag
-);
-
-
-renderer.domElement.addEventListener(
-    "pointercancel",
-    stopCameraDrag
-);
-
-
-renderer.domElement.addEventListener(
-    "lostpointercapture",
-    stopCameraDrag
-);
-
-
-/* =========================================================
-   DIRECTIONS
-========================================================= */
-
-const forward =
-    new THREE.Vector3(
-        0,
-        0,
-        -1
-    );
-
-
-const right =
-    new THREE.Vector3(
-        1,
-        0,
-        0
-    );
-
-
-const up =
-    new THREE.Vector3(
-        0,
-        1,
-        0
-    );
-
-
-/* =========================================================
-   COLLISION
-========================================================= */
-
-function blockedAt(
-    x,
-    z
-) {
-
-    for (
-        const boxData
-        of collisionBoxes
+    function handleJoystick(
+        event
     ) {
 
-        if (
-
-            x + playerRadius >
-                boxData.minX &&
-
-            x - playerRadius <
-                boxData.maxX &&
-
-            z + playerRadius >
-                boxData.minZ &&
-
-            z - playerRadius <
-                boxData.maxZ
-
-        ) {
-
-            return true;
-
-        }
-
-    }
+        const rect =
+            joystick.getBoundingClientRect();
 
 
-    for (
-        const tree
-        of treeColliders
-    ) {
-
-        const dx =
-            x -
-            tree.x;
+        const centerX =
+            rect.left +
+            rect.width / 2;
 
 
-        const dz =
-            z -
-            tree.z;
+        const centerY =
+            rect.top +
+            rect.height / 2;
+
+
+        let dx =
+            event.clientX -
+            centerX;
+
+
+        let dy =
+            event.clientY -
+            centerY;
+
+
+        const maxDistance =
+            rect.width * 0.34;
 
 
         const distance =
             Math.sqrt(
                 dx * dx +
-                dz * dz
+                dy * dy
             );
 
 
         if (
-            distance <
-            tree.radius +
-            playerRadius
+            distance >
+            maxDistance
         ) {
 
-            return true;
-
-        }
-
-    }
-
-
-    return false;
-
-}
-
-
-/* =========================================================
-   INPUT
-========================================================= */
-
-function getMovementInput() {
-
-    let x =
-        joystickInput.x;
-
-
-    let y =
-        joystickInput.y;
-
-
-    if (
-        keys["KeyA"] ||
-        keys["ArrowLeft"]
-    ) {
-
-        x -= 1;
-
-    }
-
-
-    if (
-        keys["KeyD"] ||
-        keys["ArrowRight"]
-    ) {
-
-        x += 1;
-
-    }
-
-
-    if (
-        keys["KeyW"] ||
-        keys["ArrowUp"]
-    ) {
-
-        y -= 1;
-
-    }
-
-
-    if (
-        keys["KeyS"] ||
-        keys["ArrowDown"]
-    ) {
-
-        y += 1;
-
-    }
-
-
-    const length =
-        Math.sqrt(
-            x * x +
-            y * y
-        );
-
-
-    if (length > 1) {
-
-        x /= length;
-
-        y /= length;
-
-    }
-
-
-    return {
-        x,
-        y
-    };
-
-}
-
-
-/* =========================================================
-   MOVEMENT
-========================================================= */
-
-function updateMovement(
-    delta
-) {
-
-    if (!player)
-        return;
-
-
-    const input =
-        getMovementInput();
-
-
-    const magnitude =
-        Math.sqrt(
-            input.x *
-                input.x +
-            input.y *
-                input.y
-        );
-
-
-    isMoving =
-        magnitude >
-        0.08;
-
-
-    isRunning =
-        isMoving &&
-        (
-            keys["ShiftLeft"] ||
-            keys["ShiftRight"] ||
-            magnitude > 0.85
-        );
-
-
-    if (!isMoving)
-        return;
-
-
-    const speed =
-        isRunning
-            ? 9
-            : 5.5;
-
-
-    forward.set(
-        0,
-        0,
-        -1
-    );
-
-
-    right.set(
-        1,
-        0,
-        0
-    );
-
-
-    forward.applyAxisAngle(
-        up,
-        cameraYaw
-    );
-
-
-    right.applyAxisAngle(
-        up,
-        cameraYaw
-    );
-
-
-    const direction =
-        new THREE.Vector3();
-
-
-    direction.copy(
-        forward
-    );
-
-
-    direction.multiplyScalar(
-        -input.y
-    );
-
-
-    direction.add(
-        right
-            .clone()
-            .multiplyScalar(
-                input.x
-            )
-    );
-
-
-    if (
-        direction.lengthSq() >
-        0.001
-    ) {
-
-        direction.normalize();
-
-
-        lastMoveDirection.copy(
-            direction
-        );
-
-
-        const targetAngle =
-            Math.atan2(
-                direction.x,
-                direction.z
-            );
-
-
-        let difference =
-            targetAngle -
-            player.rotation.y;
-
-
-        while (
-            difference >
-            Math.PI
-        ) {
-
-            difference -=
-                Math.PI * 2;
+            dx =
+                dx / distance *
+                maxDistance;
+
+            dy =
+                dy / distance *
+                maxDistance;
 
         }
 
 
-        while (
-            difference <
-            -Math.PI
-        ) {
+        joystickKnob.style.transform =
+            `translate(${dx}px, ${dy}px)`;
 
-            difference +=
-                Math.PI * 2;
+
+        moveX =
+            dx / maxDistance;
+
+
+        moveY =
+            dy / maxDistance;
+
+    }
+
+
+    joystick.addEventListener(
+        "pointerdown",
+        function(event) {
+
+            joystickActive = true;
+
+            joystick.setPointerCapture(
+                event.pointerId
+            );
+
+            handleJoystick(
+                event
+            );
 
         }
-
-
-        player.rotation.y +=
-            difference *
-            Math.min(
-                1,
-                delta * 10
-            );
-
-    }
-
-
-    const move =
-        direction
-            .clone()
-            .multiplyScalar(
-                speed *
-                delta
-            );
-
-
-    const newX =
-        player.position.x +
-        move.x;
-
-
-    const newZ =
-        player.position.z +
-        move.z;
-
-
-    if (
-        !blockedAt(
-            newX,
-            player.position.z
-        )
-    ) {
-
-        player.position.x =
-            newX;
-
-    }
-
-
-    if (
-        !blockedAt(
-            player.position.x,
-            newZ
-        )
-    ) {
-
-        player.position.z =
-            newZ;
-
-    }
-
-}
-
-
-/* =========================================================
-   JUMP
-========================================================= */
-
-function jump() {
-
-    if (!player)
-        return;
-
-
-    if (isJumping)
-        return;
-
-
-    isJumping =
-        true;
-
-
-    verticalVelocity =
-        8.5;
-
-}
-
-
-jumpButton.addEventListener(
-    "pointerdown",
-    function (event) {
-
-        event.preventDefault();
-
-        event.stopPropagation();
-
-        jump();
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-jumpButton.addEventListener(
-    "click",
-    function (event) {
-
-        event.preventDefault();
-
-        event.stopPropagation();
-
-    }
-);
-
-
-/* =========================================================
-   UPDATE JUMP
-========================================================= */
-
-function updateJump(
-    delta
-) {
-
-    if (!player)
-        return;
-
-
-    if (!isJumping)
-        return;
-
-
-    verticalVelocity -=
-        20 *
-        delta;
-
-
-    player.position.y +=
-        verticalVelocity *
-        delta;
-
-
-    if (
-        player.position.y <= 0
-    ) {
-
-        player.position.y =
-            0;
-
-
-        verticalVelocity =
-            0;
-
-
-        isJumping =
-            false;
-
-    }
-
-}
-
-
-/* =========================================================
-   SPELL
-========================================================= */
-
-const spellParticles = [];
-
-
-function castSpell() {
-
-    if (!player)
-        return;
-
-
-    if (casting)
-        return;
-
-
-    casting =
-        true;
-
-
-    castTimer =
-        0;
-
-
-    createSpellEffect();
-
-}
-
-
-/* =========================================================
-   CAST BUTTON
-========================================================= */
-
-spellButton.addEventListener(
-    "pointerdown",
-    function (event) {
-
-        event.preventDefault();
-
-        event.stopPropagation();
-
-        castSpell();
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-spellButton.addEventListener(
-    "pointerup",
-    function (event) {
-
-        event.preventDefault();
-
-        event.stopPropagation();
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-spellButton.addEventListener(
-    "touchstart",
-    function (event) {
-
-        event.preventDefault();
-
-        event.stopPropagation();
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-spellButton.addEventListener(
-    "click",
-    function (event) {
-
-        event.preventDefault();
-
-        event.stopPropagation();
-
-    }
-);
-
-
-/* =========================================================
-   SPELL EFFECT
-   IMPORTANT:
-   SPELL NOW GOES FORWARD
-========================================================= */
-
-function createSpellEffect() {
-
-    if (!player)
-        return;
-
-
-    /*
-       Aren's forward direction is
-       +Z in this model setup.
-    */
-
-    const direction =
-        new THREE.Vector3(
-            0,
-            0,
-            1
-        );
-
-
-    direction.applyQuaternion(
-        player.quaternion
     );
 
 
-    direction.normalize();
+    joystick.addEventListener(
+        "pointermove",
+        function(event) {
 
+            if (
+                joystickActive
+            ) {
 
-    /*
-       Start slightly in front
-       of the character.
-    */
+                handleJoystick(
+                    event
+                );
 
-    const position =
-        player.position
-            .clone();
+            }
 
-
-    position.y +=
-        1.7;
-
-
-    position.add(
-        direction
-            .clone()
-            .multiplyScalar(
-                1.3
-            )
+        }
     );
 
 
-    const geometry =
+    joystick.addEventListener(
+        "pointerup",
+        function() {
+
+            joystickActive = false;
+
+            moveX = 0;
+            moveY = 0;
+
+            joystickKnob.style.transform =
+                "translate(0px, 0px)";
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+const jumpButton =
+    document.getElementById(
+        "jumpButton"
+    );
+
+
+if (jumpButton) {
+
+    jumpButton.addEventListener(
+        "pointerdown",
+        function(event) {
+
+            event.preventDefault();
+
+            jump();
+
+        }
+    );
+
+}
+
+
+const castButton =
+    document.getElementById(
+        "castButton"
+    );
+
+
+if (castButton) {
+
+    castButton.addEventListener(
+        "pointerdown",
+        function(event) {
+
+            event.preventDefault();
+
+            castSpell();
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   QUEST SYSTEM
+   ========================================================= */
+
+let questState =
+    "TALK_TO_AELION";
+
+
+let xp =
+    0;
+
+
+/* =========================================================
+   NPC
+   ========================================================= */
+
+const npc =
+    new THREE.Group();
+
+npc.position.set(
+    8,
+    0,
+    10
+);
+
+scene.add(npc);
+
+
+/* NPC body */
+
+const npcBody =
+    new THREE.Mesh(
+        new THREE.CapsuleGeometry(
+            0.55,
+            1.6,
+            8,
+            12
+        ),
+        new THREE.MeshStandardMaterial({
+            color: 0x30284c
+        })
+    );
+
+npcBody.position.y =
+    1.3;
+
+npcBody.castShadow = true;
+
+npc.add(npcBody);
+
+
+/* NPC head */
+
+const npcHead =
+    new THREE.Mesh(
         new THREE.SphereGeometry(
-            0.14,
+            0.45,
             16,
             16
-        );
-
-
-    const material =
-        new THREE.MeshBasicMaterial({
-
-            color: 0x91a8ff,
-
-            transparent: true,
-
-            opacity: 1
-
-        });
-
-
-    const particle =
-        new THREE.Mesh(
-            geometry,
-            material
-        );
-
-
-    particle.position.copy(
-        position
+        ),
+        new THREE.MeshStandardMaterial({
+            color: 0xc79574
+        })
     );
 
+npcHead.position.y =
+    2.7;
 
-    particle.userData.velocity =
-        direction
-            .clone()
-            .multiplyScalar(
-                16
-            );
+npcHead.castShadow = true;
 
-
-    particle.userData.life =
-        1.2;
+npc.add(npcHead);
 
 
-    scene.add(
-        particle
+/* NPC magical crystal */
+
+const npcCrystal =
+    new THREE.Mesh(
+        new THREE.OctahedronGeometry(
+            0.22
+        ),
+        new THREE.MeshStandardMaterial({
+            color: 0x70eaff,
+            emissive: 0x35cfff,
+            emissiveIntensity: 2
+        })
     );
 
+npcCrystal.position.set(
+    0,
+    3.25,
+    0
+);
 
-    spellParticles.push(
-        particle
+npc.add(npcCrystal);
+
+
+const npcLight =
+    new THREE.PointLight(
+        0x48dfff,
+        1.5,
+        8
     );
 
-}
+npcLight.position.y =
+    3;
+
+npc.add(npcLight);
 
 
 /* =========================================================
-   SPELL PARTICLES
-========================================================= */
+   QUEST UI
+   ========================================================= */
 
-function updateSpellParticles(
-    delta
-) {
+const questText =
+    document.getElementById(
+        "questText"
+    );
 
-    for (
-        let i =
-            spellParticles.length -
-            1;
-
-        i >= 0;
-
-        i--
-    ) {
-
-        const particle =
-            spellParticles[i];
+const xpText =
+    document.getElementById(
+        "xpText"
+    );
 
 
-        particle.position.add(
-            particle.userData.velocity
-                .clone()
-                .multiplyScalar(
-                    delta
-                )
-        );
+function updateQuestUI() {
 
-
-        particle.userData.life -=
-            delta;
-
-
-        particle.scale.multiplyScalar(
-            0.97
-        );
-
-
-        particle.material.opacity =
-            Math.max(
-                0,
-                particle.userData.life
-            );
-
-
-        if (
-            particle.userData.life <=
-            0
-        ) {
-
-            scene.remove(
-                particle
-            );
-
-
-            particle.geometry.dispose();
-
-            particle.material.dispose();
-
-
-            spellParticles.splice(
-                i,
-                1
-            );
-
-        }
-
-    }
-
-}
-
-
-/* =========================================================
-   CAST UPDATE
-========================================================= */
-
-function updateCasting(
-    delta
-) {
-
-    if (!casting)
-        return;
-
-
-    castTimer +=
-        delta;
-
-
-    if (
-        castTimer >=
-        0.8
-    ) {
-
-        casting =
-            false;
-
-
-        castTimer =
-            0;
-
-    }
-
-}
-
-
-/* =========================================================
-   QUEST UPDATE
-========================================================= */
-
-function updateQuest() {
-
-    if (!player)
-        return;
+    if (!questText) return;
 
 
     if (
         questState ===
-        QUEST_MARKER
+        "TALK_TO_AELION"
     ) {
 
-        const distance =
-            player.position.distanceTo(
-                markerGroup.position
-            );
+        questText.textContent =
+            "Quest: Talk to Professor Aelion";
+
+    }
 
 
-        if (
-            distance < 5
-        ) {
+    if (
+        questState ===
+        "FIND_ANCIENT_MARKER"
+    ) {
 
-            questState =
-                QUEST_COMPLETE;
+        questText.textContent =
+            "Quest: Find the Ancient Marker";
 
-
-            xp += 150;
-
-
-            updateQuestUI();
+    }
 
 
-            showDialogue(
-                "You discovered an ancient magical marker. Aetheria has awakened."
-            );
+    if (
+        questState ===
+        "COMPLETED"
+    ) {
 
-        }
+        questText.textContent =
+            "Quest Complete: Ancient Marker";
+
+    }
+
+
+    if (xpText) {
+
+        xpText.textContent =
+            `XP: ${xp}`;
 
     }
 
 }
 
 
+updateQuestUI();
+
+
 /* =========================================================
-   TALK BUTTON VISIBILITY
-========================================================= */
+   DIALOGUE
+   ========================================================= */
 
-function updateInteractButton() {
+const dialogue =
+    document.getElementById(
+        "dialogue"
+    );
 
-    if (
-        !player ||
-        !npc
-    ) {
 
-        return;
+const dialogueText =
+    document.getElementById(
+        "dialogueText"
+    );
+
+
+const talkButton =
+    document.getElementById(
+        "talkButton"
+    );
+
+
+function showDialogue(
+    text
+) {
+
+    if (!dialogue) return;
+
+
+    dialogue.style.display =
+        "block";
+
+
+    if (dialogueText) {
+
+        dialogueText.textContent =
+            text;
 
     }
 
+}
+
+
+function hideDialogue() {
+
+    if (!dialogue) return;
+
+    dialogue.style.display =
+        "none";
+
+}
+
+
+/* =========================================================
+   TALK TO NPC
+   ========================================================= */
+
+function talkToNPC() {
 
     const distance =
         player.position.distanceTo(
@@ -3679,16 +3253,195 @@ function updateInteractButton() {
 
 
     if (
-        distance < 7
+        distance > 6
     ) {
 
-        interactButton.style.display =
-            "block";
+        showDialogue(
+            "Professor Aelion is nearby. Move closer."
+        );
 
-    } else {
+        setTimeout(
+            hideDialogue,
+            2200
+        );
 
-        interactButton.style.display =
-            "none";
+        return;
+
+    }
+
+
+    if (
+        questState ===
+        "TALK_TO_AELION"
+    ) {
+
+        questState =
+            "FIND_ANCIENT_MARKER";
+
+
+        xp += 50;
+
+
+        showDialogue(
+            "Aelion: An ancient magical marker lies somewhere in the academy grounds. Find it."
+        );
+
+
+        updateQuestUI();
+
+        return;
+
+    }
+
+
+    if (
+        questState ===
+        "FIND_ANCIENT_MARKER"
+    ) {
+
+        showDialogue(
+            "Aelion: Explore the courtyard. The old marker is waiting to be discovered."
+        );
+
+        return;
+
+    }
+
+
+    showDialogue(
+        "Aelion: The academy remembers every student who walks these grounds."
+    );
+
+}
+
+
+/* =========================================================
+   TALK BUTTON
+   ========================================================= */
+
+if (talkButton) {
+
+    talkButton.addEventListener(
+        "pointerdown",
+        function(event) {
+
+            event.preventDefault();
+
+            talkToNPC();
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ANCIENT MARKER
+   ========================================================= */
+
+const marker =
+    new THREE.Group();
+
+marker.position.set(
+    -25,
+    0,
+    -5
+);
+
+scene.add(marker);
+
+
+/* marker stone */
+
+const markerStone =
+    new THREE.Mesh(
+        new THREE.BoxGeometry(
+            2.2,
+            3.5,
+            0.8
+        ),
+        stoneDarkMaterial
+    );
+
+markerStone.position.y =
+    1.75;
+
+markerStone.rotation.z =
+    -0.08;
+
+markerStone.castShadow = true;
+
+marker.add(markerStone);
+
+
+/* magical symbol */
+
+const markerCrystal =
+    new THREE.Mesh(
+        new THREE.OctahedronGeometry(
+            0.45
+        ),
+        new THREE.MeshStandardMaterial({
+            color: 0x9e78ff,
+            emissive: 0x5b27d8,
+            emissiveIntensity: 2
+        })
+    );
+
+markerCrystal.position.y =
+    2.4;
+
+marker.add(markerCrystal);
+
+
+const markerLight =
+    new THREE.PointLight(
+        0x855dff,
+        2,
+        12
+    );
+
+markerLight.position.y =
+    2.5;
+
+marker.add(markerLight);
+
+
+/* =========================================================
+   MARKER QUEST CHECK
+   ========================================================= */
+
+function updateQuestMarker() {
+
+    if (
+        questState !==
+        "FIND_ANCIENT_MARKER"
+    ) return;
+
+
+    const distance =
+        player.position.distanceTo(
+            marker.position
+        );
+
+
+    if (
+        distance < 5
+    ) {
+
+        questState =
+            "COMPLETED";
+
+
+        xp += 150;
+
+
+        showDialogue(
+            "You discovered the Ancient Marker! Aetheria's magic awakens around you."
+        );
+
+
+        updateQuestUI();
 
     }
 
@@ -3696,130 +3449,68 @@ function updateInteractButton() {
 
 
 /* =========================================================
-   CAMERA FOLLOW
-========================================================= */
+   MARKER ANIMATION
+   ========================================================= */
 
-const desiredCameraPosition =
-    new THREE.Vector3();
-
-
-const cameraTarget =
-    new THREE.Vector3();
-
-
-function updateCamera(
-    delta
+function animateMarker(
+    time
 ) {
 
-    if (!player)
-        return;
+    markerCrystal.rotation.y =
+        time * 1.5;
 
 
-    const distance =
-        9;
-
-
-    const horizontal =
-        Math.cos(
-            cameraPitch
-        ) *
-        distance;
-
-
-    const vertical =
+    markerCrystal.position.y =
+        2.4 +
         Math.sin(
-            cameraPitch
+            time * 3
         ) *
-        distance;
-
-
-    const offset =
-        new THREE.Vector3(
-            0,
-            vertical + 3.2,
-            horizontal
-        );
-
-
-    offset.applyAxisAngle(
-        up,
-        cameraYaw
-    );
-
-
-    desiredCameraPosition
-        .copy(
-            player.position
-        )
-        .add(
-            offset
-        );
-
-
-    camera.position.lerp(
-        desiredCameraPosition,
-        Math.min(
-            1,
-            delta * 8
-        )
-    );
-
-
-    cameraTarget
-        .copy(
-            player.position
-        );
-
-
-    cameraTarget.y +=
-        1.6;
-
-
-    camera.lookAt(
-        cameraTarget
-    );
+        0.15;
 
 }
 
 
 /* =========================================================
    TORCH ANIMATION
-========================================================= */
+   ========================================================= */
 
-function updateTorches(
+function animateTorches(
     time
 ) {
 
     for (
-        const torch
-        of torches
+        const torch of torches
     ) {
 
-        const wave =
+        torch.fire.scale.x =
+            0.9 +
             Math.sin(
-                time * 8 +
-                torch.base
-            );
+                time * 14
+            ) *
+            0.1;
 
 
-        torch.flame.scale.x =
-            0.65 +
-            wave * 0.12;
+        torch.fire.scale.y =
+            1.5 +
+            Math.sin(
+                time * 17
+            ) *
+            0.15;
 
 
-        torch.flame.scale.z =
-            0.65 -
-            wave * 0.08;
-
-
-        torch.flame.scale.y =
-            1.4 +
-            wave * 0.18;
+        torch.flame.rotation.z =
+            Math.sin(
+                time * 13
+            ) *
+            0.12;
 
 
         torch.light.intensity =
-            2.6 +
-            wave * 0.7;
+            2.1 +
+            Math.sin(
+                time * 12
+            ) *
+            0.5;
 
     }
 
@@ -3828,24 +3519,27 @@ function updateTorches(
 
 /* =========================================================
    NPC ANIMATION
-========================================================= */
+   ========================================================= */
 
-function updateNPC(
+function animateNPC(
     time
 ) {
 
-    if (!npc)
-        return;
+    npc.position.y =
+        Math.sin(
+            time * 2
+        ) *
+        0.025;
 
 
     npcCrystal.rotation.y =
-        time * 1.5;
+        time * 1.8;
 
 
     npcCrystal.position.y =
-        3.3 +
+        3.25 +
         Math.sin(
-            time * 2
+            time * 3
         ) *
         0.12;
 
@@ -3853,93 +3547,49 @@ function updateNPC(
 
 
 /* =========================================================
-   MARKER ANIMATION
-========================================================= */
+   DAY/NIGHT LIGHT
+   ========================================================= */
 
-function updateMarker(
-    time
+let worldTime = 0;
+
+
+/* Keep it mostly daytime for now */
+
+function updateSky(
+    delta
 ) {
 
-    markerCrystal.rotation.y =
-        time * 1.3;
+    worldTime +=
+        delta * 0.015;
 
 
-    markerCrystal.position.y =
-        2.8 +
+    const cycle =
         Math.sin(
-            time * 2
-        ) *
-        0.15;
-
-}
-
-
-/* =========================================================
-   PLAYER ANIMATION
-========================================================= */
-
-function updatePlayerAnimation(
-    time
-) {
-
-    if (!player)
-        return;
-
-
-    if (isJumping) {
-
-        applyJumpAnimation();
-
-        return;
-
-    }
-
-
-    if (casting) {
-
-        applyCastingAnimation(
-            time
+            worldTime
         );
 
-        return;
 
-    }
-
-
-    if (isMoving) {
-
-        applyWalkingAnimation(
-            time,
-            isRunning
-                ? 0.95
-                : 0.65,
-            isRunning
+    sun.intensity =
+        THREE.MathUtils.lerp(
+            1.5,
+            3,
+            (cycle + 1) / 2
         );
-
-        return;
-
-    }
-
-
-    applyIdleAnimation(
-        time
-    );
 
 }
 
 
 /* =========================================================
    RESIZE
-========================================================= */
+   ========================================================= */
 
 window.addEventListener(
     "resize",
-    function () {
+    function() {
 
         camera.aspect =
             window.innerWidth /
             window.innerHeight;
-
 
         camera.updateProjectionMatrix();
 
@@ -3955,65 +3605,73 @@ window.addEventListener(
 
 /* =========================================================
    LANDSCAPE
-========================================================= */
+   ========================================================= */
 
-const landscapeButton =
-    document.getElementById(
-        "landscapeButton"
-    );
+function checkOrientation() {
 
-
-if (landscapeButton) {
-
-    landscapeButton.addEventListener(
-        "click",
-        async function () {
-
-            try {
-
-                if (
-                    document
-                        .documentElement
-                        .requestFullscreen
-                ) {
-
-                    await document
-                        .documentElement
-                        .requestFullscreen();
-
-                }
-
-            } catch {}
+    const portrait =
+        window.innerHeight >
+        window.innerWidth;
 
 
-            try {
+    const overlay =
+        document.getElementById(
+            "portraitOverlay"
+        );
 
-                if (
-                    screen.orientation &&
-                    screen.orientation.lock
-                ) {
 
-                    await screen.orientation.lock(
-                        "landscape"
-                    );
+    if (!overlay) return;
 
-                }
 
-            } catch {}
-
-        }
-    );
+    overlay.style.display =
+        portrait
+            ? "flex"
+            : "none";
 
 }
 
 
+window.addEventListener(
+    "resize",
+    checkOrientation
+);
+
+checkOrientation();
+
+
 /* =========================================================
-   MAIN LOOP
-========================================================= */
+   FULLSCREEN
+   ========================================================= */
+
+document.addEventListener(
+    "dblclick",
+    function() {
+
+        if (
+            !document.fullscreenElement
+        ) {
+
+            document.documentElement
+                .requestFullscreen()
+                .catch(() => {});
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CLOCK
+   ========================================================= */
 
 const clock =
     new THREE.Clock();
 
+
+/* =========================================================
+   MAIN LOOP
+   ========================================================= */
 
 function animate() {
 
@@ -4029,8 +3687,19 @@ function animate() {
         );
 
 
-    const time =
-        clock.elapsedTime;
+    const elapsed =
+        performance.now() /
+        1000;
+
+
+    if (
+        castCooldown > 0
+    ) {
+
+        castCooldown -=
+            delta;
+
+    }
 
 
     updateMovement(
@@ -4043,15 +3712,9 @@ function animate() {
     );
 
 
-    updateCasting(
+    updateSpells(
         delta
     );
-
-
-    updateQuest();
-
-
-    updateInteractButton();
 
 
     updateCamera(
@@ -4059,29 +3722,61 @@ function animate() {
     );
 
 
-    updatePlayerAnimation(
-        time
-    );
+    updateQuestMarker();
 
 
-    updateSpellParticles(
+    updateSky(
         delta
     );
 
 
-    updateTorches(
-        time
+    animateMarker(
+        elapsed
     );
 
 
-    updateNPC(
-        time
+    animateTorches(
+        elapsed
     );
 
 
-    updateMarker(
-        time
+    animateNPC(
+        elapsed
     );
+
+
+    if (
+        isJumping
+    ) {
+
+        applyJumpAnimation();
+
+    }
+    else if (
+        casting
+    ) {
+
+        applyCastingAnimation(
+            elapsed
+        );
+
+    }
+    else if (
+        isMoving
+    ) {
+
+        applyWalkingAnimation(
+            elapsed
+        );
+
+    }
+    else {
+
+        applyIdleAnimation(
+            elapsed
+        );
+
+    }
 
 
     renderer.render(
@@ -4096,9 +3791,35 @@ animate();
 
 
 /* =========================================================
-   START
-========================================================= */
+   INITIAL CAMERA
+   ========================================================= */
+
+camera.position.set(
+    0,
+    5,
+    58
+);
+
+camera.lookAt(
+    0,
+    1.5,
+    50
+);
+
+
+/* =========================================================
+   READY
+   ========================================================= */
 
 console.log(
     "Aetheria Academy loaded."
+);
+
+console.log(
+    "Environment upgrade active."
+);
+
+console.log(
+    "Player:",
+    player
 );
