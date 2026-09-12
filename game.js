@@ -1,7 +1,6 @@
 /* =========================================================
    AETHERIA ACADEMY
-   COMPLETE MOBILE 3D GAME
-   Three.js + GLB + Draco
+   COMPLETE 3D MOBILE GAME
 ========================================================= */
 
 import * as THREE from
@@ -18,42 +17,39 @@ import { DRACOLoader } from
    DOM
 ========================================================= */
 
-const game = document.getElementById("game");
-const loading = document.getElementById("loading");
+const game =
+    document.getElementById("game");
 
-const joystick = document.getElementById("joystick");
-const joystickKnob = document.getElementById("joystickKnob");
+const loading =
+    document.getElementById("loading");
 
-const jumpButton = document.getElementById("jumpButton");
-const spellButton = document.getElementById("spellButton");
+const joystick =
+    document.getElementById("joystick");
 
-const questText = document.getElementById("questText");
-const xpElement = document.getElementById("xp");
+const joystickKnob =
+    document.getElementById("joystickKnob");
 
-const dialogueBox = document.getElementById("dialogueBox");
+const jumpButton =
+    document.getElementById("jumpButton");
 
-let interactButton = document.getElementById("interactButton");
+const spellButton =
+    document.getElementById("spellButton");
 
+const questText =
+    document.getElementById("questText");
 
-/* =========================================================
-   ERROR HANDLING
-========================================================= */
+const xpElement =
+    document.getElementById("xp");
 
-window.addEventListener("error", function (event) {
+const dialogueBox =
+    document.getElementById("dialogueBox");
 
-    console.error("Aetheria error:", event.error || event.message);
-
-});
-
-window.addEventListener("unhandledrejection", function (event) {
-
-    console.error("Aetheria promise error:", event.reason);
-
-});
+let interactButton =
+    document.getElementById("interactButton");
 
 
 /* =========================================================
-   LOADING SCREEN
+   LOADING
 ========================================================= */
 
 function hideLoadingScreen() {
@@ -64,37 +60,77 @@ function hideLoadingScreen() {
 
     setTimeout(() => {
 
-        loading.style.display = "none";
+        loading.style.display =
+            "none";
 
     }, 600);
+
 }
+
+
+/* =========================================================
+   ERROR LOG
+========================================================= */
+
+window.addEventListener(
+    "error",
+    function (event) {
+
+        console.error(
+            "Aetheria error:",
+            event.error ||
+            event.message
+        );
+
+    }
+);
+
+
+window.addEventListener(
+    "unhandledrejection",
+    function (event) {
+
+        console.error(
+            "Aetheria promise error:",
+            event.reason
+        );
+
+    }
+);
 
 
 /* =========================================================
    SCENE
 ========================================================= */
 
-const scene = new THREE.Scene();
+const scene =
+    new THREE.Scene();
 
-scene.background = new THREE.Color(0x07111c);
+scene.background =
+    new THREE.Color(
+        0x07111c
+    );
 
-scene.fog = new THREE.Fog(
-    0x07111c,
-    45,
-    230
-);
+scene.fog =
+    new THREE.Fog(
+        0x07111c,
+        45,
+        230
+    );
 
 
 /* =========================================================
    CAMERA
 ========================================================= */
 
-const camera = new THREE.PerspectiveCamera(
-    60,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-);
+const camera =
+    new THREE.PerspectiveCamera(
+        60,
+        window.innerWidth /
+            window.innerHeight,
+        0.1,
+        1000
+    );
 
 camera.position.set(
     0,
@@ -107,57 +143,81 @@ camera.position.set(
    RENDERER
 ========================================================= */
 
-const renderer = new THREE.WebGLRenderer({
+const renderer =
+    new THREE.WebGLRenderer({
 
-    antialias: true,
-    powerPreference: "high-performance"
+        antialias: true,
 
-});
+        powerPreference:
+            "high-performance"
+
+    });
+
 
 renderer.setSize(
     window.innerWidth,
     window.innerHeight
 );
 
+
 renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio || 1, 1.8)
+    Math.min(
+        window.devicePixelRatio || 1,
+        1.8
+    )
 );
 
-renderer.shadowMap.enabled = true;
+
+renderer.shadowMap.enabled =
+    true;
+
 
 renderer.shadowMap.type =
     THREE.PCFSoftShadowMap;
 
+
 renderer.outputColorSpace =
     THREE.SRGBColorSpace;
+
 
 renderer.toneMapping =
     THREE.ACESFilmicToneMapping;
 
-renderer.toneMappingExposure = 1.15;
 
-renderer.domElement.style.touchAction = "none";
+renderer.toneMappingExposure =
+    1.15;
 
-game.appendChild(renderer.domElement);
+
+renderer.domElement.style.touchAction =
+    "none";
+
+
+game.appendChild(
+    renderer.domElement
+);
 
 
 /* =========================================================
    LIGHTING
 ========================================================= */
 
-const hemisphere = new THREE.HemisphereLight(
-    0xbfdcff,
-    0x263018,
-    2.2
+const hemisphere =
+    new THREE.HemisphereLight(
+        0xbfdcff,
+        0x263018,
+        2.2
+    );
+
+scene.add(
+    hemisphere
 );
 
-scene.add(hemisphere);
 
-
-const sun = new THREE.DirectionalLight(
-    0xfff2d0,
-    3.0
-);
+const sun =
+    new THREE.DirectionalLight(
+        0xfff2d0,
+        3
+    );
 
 sun.position.set(
     50,
@@ -165,94 +225,128 @@ sun.position.set(
     40
 );
 
-sun.castShadow = true;
+sun.castShadow =
+    true;
 
-sun.shadow.mapSize.width = 2048;
-sun.shadow.mapSize.height = 2048;
+sun.shadow.mapSize.width =
+    2048;
 
-sun.shadow.camera.left = -120;
-sun.shadow.camera.right = 120;
-sun.shadow.camera.top = 120;
-sun.shadow.camera.bottom = -120;
+sun.shadow.mapSize.height =
+    2048;
 
-sun.shadow.camera.near = 1;
-sun.shadow.camera.far = 300;
+sun.shadow.camera.left =
+    -120;
 
-scene.add(sun);
+sun.shadow.camera.right =
+    120;
+
+sun.shadow.camera.top =
+    120;
+
+sun.shadow.camera.bottom =
+    -120;
+
+sun.shadow.camera.near =
+    1;
+
+sun.shadow.camera.far =
+    300;
+
+scene.add(
+    sun
+);
 
 
 /* =========================================================
    MATERIALS
 ========================================================= */
 
-const groundMat = new THREE.MeshStandardMaterial({
+const groundMat =
+    new THREE.MeshStandardMaterial({
 
-    color: 0x33452f,
-    roughness: 1,
-    metalness: 0
+        color: 0x33452f,
 
-});
+        roughness: 1
 
-
-const grassMat = new THREE.MeshStandardMaterial({
-
-    color: 0x526b3b,
-    roughness: 1
-
-});
+    });
 
 
-const stoneMat = new THREE.MeshStandardMaterial({
+const grassMat =
+    new THREE.MeshStandardMaterial({
 
-    color: 0x6c7077,
-    roughness: 0.92,
-    metalness: 0.05
+        color: 0x526b3b,
 
-});
+        roughness: 1
 
-
-const darkStoneMat = new THREE.MeshStandardMaterial({
-
-    color: 0x333740,
-    roughness: 0.95
-
-});
+    });
 
 
-const roofMat = new THREE.MeshStandardMaterial({
+const stoneMat =
+    new THREE.MeshStandardMaterial({
 
-    color: 0x242832,
-    roughness: 0.9
+        color: 0x6c7077,
 
-});
+        roughness: 0.92,
 
+        metalness: 0.05
 
-const woodMat = new THREE.MeshStandardMaterial({
-
-    color: 0x4b3020,
-    roughness: 0.9
-
-});
+    });
 
 
-const goldMat = new THREE.MeshStandardMaterial({
+const darkStoneMat =
+    new THREE.MeshStandardMaterial({
 
-    color: 0xb9964c,
-    metalness: 0.7,
-    roughness: 0.3
+        color: 0x333740,
 
-});
+        roughness: 0.95
+
+    });
 
 
-const waterMat = new THREE.MeshStandardMaterial({
+const roofMat =
+    new THREE.MeshStandardMaterial({
 
-    color: 0x327eaa,
-    transparent: true,
-    opacity: 0.75,
-    roughness: 0.1,
-    metalness: 0.15
+        color: 0x242832,
 
-});
+        roughness: 0.9
+
+    });
+
+
+const woodMat =
+    new THREE.MeshStandardMaterial({
+
+        color: 0x4b3020,
+
+        roughness: 0.9
+
+    });
+
+
+const goldMat =
+    new THREE.MeshStandardMaterial({
+
+        color: 0xb9964c,
+
+        metalness: 0.7,
+
+        roughness: 0.3
+
+    });
+
+
+const waterMat =
+    new THREE.MeshStandardMaterial({
+
+        color: 0x327eaa,
+
+        transparent: true,
+
+        opacity: 0.75,
+
+        roughness: 0.1
+
+    });
 
 
 /* =========================================================
@@ -277,14 +371,23 @@ function addCollisionBox(
 
     collisionBoxes.push({
 
-        minX: x - width / 2,
-        maxX: x + width / 2,
+        minX:
+            x - width / 2,
 
-        minY: y - height / 2,
-        maxY: y + height / 2,
+        maxX:
+            x + width / 2,
 
-        minZ: z - depth / 2,
-        maxZ: z + depth / 2
+        minY:
+            y - height / 2,
+
+        maxY:
+            y + height / 2,
+
+        minZ:
+            z - depth / 2,
+
+        maxZ:
+            z + depth / 2
 
     });
 
@@ -292,7 +395,7 @@ function addCollisionBox(
 
 
 /* =========================================================
-   BOX HELPER
+   BOX
 ========================================================= */
 
 function box(
@@ -313,11 +416,13 @@ function box(
             depth
         );
 
+
     const mesh =
         new THREE.Mesh(
             geometry,
             material
         );
+
 
     mesh.position.set(
         x,
@@ -325,10 +430,18 @@ function box(
         z
     );
 
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
 
-    scene.add(mesh);
+    mesh.castShadow =
+        true;
+
+    mesh.receiveShadow =
+        true;
+
+
+    scene.add(
+        mesh
+    );
+
 
     if (collision) {
 
@@ -343,7 +456,9 @@ function box(
 
     }
 
+
     return mesh;
+
 }
 
 
@@ -364,10 +479,13 @@ box(
 
 
 /* =========================================================
-   GRASS PATCHES
+   GRASS
 ========================================================= */
 
-function createGrassPatch(x, z) {
+function createGrassPatch(
+    x,
+    z
+) {
 
     const geometry =
         new THREE.PlaneGeometry(
@@ -375,14 +493,17 @@ function createGrassPatch(x, z) {
             14
         );
 
+
     const mesh =
         new THREE.Mesh(
             geometry,
             grassMat
         );
 
+
     mesh.rotation.x =
         -Math.PI / 2;
+
 
     mesh.position.set(
         x,
@@ -390,17 +511,34 @@ function createGrassPatch(x, z) {
         z
     );
 
-    mesh.receiveShadow = true;
 
-    scene.add(mesh);
+    mesh.receiveShadow =
+        true;
+
+
+    scene.add(
+        mesh
+    );
+
 }
 
 
-for (let x = -100; x <= 100; x += 20) {
+for (
+    let x = -100;
+    x <= 100;
+    x += 20
+) {
 
-    for (let z = -20; z <= 120; z += 20) {
+    for (
+        let z = -20;
+        z <= 120;
+        z += 20
+    ) {
 
-        createGrassPatch(x, z);
+        createGrassPatch(
+            x,
+            z
+        );
 
     }
 
@@ -408,12 +546,10 @@ for (let x = -100; x <= 100; x += 20) {
 
 
 /* =========================================================
-   ACADEMY CASTLE
+   ACADEMY
 ========================================================= */
 
 function createAcademy() {
-
-    /* Main building */
 
     box(
         42,
@@ -427,8 +563,6 @@ function createAcademy() {
     );
 
 
-    /* Main upper section */
-
     box(
         30,
         10,
@@ -440,8 +574,6 @@ function createAcademy() {
         true
     );
 
-
-    /* Central tower */
 
     box(
         18,
@@ -455,8 +587,6 @@ function createAcademy() {
     );
 
 
-    /* Left wing */
-
     box(
         15,
         18,
@@ -468,8 +598,6 @@ function createAcademy() {
         true
     );
 
-
-    /* Right wing */
 
     box(
         15,
@@ -483,8 +611,6 @@ function createAcademy() {
     );
 
 
-    /* Main roof */
-
     box(
         44,
         6,
@@ -496,8 +622,6 @@ function createAcademy() {
         true
     );
 
-
-    /* Central tower top */
 
     box(
         16,
@@ -511,7 +635,7 @@ function createAcademy() {
     );
 
 
-    /* Gate pillars */
+    /* Gate */
 
     box(
         4,
@@ -537,8 +661,6 @@ function createAcademy() {
     );
 
 
-    /* Gate top */
-
     box(
         24,
         5,
@@ -551,20 +673,16 @@ function createAcademy() {
     );
 
 
-    /* Door */
-
-    const doorGeometry =
-        new THREE.BoxGeometry(
-            18,
-            14,
-            1.2
-        );
-
     const door =
         new THREE.Mesh(
-            doorGeometry,
+            new THREE.BoxGeometry(
+                18,
+                14,
+                1.2
+            ),
             woodMat
         );
+
 
     door.position.set(
         0,
@@ -572,29 +690,31 @@ function createAcademy() {
         -16
     );
 
-    door.castShadow = true;
 
-    scene.add(door);
+    door.castShadow =
+        true;
 
 
-    /* Gold crest */
+    scene.add(
+        door
+    );
 
-    const crestGeometry =
-        new THREE.CylinderGeometry(
-            3,
-            3,
-            0.5,
-            32
-        );
 
     const crest =
         new THREE.Mesh(
-            crestGeometry,
+            new THREE.CylinderGeometry(
+                3,
+                3,
+                0.5,
+                32
+            ),
             goldMat
         );
 
+
     crest.rotation.x =
         Math.PI / 2;
+
 
     crest.position.set(
         0,
@@ -602,9 +722,13 @@ function createAcademy() {
         -16.5
     );
 
-    scene.add(crest);
+
+    scene.add(
+        crest
+    );
 
 }
+
 
 createAcademy();
 
@@ -613,19 +737,17 @@ createAcademy();
    COURTYARD
 ========================================================= */
 
-const courtyardGeometry =
-    new THREE.CylinderGeometry(
-        18,
-        18,
-        0.25,
-        64
-    );
-
 const courtyard =
     new THREE.Mesh(
-        courtyardGeometry,
+        new THREE.CylinderGeometry(
+            18,
+            18,
+            0.25,
+            64
+        ),
         stoneMat
     );
+
 
 courtyard.position.set(
     0,
@@ -633,9 +755,14 @@ courtyard.position.set(
     18
 );
 
-courtyard.receiveShadow = true;
 
-scene.add(courtyard);
+courtyard.receiveShadow =
+    true;
+
+
+scene.add(
+    courtyard
+);
 
 
 /* =========================================================
@@ -660,19 +787,17 @@ box(
 
 function createFountain() {
 
-    const baseGeometry =
-        new THREE.CylinderGeometry(
-            8,
-            9,
-            1,
-            48
-        );
-
     const base =
         new THREE.Mesh(
-            baseGeometry,
+            new THREE.CylinderGeometry(
+                8,
+                9,
+                1,
+                48
+            ),
             stoneMat
         );
+
 
     base.position.set(
         0,
@@ -680,25 +805,30 @@ function createFountain() {
         18
     );
 
-    base.castShadow = true;
-    base.receiveShadow = true;
 
-    scene.add(base);
+    base.castShadow =
+        true;
+
+    base.receiveShadow =
+        true;
 
 
-    const waterGeometry =
-        new THREE.CylinderGeometry(
-            7.3,
-            7.3,
-            0.35,
-            48
-        );
+    scene.add(
+        base
+    );
+
 
     const water =
         new THREE.Mesh(
-            waterGeometry,
+            new THREE.CylinderGeometry(
+                7.3,
+                7.3,
+                0.35,
+                48
+            ),
             waterMat
         );
+
 
     water.position.set(
         0,
@@ -706,22 +836,23 @@ function createFountain() {
         18
     );
 
-    scene.add(water);
 
+    scene.add(
+        water
+    );
 
-    const pillarGeometry =
-        new THREE.CylinderGeometry(
-            1.2,
-            1.6,
-            6,
-            32
-        );
 
     const pillar =
         new THREE.Mesh(
-            pillarGeometry,
+            new THREE.CylinderGeometry(
+                1.2,
+                1.6,
+                6,
+                32
+            ),
             stoneMat
         );
+
 
     pillar.position.set(
         0,
@@ -729,24 +860,27 @@ function createFountain() {
         18
     );
 
-    pillar.castShadow = true;
 
-    scene.add(pillar);
+    pillar.castShadow =
+        true;
 
 
-    const topGeometry =
-        new THREE.CylinderGeometry(
-            3,
-            2.2,
-            0.8,
-            32
-        );
+    scene.add(
+        pillar
+    );
+
 
     const top =
         new THREE.Mesh(
-            topGeometry,
+            new THREE.CylinderGeometry(
+                3,
+                2.2,
+                0.8,
+                32
+            ),
             stoneMat
         );
+
 
     top.position.set(
         0,
@@ -754,11 +888,17 @@ function createFountain() {
         18
     );
 
-    top.castShadow = true;
 
-    scene.add(top);
+    top.castShadow =
+        true;
+
+
+    scene.add(
+        top
+    );
 
 }
+
 
 createFountain();
 
@@ -767,10 +907,15 @@ createFountain();
    TREES
 ========================================================= */
 
-function createTree(x, z, scale = 1) {
+function createTree(
+    x,
+    z,
+    scale = 1
+) {
 
     const group =
         new THREE.Group();
+
 
     group.position.set(
         x,
@@ -778,75 +923,81 @@ function createTree(x, z, scale = 1) {
         z
     );
 
-    group.scale.setScalar(scale);
 
+    group.scale.setScalar(
+        scale
+    );
 
-    const trunkGeometry =
-        new THREE.CylinderGeometry(
-            0.8,
-            1.15,
-            7,
-            12
-        );
 
     const trunk =
         new THREE.Mesh(
-            trunkGeometry,
+            new THREE.CylinderGeometry(
+                0.8,
+                1.15,
+                7,
+                12
+            ),
             woodMat
         );
+
 
     trunk.position.y =
         3.5;
 
-    trunk.castShadow = true;
 
-    group.add(trunk);
+    trunk.castShadow =
+        true;
 
 
-    const leafGeometry =
-        new THREE.SphereGeometry(
-            4.2,
-            16,
-            12
-        );
+    group.add(
+        trunk
+    );
+
 
     const leafMaterial =
         new THREE.MeshStandardMaterial({
 
             color: 0x29452b,
+
             roughness: 1
 
         });
 
 
-    const leaves1 =
+    const leaves =
         new THREE.Mesh(
-            leafGeometry,
+            new THREE.SphereGeometry(
+                4.2,
+                16,
+                12
+            ),
             leafMaterial
         );
 
-    leaves1.position.set(
-        0,
-        8,
-        0
-    );
 
-    leaves1.scale.set(
+    leaves.position.y =
+        8;
+
+
+    leaves.scale.set(
         1.25,
         1.15,
         1.25
     );
 
-    leaves1.castShadow = true;
 
-    group.add(leaves1);
+    leaves.castShadow =
+        true;
+
+
+    group.add(
+        leaves
+    );
 
 
     const leaves2 =
-        new THREE.Mesh(
-            leafGeometry,
-            leafMaterial
-        );
+        leaves.clone();
+
 
     leaves2.position.set(
         -2.5,
@@ -854,18 +1005,20 @@ function createTree(x, z, scale = 1) {
         0.5
     );
 
-    leaves2.scale.setScalar(0.7);
 
-    leaves2.castShadow = true;
+    leaves2.scale.setScalar(
+        0.7
+    );
 
-    group.add(leaves2);
+
+    group.add(
+        leaves2
+    );
 
 
     const leaves3 =
-        new THREE.Mesh(
-            leafGeometry,
-            leafMaterial
-        );
+        leaves.clone();
+
 
     leaves3.position.set(
         2.4,
@@ -873,26 +1026,31 @@ function createTree(x, z, scale = 1) {
         -0.4
     );
 
-    leaves3.scale.setScalar(0.7);
 
-    leaves3.castShadow = true;
+    leaves3.scale.setScalar(
+        0.7
+    );
 
-    group.add(leaves3);
+
+    group.add(
+        leaves3
+    );
 
 
-    scene.add(group);
+    scene.add(
+        group
+    );
 
 
     treeColliders.push({
 
         x,
         z,
-        radius: 2.2 * scale
+
+        radius:
+            2.2 * scale
 
     });
-
-
-    return group;
 
 }
 
@@ -916,12 +1074,16 @@ const treePositions = [
 ];
 
 
-for (const [x, z] of treePositions) {
+for (
+    const [x, z]
+    of treePositions
+) {
 
     createTree(
         x,
         z,
-        1 + Math.random() * 0.25
+        1 +
+        Math.random() * 0.25
     );
 
 }
@@ -934,10 +1096,14 @@ for (const [x, z] of treePositions) {
 const torches = [];
 
 
-function createTorch(x, z) {
+function createTorch(
+    x,
+    z
+) {
 
     const group =
         new THREE.Group();
+
 
     group.position.set(
         x,
@@ -946,53 +1112,53 @@ function createTorch(x, z) {
     );
 
 
-    const stickGeometry =
-        new THREE.CylinderGeometry(
-            0.15,
-            0.2,
-            3,
-            10
-        );
-
     const stick =
         new THREE.Mesh(
-            stickGeometry,
+            new THREE.CylinderGeometry(
+                0.15,
+                0.2,
+                3,
+                10
+            ),
             woodMat
         );
+
 
     stick.position.y =
         1.5;
 
-    stick.castShadow = true;
 
-    group.add(stick);
+    stick.castShadow =
+        true;
 
 
-    const flameGeometry =
-        new THREE.SphereGeometry(
-            0.65,
-            16,
-            16
-        );
-
-    const flameMaterial =
-        new THREE.MeshBasicMaterial({
-
-            color: 0xff9f32,
-            transparent: true,
-            opacity: 0.95
-
-        });
+    group.add(
+        stick
+    );
 
 
     const flame =
         new THREE.Mesh(
-            flameGeometry,
-            flameMaterial
+            new THREE.SphereGeometry(
+                0.65,
+                16,
+                16
+            ),
+            new THREE.MeshBasicMaterial({
+
+                color: 0xff9f32,
+
+                transparent: true,
+
+                opacity: 0.95
+
+            })
         );
+
 
     flame.position.y =
         3.3;
+
 
     flame.scale.set(
         0.65,
@@ -1000,7 +1166,10 @@ function createTorch(x, z) {
         0.65
     );
 
-    group.add(flame);
+
+    group.add(
+        flame
+    );
 
 
     const light =
@@ -1010,27 +1179,44 @@ function createTorch(x, z) {
             13
         );
 
+
     light.position.y =
         3.2;
 
-    group.add(light);
+
+    group.add(
+        light
+    );
 
 
-    scene.add(group);
+    scene.add(
+        group
+    );
+
 
     torches.push({
 
         flame,
         light,
-        base: Math.random() * 10
+
+        base:
+            Math.random() * 10
 
     });
 
 }
 
 
-createTorch(-8, -13);
-createTorch(8, -13);
+createTorch(
+    -8,
+    -13
+);
+
+
+createTorch(
+    8,
+    -13
+);
 
 
 /* =========================================================
@@ -1039,15 +1225,11 @@ createTorch(8, -13);
 
 let player = null;
 
-let playerMixer = null;
-
 let playerBones = {};
 
 let rightHandBone = null;
 
 let wand = null;
-
-let playerLoaded = false;
 
 
 /* =========================================================
@@ -1077,7 +1259,7 @@ let lastMoveDirection =
 
 
 /* =========================================================
-   PLAYER BASE ROTATIONS
+   BONE ROTATIONS
 ========================================================= */
 
 const baseBoneQuaternions =
@@ -1088,7 +1270,11 @@ function saveBoneRotation(
     bone
 ) {
 
-    if (!baseBoneQuaternions.has(bone.name)) {
+    if (
+        !baseBoneQuaternions.has(
+            bone.name
+        )
+    ) {
 
         baseBoneQuaternions.set(
             bone.name,
@@ -1110,19 +1296,29 @@ function setBoneOffset(
     const bone =
         playerBones[name];
 
+
     if (!bone) return;
 
-    saveBoneRotation(bone);
+
+    saveBoneRotation(
+        bone
+    );
+
 
     const base =
         baseBoneQuaternions.get(
             name
         );
 
-    bone.quaternion.copy(base);
+
+    bone.quaternion.copy(
+        base
+    );
+
 
     const offset =
         new THREE.Quaternion();
+
 
     offset.setFromEuler(
         new THREE.Euler(
@@ -1133,13 +1329,16 @@ function setBoneOffset(
         )
     );
 
-    bone.quaternion.multiply(offset);
+
+    bone.quaternion.multiply(
+        offset
+    );
 
 }
 
 
 /* =========================================================
-   STANDING POSE
+   STANDING
 ========================================================= */
 
 function applyStandingPose() {
@@ -1147,14 +1346,13 @@ function applyStandingPose() {
     if (!player) return;
 
 
-    /* Arms down from T-pose */
-
     setBoneOffset(
         "LeftArm",
         Math.PI / 2,
         0,
         0
     );
+
 
     setBoneOffset(
         "RightArm",
@@ -1171,6 +1369,7 @@ function applyStandingPose() {
         0
     );
 
+
     setBoneOffset(
         "RightForeArm",
         0.12,
@@ -1186,6 +1385,7 @@ function applyStandingPose() {
         0.05
     );
 
+
     setBoneOffset(
         "RightShoulder",
         0,
@@ -1197,18 +1397,20 @@ function applyStandingPose() {
 
 
 /* =========================================================
-   IDLE ANIMATION
+   IDLE
 ========================================================= */
 
-function applyIdleAnimation(time) {
+function applyIdleAnimation(
+    time
+) {
 
     applyStandingPose();
 
-    if (!player) return;
-
 
     const breathe =
-        Math.sin(time * 2) * 0.025;
+        Math.sin(
+            time * 2
+        ) * 0.025;
 
 
     setBoneOffset(
@@ -1221,8 +1423,12 @@ function applyIdleAnimation(time) {
 
     setBoneOffset(
         "Head",
-        Math.sin(time * 0.8) * 0.025,
-        Math.sin(time * 0.6) * 0.03,
+        Math.sin(
+            time * 0.8
+        ) * 0.025,
+        Math.sin(
+            time * 0.6
+        ) * 0.03,
         0
     );
 
@@ -1230,7 +1436,7 @@ function applyIdleAnimation(time) {
 
 
 /* =========================================================
-   WALKING ANIMATION
+   WALK
 ========================================================= */
 
 function applyWalkingAnimation(
@@ -1241,12 +1447,18 @@ function applyWalkingAnimation(
 
     applyStandingPose();
 
-    if (!player) return;
-
 
     const swing =
-        Math.sin(time * speed * 7) *
-        (running ? 0.65 : 0.45);
+        Math.sin(
+            time *
+            speed *
+            7
+        ) *
+        (
+            running
+                ? 0.65
+                : 0.45
+        );
 
 
     setBoneOffset(
@@ -1255,6 +1467,7 @@ function applyWalkingAnimation(
         0,
         0
     );
+
 
     setBoneOffset(
         "RightUpLeg",
@@ -1266,14 +1479,21 @@ function applyWalkingAnimation(
 
     setBoneOffset(
         "LeftLeg",
-        Math.max(0, -swing) * 0.45,
+        Math.max(
+            0,
+            -swing
+        ) * 0.45,
         0,
         0
     );
 
+
     setBoneOffset(
         "RightLeg",
-        Math.max(0, swing) * 0.45,
+        Math.max(
+            0,
+            swing
+        ) * 0.45,
         0,
         0
     );
@@ -1286,6 +1506,7 @@ function applyWalkingAnimation(
         -swing * 0.45
     );
 
+
     setBoneOffset(
         "RightArm",
         Math.PI / 2,
@@ -1293,26 +1514,16 @@ function applyWalkingAnimation(
         swing * 0.45
     );
 
-
-    setBoneOffset(
-        "Spine",
-        Math.sin(time * speed * 7) * 0.035,
-        0,
-        0
-    );
-
 }
 
 
 /* =========================================================
-   JUMP ANIMATION
+   JUMP
 ========================================================= */
 
 function applyJumpAnimation() {
 
     applyStandingPose();
-
-    if (!player) return;
 
 
     setBoneOffset(
@@ -1321,6 +1532,7 @@ function applyJumpAnimation() {
         0,
         0
     );
+
 
     setBoneOffset(
         "RightArm",
@@ -1336,6 +1548,7 @@ function applyJumpAnimation() {
         0,
         0
     );
+
 
     setBoneOffset(
         "RightUpLeg",
@@ -1351,29 +1564,32 @@ function applyJumpAnimation() {
    CASTING ANIMATION
 ========================================================= */
 
-function applyCastingAnimation(time) {
+function applyCastingAnimation(
+    time
+) {
 
     applyStandingPose();
-
-    if (!player) return;
 
 
     const progress =
         Math.min(
             1,
-            castTimer / 0.55
+            castTimer /
+            0.55
         );
 
 
     const raise =
         Math.sin(
-            progress * Math.PI
+            progress *
+            Math.PI
         );
 
 
     setBoneOffset(
         "RightArm",
-        Math.PI / 2 - 1.1 * raise,
+        Math.PI / 2 -
+        1.1 * raise,
         0,
         -0.35 * raise
     );
@@ -1390,7 +1606,9 @@ function applyCastingAnimation(time) {
     setBoneOffset(
         "Head",
         0,
-        Math.sin(time * 4) * 0.03,
+        Math.sin(
+            time * 4
+        ) * 0.03,
         0
     );
 
@@ -1403,7 +1621,8 @@ function applyCastingAnimation(time) {
 
 function createWand() {
 
-    if (!rightHandBone) return;
+    if (!rightHandBone)
+        return;
 
 
     const geometry =
@@ -1419,6 +1638,7 @@ function createWand() {
         new THREE.MeshStandardMaterial({
 
             color: 0x382217,
+
             roughness: 0.7
 
         });
@@ -1435,30 +1655,29 @@ function createWand() {
         -Math.PI / 2;
 
 
-    wand.position.set(
-        0,
-        0,
-        0
+    rightHandBone.add(
+        wand
     );
-
-
-    rightHandBone.add(wand);
 
 }
 
 
 /* =========================================================
-   LOAD PLAYER
+   LOAD AREN
 ========================================================= */
 
-const loader = new GLTFLoader();
+const loader =
+    new GLTFLoader();
+
 
 const dracoLoader =
     new DRACOLoader();
 
+
 dracoLoader.setDecoderPath(
     "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/"
 );
+
 
 loader.setDRACOLoader(
     dracoLoader
@@ -1485,16 +1704,22 @@ loader.load(
         player.traverse(
             function (object) {
 
-                if (object.isMesh) {
+                if (
+                    object.isMesh
+                ) {
 
-                    object.castShadow = true;
+                    object.castShadow =
+                        true;
 
-                    object.receiveShadow = true;
+                    object.receiveShadow =
+                        true;
 
                 }
 
 
-                if (object.isBone) {
+                if (
+                    object.isBone
+                ) {
 
                     playerBones[
                         object.name
@@ -1506,26 +1731,32 @@ loader.load(
         );
 
 
-        /* Scale character automatically */
-
-        const box3 =
+        const bounds =
             new THREE.Box3()
-                .setFromObject(player);
+                .setFromObject(
+                    player
+                );
 
 
         const size =
             new THREE.Vector3();
 
-        box3.getSize(size);
+
+        bounds.getSize(
+            size
+        );
 
 
         if (size.y > 0) {
 
-            const desiredHeight = 2.8;
+            const desiredHeight =
+                2.8;
+
 
             const scale =
                 desiredHeight /
                 size.y;
+
 
             player.scale.setScalar(
                 scale
@@ -1534,15 +1765,21 @@ loader.load(
         }
 
 
-        scene.add(player);
+        scene.add(
+            player
+        );
 
 
         rightHandBone =
-            playerBones["RightHand"] ||
+            playerBones[
+                "RightHand"
+            ] ||
             null;
 
 
-        if (rightHandBone) {
+        if (
+            rightHandBone
+        ) {
 
             createWand();
 
@@ -1552,37 +1789,33 @@ loader.load(
         applyStandingPose();
 
 
-        playerLoaded = true;
-
-
         hideLoadingScreen();
 
     },
+
 
     function (xhr) {
 
         if (xhr.total) {
 
-            const percent =
+            console.log(
+                "Player loading:",
                 Math.round(
                     xhr.loaded /
                     xhr.total *
                     100
-                );
-
-            console.log(
-                "Player loading:",
-                percent + "%"
+                ) + "%"
             );
 
         }
 
     },
 
+
     function (error) {
 
         console.error(
-            "Player GLB failed:",
+            "Aren GLB error:",
             error
         );
 
@@ -1622,17 +1855,26 @@ function createFallbackPlayer() {
                 16
             ),
             new THREE.MeshStandardMaterial({
+
                 color: 0x25263a,
+
                 roughness: 0.8
+
             })
         );
+
 
     body.position.y =
         1.25;
 
-    body.castShadow = true;
 
-    group.add(body);
+    body.castShadow =
+        true;
+
+
+    group.add(
+        body
+    );
 
 
     const head =
@@ -1643,17 +1885,26 @@ function createFallbackPlayer() {
                 16
             ),
             new THREE.MeshStandardMaterial({
+
                 color: 0xb78362,
+
                 roughness: 0.8
+
             })
         );
+
 
     head.position.y =
         2.25;
 
-    head.castShadow = true;
 
-    group.add(head);
+    head.castShadow =
+        true;
+
+
+    group.add(
+        head
+    );
 
 
     const hat =
@@ -1664,54 +1915,31 @@ function createFallbackPlayer() {
                 20
             ),
             new THREE.MeshStandardMaterial({
+
                 color: 0x201a35,
+
                 roughness: 0.8
+
             })
         );
+
 
     hat.position.y =
         2.9;
 
-    hat.castShadow = true;
 
-    group.add(hat);
-
-
-    const wandGeometry =
-        new THREE.CylinderGeometry(
-            0.04,
-            0.06,
-            1.2,
-            8
-        );
-
-
-    const wandMesh =
-        new THREE.Mesh(
-            wandGeometry,
-            new THREE.MeshStandardMaterial({
-                color: 0x3b2418
-            })
-        );
-
-
-    wandMesh.rotation.z =
-        -Math.PI / 2;
-
-    wandMesh.position.set(
-        0.9,
-        1.55,
-        0
+    group.add(
+        hat
     );
 
-    group.add(wandMesh);
+
+    scene.add(
+        group
+    );
 
 
-    scene.add(group);
-
-    player = group;
-
-    playerLoaded = true;
+    player =
+        group;
 
 }
 
@@ -1738,8 +1966,6 @@ function createNPC() {
     );
 
 
-    /* Robe */
-
     const robe =
         new THREE.Mesh(
             new THREE.ConeGeometry(
@@ -1748,20 +1974,27 @@ function createNPC() {
                 20
             ),
             new THREE.MeshStandardMaterial({
+
                 color: 0x30264b,
+
                 roughness: 0.9
+
             })
         );
+
 
     robe.position.y =
         1.25;
 
-    robe.castShadow = true;
 
-    npc.add(robe);
+    robe.castShadow =
+        true;
 
 
-    /* Head */
+    npc.add(
+        robe
+    );
+
 
     const head =
         new THREE.Mesh(
@@ -1771,20 +2004,23 @@ function createNPC() {
                 16
             ),
             new THREE.MeshStandardMaterial({
+
                 color: 0xb98261,
+
                 roughness: 0.8
+
             })
         );
+
 
     head.position.y =
         2.85;
 
-    head.castShadow = true;
 
-    npc.add(head);
+    npc.add(
+        head
+    );
 
-
-    /* Hat */
 
     const hat =
         new THREE.Mesh(
@@ -1794,20 +2030,23 @@ function createNPC() {
                 20
             ),
             new THREE.MeshStandardMaterial({
+
                 color: 0x161421,
+
                 roughness: 0.9
+
             })
         );
+
 
     hat.position.y =
         3.5;
 
-    hat.castShadow = true;
 
-    npc.add(hat);
+    npc.add(
+        hat
+    );
 
-
-    /* Staff */
 
     const staff =
         new THREE.Mesh(
@@ -1820,18 +2059,18 @@ function createNPC() {
             woodMat
         );
 
+
     staff.position.set(
-        1.0,
+        1,
         1.6,
         0
     );
 
-    staff.castShadow = true;
 
-    npc.add(staff);
+    npc.add(
+        staff
+    );
 
-
-    /* Crystal */
 
     npcCrystal =
         new THREE.Mesh(
@@ -1841,24 +2080,33 @@ function createNPC() {
             new THREE.MeshStandardMaterial({
 
                 color: 0x8d6cff,
+
                 emissive: 0x4820aa,
+
                 emissiveIntensity: 2
 
             })
         );
 
+
     npcCrystal.position.set(
-        1.0,
+        1,
         3.3,
         0
     );
 
-    npc.add(npcCrystal);
+
+    npc.add(
+        npcCrystal
+    );
 
 
-    scene.add(npc);
+    scene.add(
+        npc
+    );
 
 }
+
 
 createNPC();
 
@@ -1882,9 +2130,6 @@ let questState =
 
 
 function updateQuestUI() {
-
-    if (!questText) return;
-
 
     if (questState === QUEST_TALK) {
 
@@ -1910,14 +2155,11 @@ function updateQuestUI() {
     }
 
 
-    if (xpElement) {
-
-        xpElement.textContent =
-            "XP " + xp;
-
-    }
+    xpElement.textContent =
+        "XP " + xp;
 
 }
+
 
 updateQuestUI();
 
@@ -1926,13 +2168,13 @@ updateQuestUI();
    DIALOGUE
 ========================================================= */
 
-function showDialogue(text) {
-
-    if (!dialogueBox) return;
-
+function showDialogue(
+    text
+) {
 
     dialogueBox.textContent =
         text;
+
 
     dialogueBox.style.display =
         "block";
@@ -1945,7 +2187,7 @@ function showDialogue(text) {
 
     showDialogue.timer =
         setTimeout(
-            () => {
+            function () {
 
                 dialogueBox.style.display =
                     "none";
@@ -1958,7 +2200,7 @@ function showDialogue(text) {
 
 
 /* =========================================================
-   INTERACT BUTTON
+   TALK
 ========================================================= */
 
 if (!interactButton) {
@@ -1968,11 +2210,14 @@ if (!interactButton) {
             "button"
         );
 
+
     interactButton.id =
         "interactButton";
 
+
     interactButton.textContent =
         "TALK";
+
 
     document.body.appendChild(
         interactButton
@@ -1983,17 +2228,20 @@ if (!interactButton) {
 
 interactButton.addEventListener(
     "click",
-    function () {
-
-        interactWithNPC();
-
-    }
+    interactWithNPC
 );
 
 
 function interactWithNPC() {
 
-    if (!player || !npc) return;
+    if (
+        !player ||
+        !npc
+    ) {
+
+        return;
+
+    }
 
 
     const distance =
@@ -2010,13 +2258,16 @@ function interactWithNPC() {
 
 
     if (
-        questState === QUEST_TALK
+        questState ===
+        QUEST_TALK
     ) {
 
         questState =
             QUEST_MARKER;
 
+
         xp += 50;
+
 
         updateQuestUI();
 
@@ -2032,27 +2283,23 @@ function interactWithNPC() {
 
 
     if (
-        questState === QUEST_MARKER
+        questState ===
+        QUEST_MARKER
     ) {
 
         showDialogue(
             "Professor Aelion: Search near the great academy gate."
         );
 
+
         return;
 
     }
 
 
-    if (
-        questState === QUEST_COMPLETE
-    ) {
-
-        showDialogue(
-            "Professor Aelion: The academy has many secrets. Your journey has only begun."
-        );
-
-    }
+    showDialogue(
+        "Professor Aelion: The academy has many secrets."
+    );
 
 }
 
@@ -2083,12 +2330,18 @@ const markerBase =
         darkStoneMat
     );
 
+
 markerBase.position.y =
     1.2;
 
-markerBase.castShadow = true;
 
-markerGroup.add(markerBase);
+markerBase.castShadow =
+    true;
+
+
+markerGroup.add(
+    markerBase
+);
 
 
 const markerCrystal =
@@ -2099,45 +2352,53 @@ const markerCrystal =
         new THREE.MeshStandardMaterial({
 
             color: 0x7c8cff,
+
             emissive: 0x2630aa,
+
             emissiveIntensity: 2
 
         })
     );
 
+
 markerCrystal.position.y =
     2.8;
 
-markerGroup.add(markerCrystal);
+
+markerGroup.add(
+    markerCrystal
+);
 
 
-scene.add(markerGroup);
+scene.add(
+    markerGroup
+);
 
 
 /* =========================================================
-   MOVEMENT
+   JOYSTICK
 ========================================================= */
 
 const joystickInput = {
 
     x: 0,
+
     y: 0
 
 };
 
 
-let joystickActive = false;
+let joystickActive =
+    false;
 
-let joystickPointerId = null;
+let joystickPointerId =
+    null;
 
 
 function updateJoystick(
     clientX,
     clientY
 ) {
-
-    if (!joystick) return;
-
 
     const rect =
         joystick.getBoundingClientRect();
@@ -2147,27 +2408,33 @@ function updateJoystick(
         rect.left +
         rect.width / 2;
 
+
     const centerY =
         rect.top +
         rect.height / 2;
 
 
     let dx =
-        clientX - centerX;
+        clientX -
+        centerX;
+
 
     let dy =
-        clientY - centerY;
+        clientY -
+        centerY;
 
 
     const radius =
         rect.width * 0.5;
+
 
     const knobRadius =
         rect.width * 0.24;
 
 
     const maxDistance =
-        radius - knobRadius;
+        radius -
+        knobRadius;
 
 
     const distance =
@@ -2177,141 +2444,145 @@ function updateJoystick(
         );
 
 
-    if (distance > maxDistance) {
+    if (
+        distance >
+        maxDistance
+    ) {
 
         dx =
-            dx / distance *
+            dx /
+            distance *
             maxDistance;
 
+
         dy =
-            dy / distance *
+            dy /
+            distance *
             maxDistance;
 
     }
 
 
     joystickInput.x =
-        dx / maxDistance;
+        dx /
+        maxDistance;
+
 
     joystickInput.y =
-        dy / maxDistance;
+        dy /
+        maxDistance;
 
 
-    if (joystickKnob) {
-
-        joystickKnob.style.transform =
-            `translate(${dx}px, ${dy}px)`;
-
-    }
+    joystickKnob.style.transform =
+        `translate(${dx}px, ${dy}px)`;
 
 }
 
 
 function resetJoystick() {
 
-    joystickActive = false;
-
-    joystickPointerId = null;
-
-    joystickInput.x = 0;
-    joystickInput.y = 0;
+    joystickActive =
+        false;
 
 
-    if (joystickKnob) {
+    joystickPointerId =
+        null;
 
-        joystickKnob.style.transform =
-            "translate(0px, 0px)";
 
+    joystickInput.x =
+        0;
+
+
+    joystickInput.y =
+        0;
+
+
+    joystickKnob.style.transform =
+        "translate(0px, 0px)";
+
+}
+
+
+joystick.addEventListener(
+    "pointerdown",
+    function (event) {
+
+        event.preventDefault();
+
+        joystickActive =
+            true;
+
+        joystickPointerId =
+            event.pointerId;
+
+
+        try {
+
+            joystick.setPointerCapture(
+                event.pointerId
+            );
+
+        } catch {}
+
+
+        updateJoystick(
+            event.clientX,
+            event.clientY
+        );
+
+    },
+    {
+        passive: false
     }
+);
 
-}
 
+joystick.addEventListener(
+    "pointermove",
+    function (event) {
 
-if (joystick) {
+        if (
+            !joystickActive ||
+            event.pointerId !==
+                joystickPointerId
+        ) {
 
-    joystick.addEventListener(
-        "pointerdown",
-        function (event) {
-
-            event.preventDefault();
-
-            joystickActive = true;
-
-            joystickPointerId =
-                event.pointerId;
-
-            try {
-
-                joystick.setPointerCapture(
-                    event.pointerId
-                );
-
-            } catch {}
-
-            updateJoystick(
-                event.clientX,
-                event.clientY
-            );
+            return;
 
         }
-    );
 
 
-    joystick.addEventListener(
-        "pointermove",
-        function (event) {
-
-            if (
-                !joystickActive ||
-                event.pointerId !==
-                    joystickPointerId
-            ) {
-
-                return;
-
-            }
-
-            event.preventDefault();
-
-            updateJoystick(
-                event.clientX,
-                event.clientY
-            );
-
-        }
-    );
+        event.preventDefault();
 
 
-    joystick.addEventListener(
-        "pointerup",
-        function () {
+        updateJoystick(
+            event.clientX,
+            event.clientY
+        );
 
-            resetJoystick();
-
-        }
-    );
-
-
-    joystick.addEventListener(
-        "pointercancel",
-        function () {
-
-            resetJoystick();
-
-        }
-    );
+    },
+    {
+        passive: false
+    }
+);
 
 
-    joystick.addEventListener(
-        "lostpointercapture",
-        function () {
+joystick.addEventListener(
+    "pointerup",
+    resetJoystick
+);
 
-            resetJoystick();
 
-        }
-    );
+joystick.addEventListener(
+    "pointercancel",
+    resetJoystick
+);
 
-}
+
+joystick.addEventListener(
+    "lostpointercapture",
+    resetJoystick
+);
 
 
 /* =========================================================
@@ -2325,11 +2596,13 @@ window.addEventListener(
     "keydown",
     function (event) {
 
-        keys[event.code] = true;
+        keys[event.code] =
+            true;
 
 
         if (
-            event.code === "Space"
+            event.code ===
+            "Space"
         ) {
 
             event.preventDefault();
@@ -2340,7 +2613,8 @@ window.addEventListener(
 
 
         if (
-            event.code === "KeyF"
+            event.code ===
+            "KeyF"
         ) {
 
             castSpell();
@@ -2355,7 +2629,8 @@ window.addEventListener(
     "keyup",
     function (event) {
 
-        keys[event.code] = false;
+        keys[event.code] =
+            false;
 
     }
 );
@@ -2365,24 +2640,31 @@ window.addEventListener(
    CAMERA
 ========================================================= */
 
-let cameraYaw = 0;
+let cameraYaw =
+    0;
 
-let cameraPitch = 0.18;
+let cameraPitch =
+    0.18;
 
-let cameraDragging = false;
+let cameraDragging =
+    false;
 
-let cameraPointerId = null;
+let cameraPointerId =
+    null;
 
-let cameraLastX = 0;
+let cameraLastX =
+    0;
 
-let cameraLastY = 0;
+let cameraLastY =
+    0;
 
 
 function isControlElement(
     target
 ) {
 
-    if (!target) return false;
+    if (!target)
+        return false;
 
 
     return (
@@ -2410,13 +2692,17 @@ renderer.domElement.addEventListener(
         }
 
 
-        cameraDragging = true;
+        cameraDragging =
+            true;
+
 
         cameraPointerId =
             event.pointerId;
 
+
         cameraLastX =
             event.clientX;
+
 
         cameraLastY =
             event.clientY;
@@ -2433,6 +2719,9 @@ renderer.domElement.addEventListener(
 
         event.preventDefault();
 
+    },
+    {
+        passive: false
     }
 );
 
@@ -2456,6 +2745,7 @@ renderer.domElement.addEventListener(
             event.clientX -
             cameraLastX;
 
+
         const dy =
             event.clientY -
             cameraLastY;
@@ -2463,6 +2753,7 @@ renderer.domElement.addEventListener(
 
         cameraLastX =
             event.clientX;
+
 
         cameraLastY =
             event.clientY;
@@ -2486,15 +2777,21 @@ renderer.domElement.addEventListener(
 
         event.preventDefault();
 
+    },
+    {
+        passive: false
     }
 );
 
 
 function stopCameraDrag() {
 
-    cameraDragging = false;
+    cameraDragging =
+        false;
 
-    cameraPointerId = null;
+
+    cameraPointerId =
+        null;
 
 }
 
@@ -2518,7 +2815,7 @@ renderer.domElement.addEventListener(
 
 
 /* =========================================================
-   FORWARD / RIGHT DIRECTIONS
+   DIRECTIONS
 ========================================================= */
 
 const forward =
@@ -2528,12 +2825,14 @@ const forward =
         -1
     );
 
+
 const right =
     new THREE.Vector3(
         1,
         0,
         0
     );
+
 
 const up =
     new THREE.Vector3(
@@ -2544,7 +2843,7 @@ const up =
 
 
 /* =========================================================
-   COLLISION TEST
+   COLLISION
 ========================================================= */
 
 function blockedAt(
@@ -2558,14 +2857,19 @@ function blockedAt(
     ) {
 
         if (
+
             x + playerRadius >
                 boxData.minX &&
+
             x - playerRadius <
                 boxData.maxX &&
+
             z + playerRadius >
                 boxData.minZ &&
+
             z - playerRadius <
                 boxData.maxZ
+
         ) {
 
             return true;
@@ -2581,10 +2885,14 @@ function blockedAt(
     ) {
 
         const dx =
-            x - tree.x;
+            x -
+            tree.x;
+
 
         const dz =
-            z - tree.z;
+            z -
+            tree.z;
+
 
         const distance =
             Math.sqrt(
@@ -2612,7 +2920,7 @@ function blockedAt(
 
 
 /* =========================================================
-   MOVEMENT
+   INPUT
 ========================================================= */
 
 function getMovementInput() {
@@ -2620,36 +2928,45 @@ function getMovementInput() {
     let x =
         joystickInput.x;
 
+
     let y =
         joystickInput.y;
 
 
-    if (keys["KeyA"] ||
-        keys["ArrowLeft"]) {
+    if (
+        keys["KeyA"] ||
+        keys["ArrowLeft"]
+    ) {
 
         x -= 1;
 
     }
 
 
-    if (keys["KeyD"] ||
-        keys["ArrowRight"]) {
+    if (
+        keys["KeyD"] ||
+        keys["ArrowRight"]
+    ) {
 
         x += 1;
 
     }
 
 
-    if (keys["KeyW"] ||
-        keys["ArrowUp"]) {
+    if (
+        keys["KeyW"] ||
+        keys["ArrowUp"]
+    ) {
 
         y -= 1;
 
     }
 
 
-    if (keys["KeyS"] ||
-        keys["ArrowDown"]) {
+    if (
+        keys["KeyS"] ||
+        keys["ArrowDown"]
+    ) {
 
         y += 1;
 
@@ -2666,6 +2983,7 @@ function getMovementInput() {
     if (length > 1) {
 
         x /= length;
+
         y /= length;
 
     }
@@ -2679,9 +2997,16 @@ function getMovementInput() {
 }
 
 
-function updateMovement(delta) {
+/* =========================================================
+   MOVEMENT
+========================================================= */
 
-    if (!player) return;
+function updateMovement(
+    delta
+) {
+
+    if (!player)
+        return;
 
 
     const input =
@@ -2690,13 +3015,16 @@ function updateMovement(delta) {
 
     const magnitude =
         Math.sqrt(
-            input.x * input.x +
-            input.y * input.y
+            input.x *
+                input.x +
+            input.y *
+                input.y
         );
 
 
     isMoving =
-        magnitude > 0.08;
+        magnitude >
+        0.08;
 
 
     isRunning =
@@ -2708,11 +3036,8 @@ function updateMovement(delta) {
         );
 
 
-    if (!isMoving) {
-
+    if (!isMoving)
         return;
-
-    }
 
 
     const speed =
@@ -2727,6 +3052,7 @@ function updateMovement(delta) {
         -1
     );
 
+
     right.set(
         1,
         0,
@@ -2739,6 +3065,7 @@ function updateMovement(delta) {
         cameraYaw
     );
 
+
     right.applyAxisAngle(
         up,
         cameraYaw
@@ -2749,15 +3076,19 @@ function updateMovement(delta) {
         new THREE.Vector3();
 
 
-    direction
-        .copy(forward)
-        .multiplyScalar(
-            -input.y
-        );
+    direction.copy(
+        forward
+    );
+
+
+    direction.multiplyScalar(
+        -input.y
+    );
 
 
     direction.add(
-        right.clone()
+        right
+            .clone()
             .multiplyScalar(
                 input.x
             )
@@ -2765,10 +3096,12 @@ function updateMovement(delta) {
 
 
     if (
-        direction.lengthSq() > 0.001
+        direction.lengthSq() >
+        0.001
     ) {
 
         direction.normalize();
+
 
         lastMoveDirection.copy(
             direction
@@ -2782,35 +3115,35 @@ function updateMovement(delta) {
             );
 
 
-        let angleDifference =
+        let difference =
             targetAngle -
             player.rotation.y;
 
 
         while (
-            angleDifference >
+            difference >
             Math.PI
         ) {
 
-            angleDifference -=
+            difference -=
                 Math.PI * 2;
 
         }
 
 
         while (
-            angleDifference <
+            difference <
             -Math.PI
         ) {
 
-            angleDifference +=
+            difference +=
                 Math.PI * 2;
 
         }
 
 
         player.rotation.y +=
-            angleDifference *
+            difference *
             Math.min(
                 1,
                 delta * 10
@@ -2823,13 +3156,15 @@ function updateMovement(delta) {
         direction
             .clone()
             .multiplyScalar(
-                speed * delta
+                speed *
+                delta
             );
 
 
     const newX =
         player.position.x +
         move.x;
+
 
     const newZ =
         player.position.z +
@@ -2870,74 +3205,93 @@ function updateMovement(delta) {
 
 function jump() {
 
-    if (!player) return;
-
-    if (isJumping) return;
-
-
-    isJumping = true;
-
-    verticalVelocity = 8.5;
-
-}
+    if (!player)
+        return;
 
 
-if (jumpButton) {
+    if (isJumping)
+        return;
 
-    jumpButton.addEventListener(
-        "pointerdown",
-        function (event) {
 
-            event.preventDefault();
+    isJumping =
+        true;
 
-            jump();
 
-        }
-    );
-
-    jumpButton.addEventListener(
-        "click",
-        function (event) {
-
-            event.preventDefault();
-
-            jump();
-
-        }
-    );
+    verticalVelocity =
+        8.5;
 
 }
+
+
+jumpButton.addEventListener(
+    "pointerdown",
+    function (event) {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+        jump();
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+jumpButton.addEventListener(
+    "click",
+    function (event) {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+    }
+);
 
 
 /* =========================================================
    UPDATE JUMP
 ========================================================= */
 
-function updateJump(delta) {
+function updateJump(
+    delta
+) {
 
-    if (!player) return;
+    if (!player)
+        return;
 
 
-    if (!isJumping) return;
+    if (!isJumping)
+        return;
 
 
     verticalVelocity -=
-        20 * delta;
+        20 *
+        delta;
 
 
     player.position.y +=
-        verticalVelocity * delta;
+        verticalVelocity *
+        delta;
 
 
     if (
         player.position.y <= 0
     ) {
 
-        player.position.y = 0;
+        player.position.y =
+            0;
 
-        verticalVelocity = 0;
 
-        isJumping = false;
+        verticalVelocity =
+            0;
+
+
+        isJumping =
+            false;
 
     }
 
@@ -2953,14 +3307,20 @@ const spellParticles = [];
 
 function castSpell() {
 
-    if (!player) return;
+    if (!player)
+        return;
 
-    if (casting) return;
+
+    if (casting)
+        return;
 
 
-    casting = true;
+    casting =
+        true;
 
-    castTimer = 0;
+
+    castTimer =
+        0;
 
 
     createSpellEffect();
@@ -2968,72 +3328,130 @@ function castSpell() {
 }
 
 
-if (spellButton) {
+/* =========================================================
+   CAST BUTTON
+========================================================= */
 
-    spellButton.addEventListener(
-        "pointerdown",
-        function (event) {
+spellButton.addEventListener(
+    "pointerdown",
+    function (event) {
 
-            event.preventDefault();
+        event.preventDefault();
 
-            castSpell();
+        event.stopPropagation();
 
-        }
-    );
+        castSpell();
 
-    spellButton.addEventListener(
-        "click",
-        function (event) {
+    },
+    {
+        passive: false
+    }
+);
 
-            event.preventDefault();
 
-            if (!casting) {
+spellButton.addEventListener(
+    "pointerup",
+    function (event) {
 
-                castSpell();
+        event.preventDefault();
 
-            }
+        event.stopPropagation();
 
-        }
-    );
+    },
+    {
+        passive: false
+    }
+);
 
-}
+
+spellButton.addEventListener(
+    "touchstart",
+    function (event) {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+spellButton.addEventListener(
+    "click",
+    function (event) {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+    }
+);
 
 
 /* =========================================================
    SPELL EFFECT
+   IMPORTANT:
+   SPELL NOW GOES FORWARD
 ========================================================= */
 
 function createSpellEffect() {
 
-    if (!player) return;
+    if (!player)
+        return;
 
 
-    const position =
-        new THREE.Vector3();
+    /*
+       Aren's forward direction is
+       +Z in this model setup.
+    */
+
+    const direction =
+        new THREE.Vector3(
+            0,
+            0,
+            1
+        );
 
 
-    position.set(
-        0,
-        1.7,
-        -1.3
-    );
-
-
-    position.applyQuaternion(
+    direction.applyQuaternion(
         player.quaternion
     );
 
 
-    position.add(
+    direction.normalize();
+
+
+    /*
+       Start slightly in front
+       of the character.
+    */
+
+    const position =
         player.position
+            .clone();
+
+
+    position.y +=
+        1.7;
+
+
+    position.add(
+        direction
+            .clone()
+            .multiplyScalar(
+                1.3
+            )
     );
 
 
     const geometry =
         new THREE.SphereGeometry(
-            0.12,
-            12,
-            12
+            0.14,
+            16,
+            16
         );
 
 
@@ -3041,7 +3459,9 @@ function createSpellEffect() {
         new THREE.MeshBasicMaterial({
 
             color: 0x91a8ff,
+
             transparent: true,
+
             opacity: 1
 
         });
@@ -3059,31 +3479,22 @@ function createSpellEffect() {
     );
 
 
-    const direction =
-        new THREE.Vector3(
-            0,
-            0,
-            -1
-        );
-
-
-    direction.applyQuaternion(
-        player.quaternion
-    );
-
-
-    direction.normalize();
-
-
     particle.userData.velocity =
-        direction.multiplyScalar(16);
+        direction
+            .clone()
+            .multiplyScalar(
+                16
+            );
 
 
     particle.userData.life =
         1.2;
 
 
-    scene.add(particle);
+    scene.add(
+        particle
+    );
+
 
     spellParticles.push(
         particle
@@ -3093,15 +3504,20 @@ function createSpellEffect() {
 
 
 /* =========================================================
-   UPDATE SPELL PARTICLES
+   SPELL PARTICLES
 ========================================================= */
 
-function updateSpellParticles(delta) {
+function updateSpellParticles(
+    delta
+) {
 
     for (
         let i =
-            spellParticles.length - 1;
+            spellParticles.length -
+            1;
+
         i >= 0;
+
         i--
     ) {
 
@@ -3112,7 +3528,9 @@ function updateSpellParticles(delta) {
         particle.position.add(
             particle.userData.velocity
                 .clone()
-                .multiplyScalar(delta)
+                .multiplyScalar(
+                    delta
+                )
         );
 
 
@@ -3133,16 +3551,19 @@ function updateSpellParticles(delta) {
 
 
         if (
-            particle.userData.life <= 0
+            particle.userData.life <=
+            0
         ) {
 
             scene.remove(
                 particle
             );
 
+
             particle.geometry.dispose();
 
             particle.material.dispose();
+
 
             spellParticles.splice(
                 i,
@@ -3157,12 +3578,15 @@ function updateSpellParticles(delta) {
 
 
 /* =========================================================
-   UPDATE CASTING
+   CAST UPDATE
 ========================================================= */
 
-function updateCasting(delta) {
+function updateCasting(
+    delta
+) {
 
-    if (!casting) return;
+    if (!casting)
+        return;
 
 
     castTimer +=
@@ -3170,12 +3594,16 @@ function updateCasting(delta) {
 
 
     if (
-        castTimer >= 0.8
+        castTimer >=
+        0.8
     ) {
 
-        casting = false;
+        casting =
+            false;
 
-        castTimer = 0;
+
+        castTimer =
+            0;
 
     }
 
@@ -3183,16 +3611,18 @@ function updateCasting(delta) {
 
 
 /* =========================================================
-   QUEST MARKER
+   QUEST UPDATE
 ========================================================= */
 
 function updateQuest() {
 
-    if (!player) return;
+    if (!player)
+        return;
 
 
     if (
-        questState === QUEST_MARKER
+        questState ===
+        QUEST_MARKER
     ) {
 
         const distance =
@@ -3208,7 +3638,9 @@ function updateQuest() {
             questState =
                 QUEST_COMPLETE;
 
+
             xp += 150;
+
 
             updateQuestUI();
 
@@ -3225,15 +3657,14 @@ function updateQuest() {
 
 
 /* =========================================================
-   INTERACT VISIBILITY
+   TALK BUTTON VISIBILITY
 ========================================================= */
 
 function updateInteractButton() {
 
     if (
         !player ||
-        !npc ||
-        !interactButton
+        !npc
     ) {
 
         return;
@@ -3271,26 +3702,35 @@ function updateInteractButton() {
 const desiredCameraPosition =
     new THREE.Vector3();
 
+
 const cameraTarget =
     new THREE.Vector3();
 
 
-function updateCamera(delta) {
+function updateCamera(
+    delta
+) {
 
-    if (!player) return;
+    if (!player)
+        return;
 
 
-    const distance = 9;
+    const distance =
+        9;
+
 
     const horizontal =
         Math.cos(
             cameraPitch
-        ) * distance;
+        ) *
+        distance;
+
 
     const vertical =
         Math.sin(
             cameraPitch
-        ) * distance;
+        ) *
+        distance;
 
 
     const offset =
@@ -3308,8 +3748,12 @@ function updateCamera(delta) {
 
 
     desiredCameraPosition
-        .copy(player.position)
-        .add(offset);
+        .copy(
+            player.position
+        )
+        .add(
+            offset
+        );
 
 
     camera.position.lerp(
@@ -3322,7 +3766,10 @@ function updateCamera(delta) {
 
 
     cameraTarget
-        .copy(player.position);
+        .copy(
+            player.position
+        );
+
 
     cameraTarget.y +=
         1.6;
@@ -3339,7 +3786,9 @@ function updateCamera(delta) {
    TORCH ANIMATION
 ========================================================= */
 
-function updateTorches(time) {
+function updateTorches(
+    time
+) {
 
     for (
         const torch
@@ -3357,9 +3806,11 @@ function updateTorches(time) {
             0.65 +
             wave * 0.12;
 
+
         torch.flame.scale.z =
             0.65 -
             wave * 0.08;
+
 
         torch.flame.scale.y =
             1.4 +
@@ -3379,9 +3830,12 @@ function updateTorches(time) {
    NPC ANIMATION
 ========================================================= */
 
-function updateNPC(time) {
+function updateNPC(
+    time
+) {
 
-    if (!npc) return;
+    if (!npc)
+        return;
 
 
     npcCrystal.rotation.y =
@@ -3390,7 +3844,9 @@ function updateNPC(time) {
 
     npcCrystal.position.y =
         3.3 +
-        Math.sin(time * 2) *
+        Math.sin(
+            time * 2
+        ) *
         0.12;
 
 }
@@ -3400,28 +3856,34 @@ function updateNPC(time) {
    MARKER ANIMATION
 ========================================================= */
 
-function updateMarker(time) {
+function updateMarker(
+    time
+) {
 
     markerCrystal.rotation.y =
         time * 1.3;
 
+
     markerCrystal.position.y =
         2.8 +
-        Math.sin(time * 2) *
+        Math.sin(
+            time * 2
+        ) *
         0.15;
 
 }
 
 
 /* =========================================================
-   PLAYER ANIMATION STATE
+   PLAYER ANIMATION
 ========================================================= */
 
 function updatePlayerAnimation(
     time
 ) {
 
-    if (!player) return;
+    if (!player)
+        return;
 
 
     if (isJumping) {
@@ -3478,6 +3940,7 @@ window.addEventListener(
             window.innerWidth /
             window.innerHeight;
 
+
         camera.updateProjectionMatrix();
 
 
@@ -3491,7 +3954,7 @@ window.addEventListener(
 
 
 /* =========================================================
-   LANDSCAPE BUTTON
+   LANDSCAPE
 ========================================================= */
 
 const landscapeButton =
@@ -3509,11 +3972,13 @@ if (landscapeButton) {
             try {
 
                 if (
-                    document.documentElement
+                    document
+                        .documentElement
                         .requestFullscreen
                 ) {
 
-                    await document.documentElement
+                    await document
+                        .documentElement
                         .requestFullscreen();
 
                 }
@@ -3543,16 +4008,12 @@ if (landscapeButton) {
 
 
 /* =========================================================
-   CLOCK
+   MAIN LOOP
 ========================================================= */
 
 const clock =
     new THREE.Clock();
 
-
-/* =========================================================
-   MAIN LOOP
-========================================================= */
 
 function animate() {
 
@@ -3635,9 +4096,9 @@ animate();
 
 
 /* =========================================================
-   STARTUP
+   START
 ========================================================= */
 
 console.log(
-    "Aetheria Academy started successfully."
+    "Aetheria Academy loaded."
 );
