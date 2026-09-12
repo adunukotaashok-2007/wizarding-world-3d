@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    >
+
+    <meta
+        name="theme-color"
+        content="#050a12"
+    >
+
+    <meta
+        name="mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes"
+    >
+
+    <title>Aetheria Academy</title>
+
+
+    <!-- =====================================================
+         STYLE
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="./style.css?v=11"
+    >
+
+
+    <!-- =====================================================
+         THREE.JS IMPORT MAP
+    ====================================================== -->
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+        }
+    }
+    </script>
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         3D GAME
+    ====================================================== -->
+
+    <div id="game"></div>
+
+
+    <!-- =====================================================
+         LOADING SCREEN
+    ====================================================== -->
+
+    <div id="loading">
+
+        <div class="loadingLogo">
+            ✦
+        </div>
+
+        <div class="loadingTitle">
+            AETHERIA
+        </div>
+
+        <div class="loadingSubtitle">
+            Academy of Arcane Arts
+        </div>
+
+        <div class="loadingBar">
+
+            <div class="loadingBarFill"></div>
+
+        </div>
+
+        <div class="loadingText">
+            Loading magical world...
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         PORTRAIT MODE SCREEN
+    ====================================================== -->
+
+    <div id="portraitOverlay">
+
+        <div class="portraitCard">
+
+            <div class="rotateIcon">
+                ↔
+            </div>
+
+            <h1>
+                AETHERIA
+            </h1>
+
+            <h2>
+                Rotate Your Device
+            </h2>
+
+            <p>
+                This magical world is designed for landscape mode.
+            </p>
+
+            <button id="landscapeButton">
+                ENTER LANDSCAPE
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         HUD
+    ====================================================== -->
+
+    <div id="hud">
+
+
+        <!-- =================================================
+             ACADEMY TITLE
+        ================================================== -->
+
+        <div id="academyTitle">
+
+            <div>
+                A E T H E R I A
+            </div>
+
+            <strong>
+                ACADEMY
+            </strong>
+
+        </div>
+
+
+        <!-- =================================================
+             QUEST
+        ================================================== -->
+
+        <div id="questBox">
+
+            <div class="questLabel">
+                CURRENT QUEST
+            </div>
+
+            <div id="questText">
+                Quest: Meet the Academy Guide
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             XP
+        ================================================== -->
+
+        <div id="xp">
+            XP 0
+        </div>
+
+
+        <!-- =================================================
+             JOYSTICK
+        ================================================== -->
+
+        <div id="joystick">
+
+            <div id="joystickKnob"></div>
+
+        </div>
+
+
+        <!-- =================================================
+             JUMP BUTTON
+        ================================================== -->
+
+        <button
+            id="jumpButton"
+            type="button"
+        >
+
+            <span class="buttonIcon">
+                ↑
+            </span>
+
+            <span>
+                JUMP
+            </span>
+
+        </button>
+
+
+        <!-- =================================================
+             SPELL BUTTON
+        ================================================== -->
+
+        <button
+            id="spellButton"
+            type="button"
+        >
+
+            <span class="buttonIcon">
+                ✦
+            </span>
+
+            <span>
+                CAST
+            </span>
+
+        </button>
+
+
+        <!-- =================================================
+             INTERACT / TALK
+        ================================================== -->
+
+        <button
+            id="interactButton"
+            type="button"
+        >
+            TALK
+        </button>
+
+
+        <!-- =================================================
+             DIALOGUE
+        ================================================== -->
+
+        <div id="dialogueBox"></div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         GAME SCRIPT
+         v=11 prevents old browser cache
+    ====================================================== -->
+
+    <script
+        type="module"
+        src="./game.js?v=11"
+    ></script>
+
+
+</body>
+
+</html>
