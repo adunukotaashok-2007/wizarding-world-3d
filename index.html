@@ -3,176 +3,243 @@
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width,
-                 initial-scale=1.0,
-                 maximum-scale=1.0,
-                 user-scalable=no"
-    >
+<meta
+    name="viewport"
+    content="width=device-width,
+             initial-scale=1.0,
+             maximum-scale=1.0,
+             user-scalable=no"
+>
 
-    <title>Aetheria Academy</title>
+<title>Aetheria Academy</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css?v=20"
-    >
+<link
+    rel="stylesheet"
+    href="style.css?v=20"
+>
 
-    <style>
 
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #050914;
-        }
+<style>
 
-        #loadingScreen {
-            position: fixed;
-            inset: 0;
-            z-index: 99999;
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #07101c;
+}
 
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+body {
+    touch-action: none;
+}
 
-            background:
-                radial-gradient(
-                    circle at center,
-                    #14233c 0%,
-                    #070d18 48%,
-                    #02050a 100%
-                );
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
 
-            color: white;
+#loading {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
 
-            transition:
-                opacity 0.7s ease;
-        }
+    display: flex;
+    flex-direction: column;
 
-        #loadingScreen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
+    justify-content: center;
+    align-items: center;
 
-        .loading-star {
-            font-size: 70px;
-            margin-bottom: 30px;
+    background:
+        radial-gradient(
+            circle at center,
+            #15243a,
+            #050b13 70%
+        );
 
-            animation:
-                magicPulse 1.8s
-                infinite ease-in-out;
-        }
+    color: white;
 
-        .loading-title {
-            font-family: Arial, sans-serif;
+    transition:
+        opacity 0.6s ease;
+}
 
-            font-size: 48px;
-            font-weight: 700;
+#loading h1 {
+    font-size: 54px;
+    letter-spacing: 12px;
+    margin: 20px 0 5px;
+}
 
-            letter-spacing: 14px;
+#loading p {
+    font-size: 22px;
+    letter-spacing: 6px;
+    opacity: 0.7;
+}
 
-            margin-bottom: 15px;
-        }
+#loadingBar {
+    width: 55%;
+    max-width: 700px;
+    height: 14px;
 
-        .loading-subtitle {
-            font-family: Arial, sans-serif;
+    margin-top: 50px;
 
-            font-size: 22px;
+    background: #29313c;
+    border-radius: 20px;
+    overflow: hidden;
+}
 
-            letter-spacing: 7px;
+#loadingProgress {
+    width: 100%;
+    height: 100%;
 
-            color: #bfc5d0;
+    background:
+        linear-gradient(
+            90deg,
+            #ffffff,
+            #79dfff
+        );
 
-            margin-bottom: 55px;
-        }
+    animation:
+        loading 1.2s infinite
+        alternate;
+}
 
-        .loading-bar {
-            width: min(70vw, 700px);
-            height: 14px;
+@keyframes loading {
 
-            background: #29313f;
+    from {
+        width: 35%;
+    }
 
-            border-radius: 20px;
+    to {
+        width: 95%;
+    }
+}
 
-            overflow: hidden;
-        }
+#questBox {
+    position: fixed;
+    right: 22px;
+    top: 22px;
 
-        #loadingProgress {
-            width: 8%;
-            height: 100%;
+    z-index: 20;
 
-            background:
-                linear-gradient(
-                    90deg,
-                    #ffffff,
-                    #9edfff
-                );
+    padding: 18px 28px;
 
-            border-radius: 20px;
+    border-radius: 22px;
 
-            transition:
-                width 0.3s ease;
-        }
+    color: white;
 
-        #loadingText {
-            margin-top: 25px;
+    background:
+        rgba(10, 20, 32, 0.88);
 
-            font-family: Arial, sans-serif;
+    border:
+        1px solid
+        rgba(255,255,255,0.12);
 
-            font-size: 22px;
+    box-shadow:
+        0 15px 35px
+        rgba(0,0,0,0.35);
 
-            color: #bfc5d0;
-        }
+    font-size: 20px;
+}
 
-        @keyframes magicPulse {
+#questText {
+    margin-bottom: 5px;
+}
 
-            0% {
-                transform: scale(1);
-                opacity: 0.75;
-            }
+#xp {
+    opacity: 0.8;
+}
 
-            50% {
-                transform: scale(1.12);
-                opacity: 1;
-            }
+#joystick {
+    position: fixed;
 
-            100% {
-                transform: scale(1);
-                opacity: 0.75;
-            }
+    left: 28px;
+    bottom: 28px;
 
-        }
+    width: 150px;
+    height: 150px;
 
-        #portraitOverlay {
-            position: fixed;
-            inset: 0;
+    border-radius: 50%;
 
-            z-index: 100000;
+    z-index: 30;
 
-            display: none;
+    background:
+        rgba(255,255,255,0.10);
 
-            align-items: center;
-            justify-content: center;
+    border:
+        2px solid
+        rgba(255,255,255,0.25);
+}
 
-            background: #050914;
+#joystick::after {
+    content: "";
 
-            color: white;
+    position: absolute;
 
-            font-family: Arial, sans-serif;
+    width: 70px;
+    height: 70px;
 
-            text-align: center;
+    left: 50%;
+    top: 50%;
 
-            padding: 30px;
-        }
+    transform:
+        translate(-50%,-50%);
 
-    </style>
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,0.85);
+
+    box-shadow:
+        0 5px 15px
+        rgba(0,0,0,0.35);
+}
+
+#jumpButton,
+#castButton {
+
+    position: fixed;
+
+    z-index: 30;
+
+    width: 105px;
+    height: 105px;
+
+    border-radius: 50%;
+
+    border: 2px solid
+        rgba(255,255,255,0.2);
+
+    color: white;
+
+    font-size: 28px;
+
+    background:
+        rgba(20,25,35,0.8);
+
+    box-shadow:
+        0 8px 25px
+        rgba(0,0,0,0.35);
+}
+
+#jumpButton {
+    right: 45px;
+    bottom: 42px;
+}
+
+#castButton {
+    right: 165px;
+    bottom: 95px;
+}
+
+#jumpButton:active,
+#castButton:active {
+    transform: scale(0.92);
+}
+
+</style>
 
 </head>
 
@@ -180,219 +247,91 @@
 <body>
 
 
-    <!-- =================================================
-         LOADING SCREEN
-         ================================================= -->
+<!-- =====================================================
+     LOADING
+     ===================================================== -->
 
-    <div id="loadingScreen">
+<div id="loading">
 
-        <div class="loading-star">
-            ✦
-        </div>
-
-        <div class="loading-title">
-            AETHERIA
-        </div>
-
-        <div class="loading-subtitle">
-            Academy of Arcane Arts
-        </div>
-
-        <div class="loading-bar">
-
-            <div
-                id="loadingProgress">
-            </div>
-
-        </div>
-
-        <div id="loadingText">
-            Starting magical world...
-        </div>
-
-    </div>
-
-
-    <!-- =================================================
-         PORTRAIT WARNING
-         ================================================= -->
-
-    <div id="portraitOverlay">
-
-        <div>
-
-            <h2>
-                Rotate Your Device
-            </h2>
-
-            <p>
-                Aetheria Academy is designed
-                for landscape mode.
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <!-- =================================================
-         HUD
-         ================================================= -->
-
-    <div id="hud">
-
-        <div id="questBox">
-
-            <div id="questText">
-                Quest: Talk to Professor Aelion
-            </div>
-
-            <div id="xpText">
-                XP: 0
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =================================================
-         DIALOGUE
-         ================================================= -->
-
-    <div
-        id="dialogue"
-        style="display:none;"
-    >
-
-        <div id="dialogueText">
-        </div>
-
-    </div>
-
-
-    <!-- =================================================
-         JOYSTICK
-         ================================================= -->
-
-    <div id="joystick">
-
-        <div id="joystickKnob">
-        </div>
-
-    </div>
-
-
-    <!-- =================================================
-         ACTION BUTTONS
-         ================================================= -->
-
-    <button id="jumpButton">
-        ↑
-    </button>
-
-
-    <button id="castButton">
+    <div style="font-size:55px;">
         ✦
-    </button>
+    </div>
+
+    <h1>
+        AETHERIA
+    </h1>
+
+    <p>
+        Academy of Arcane Arts
+    </p>
+
+    <div id="loadingBar">
+        <div id="loadingProgress"></div>
+    </div>
+
+    <div style="
+        margin-top:25px;
+        font-size:22px;
+        opacity:0.7;
+    ">
+        Loading magical world...
+    </div>
+
+</div>
 
 
-    <button id="talkButton">
-        💬
-    </button>
+<!-- =====================================================
+     QUEST
+     ===================================================== -->
+
+<div id="questBox">
+
+    <div id="questText">
+        Quest: Talk to Professor Aelion
+    </div>
+
+    <div id="xp">
+        XP: 0
+    </div>
+
+</div>
 
 
-    <!-- =================================================
-         THREE.JS IMPORT MAP
-         ================================================= -->
+<!-- =====================================================
+     CONTROLS
+     ===================================================== -->
 
-    <script type="importmap">
+<div id="joystick"></div>
 
-    {
-        "imports": {
+<button id="castButton">
+    ✦
+</button>
 
-            "three":
-            "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+<button id="jumpButton">
+    ↑
+</button>
 
-        }
+
+<!-- =====================================================
+     THREE.JS
+     ===================================================== -->
+
+<script type="importmap">
+
+{
+    "imports": {
+        "three":
+        "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
     }
+}
 
-    </script>
-
-
-    <!-- =================================================
-         SAFETY LOADING FAILSAFE
-         ================================================= -->
-
-    <script>
-
-        /*
-         * IMPORTANT:
-         * Even if the 3D character takes a long time
-         * to download, never leave the user stuck
-         * on the loading screen forever.
-         */
-
-        window.gameLoadingStarted =
-            Date.now();
+</script>
 
 
-        window.forceStartGame =
-            function() {
-
-                const screen =
-                    document.getElementById(
-                        "loadingScreen"
-                    );
-
-                if (!screen) return;
-
-                screen.classList.add(
-                    "hidden"
-                );
-
-                setTimeout(
-                    function() {
-
-                        screen.style.display =
-                            "none";
-
-                    },
-                    800
-                );
-
-            };
-
-
-        /*
-         * Maximum loading-screen wait:
-         * 8 seconds.
-         */
-
-        setTimeout(
-            function() {
-
-                console.log(
-                    "Loading failsafe activated."
-                );
-
-                window.forceStartGame();
-
-            },
-            8000
-        );
-
-    </script>
-
-
-    <!-- =================================================
-         GAME
-         ================================================= -->
-
-    <script
-        type="module"
-        src="game.js?v=20"
-    ></script>
+<script
+    type="module"
+    src="game.js?v=20">
+</script>
 
 
 </body>
